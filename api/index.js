@@ -8,7 +8,6 @@ import commentRoutes from './routes/comment.route.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { toggleSubtaskCompletion } from './controllers/post.controller.js';
-import { completeTask } from './controllers/post.controller.js';
 
 
 dotenv.config();
@@ -46,19 +45,6 @@ app.get('*', (req, res) => {
 
 app.patch('/api/subtasks/:subtaskId/toggle-completion', toggleSubtaskCompletion);
 
-app.patch('/api/posts/:slug/subtasks', async (req, res) => {
-  const { subtasks } = req.body;
-  try {
-    const post = await Post.findOneAndUpdate(
-      { slug: req.params.slug },
-      { subtasks: subtasks },
-      { new: true }
-    );
-    res.status(200).json(post);
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating subtasks' });
-  }
-});
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

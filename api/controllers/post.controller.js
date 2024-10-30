@@ -118,30 +118,6 @@ export const updatepost = async (req, res, next) => {
   }
 };
 
-export const updateSubtaskCompletion = async (req, res) => {
-  const { postId } = req.params; // Extract postId from the request parameters
-  const { subtasks } = req.body; 
-  try {
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-
-    subtasks.forEach((subtask) => {
-      const existingSubtask = post.subtasks.id(subtask.id);
-      if (existingSubtask) {
-        existingSubtask.completed = subtask.completed; 
-      }
-    });
-
-    await post.save();
-
-    return res.status(200).json({ message: 'Subtask completion updated successfully', post });
-  } catch (error) {
-    console.error('Error updating subtask completion:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-};
 
 
 // Toggle Subtask Completion
@@ -164,19 +140,28 @@ export const toggleSubtaskCompletion = async (req, res) => {
 // Complete Task
 export const completeTask = async (req, res) => {
   try {
-    const post = await Post.findByIdAndUpdate(
-      req.params.postId,
-      { completed: true },
-      { new: true }
-    );
+    const post = await Post.findById(req.params.postId);
+    
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
-    res.status(200).json({ message: 'Task completed successfully', post });
+    
+    // Update the main task and each subtask's completed status
+    post.status = "completed";
+    post.subtasks = post.subtasks.map(subtask => ({
+      ...subtask,
+      completed: true
+    }));
+
+    // Save the post with updated subtasks
+    await post.save();
+
+    res.status(200).json({ message: 'Task and subtasks completed successfully', post });
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while completing the task' });
   }
 };
+
 
 // Delete Task
 export const deleteTask = async (req, res) => {
