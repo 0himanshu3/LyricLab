@@ -8,46 +8,61 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function UpdatePost() {
+  const { postId } = useParams();
+  const [userId, setUserId] = useState(null); // Added userId state
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
-  const { postId } = useParams();
+  const [deadline, setDeadline] = useState(null);
+  const [subtasks, setSubtasks] = useState([{ title: '', description: '' }]);
 
   const navigate = useNavigate();
-    const { currentUser } = useSelector((state) => state.user);
+
+  
 
   useEffect(() => {
-    try {
-      const fetchPost = async () => {
+    const fetchPost = async () => {
+      try {
         const res = await fetch(`/api/post/getposts?postId=${postId}`);
         const data = await res.json();
+        
         if (!res.ok) {
-          console.log(data.message);
           setPublishError(data.message);
           return;
         }
-        if (res.ok) {
-          setPublishError(null);
-          setFormData(data.posts[0]);
-        }
-      };
-
-      fetchPost();
-    } catch (error) {
-      console.log(error.message);
-    }
+  
+        const post = data.posts[0];
+        console.log(post.title);
+        
+        setFormData(post);
+        console.log(formData);
+        
+        
+        setSubtasks(post.subtasks || [{ title: '', description: '' }]);
+        
+        
+  
+        setPublishError(null);
+      } catch (error) {
+        setPublishError('Failed to fetch post details');
+      }
+    };
+  
+    fetchPost();
   }, [postId]);
+  
 
-  const handleUpdloadImage = async () => {
+  const handleUploadImage = async () => {
     try {
       if (!file) {
         setImageUploadError('Please select an image');
@@ -83,33 +98,55 @@ export default function UpdatePost() {
       console.log(error);
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
+      if (!userId) {
+        setPublishError('User not authenticated');
+        return;
+      }
+      
+      const res = await fetch(`/api/post/updatepost/${postId}/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, deadline, subtasks }),
       });
       const data = await res.json();
       if (!res.ok) {
         setPublishError(data.message);
         return;
       }
-
-      if (res.ok) {
-        setPublishError(null);
-        navigate(`/post/${data.slug}`);
-      }
+      navigate(`/post/${data.slug}`);
     } catch (error) {
       setPublishError('Something went wrong');
     }
   };
+
+  const handleSubtaskChange = (index, field, value) => {
+    const updatedSubtasks = [...subtasks];
+    updatedSubtasks[index][field] = value;
+    setSubtasks(updatedSubtasks);
+  };
+
+  const addSubtask = () => {
+    setSubtasks([...subtasks, { title: '', description: '' }]);
+  };
+
+  const removeSubtask = (index) => {
+    const updatedSubtasks = subtasks.filter((_, i) => i !== index);
+    setSubtasks(updatedSubtasks);
+  };
+
+  
+  
+
   return (
     <div className='p-3 max-w-3xl mx-auto min-h-screen'>
-      <h1 className='text-center text-3xl my-7 font-semibold'>Update post</h1>
+      <h1 className='text-center text-3xl my-7 font-semibold'>Update Post</h1>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4 sm:flex-row justify-between'>
           <TextInput
@@ -118,16 +155,16 @@ export default function UpdatePost() {
             required
             id='title'
             className='flex-1'
+            value={formData.title || ''}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
-            value={formData.title}
           />
           <Select
+            value={formData.category || 'uncategorized'}
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
             }
-            value={formData.category}
           >
             <option value='uncategorized'>Select a category</option>
             <option value='javascript'>JavaScript</option>
@@ -135,6 +172,27 @@ export default function UpdatePost() {
             <option value='nextjs'>Next.js</option>
           </Select>
         </div>
+        
+        <Select
+          value={formData.priority || ''}
+          onChange={(e) =>
+            setFormData({ ...formData, priority: e.target.value })
+          }
+        >
+          <option value=''>Select Priority</option>
+          <option value='high'>High</option>
+          <option value='medium'>Medium</option>
+          <option value='low'>Low</option>
+        </Select>
+
+        <DatePicker
+          onChange={(date) => setDeadline(date)}
+          minDate={new Date()}
+          placeholderText="Select a deadline"
+          className="w-full p-2 border rounded-md"
+          required
+        />
+
         <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
           <FileInput
             type='file'
@@ -146,7 +204,7 @@ export default function UpdatePost() {
             gradientDuoTone='purpleToBlue'
             size='sm'
             outline
-            onClick={handleUpdloadImage}
+            onClick={handleUploadImage}
             disabled={imageUploadProgress}
           >
             {imageUploadProgress ? (
@@ -161,6 +219,7 @@ export default function UpdatePost() {
             )}
           </Button>
         </div>
+        
         {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
         {formData.image && (
           <img
@@ -169,24 +228,47 @@ export default function UpdatePost() {
             className='w-full h-72 object-cover'
           />
         )}
+
         <ReactQuill
           theme='snow'
-          value={formData.content}
           placeholder='Write something...'
           className='h-72 mb-12'
-          required
+          value={formData.content || ''}
           onChange={(value) => {
             setFormData({ ...formData, content: value });
           }}
         />
-        <Button type='submit' gradientDuoTone='purpleToPink'>
-          Update post
+        
+        <h2 className='text-xl font-semibold'>Subtasks</h2>
+        {subtasks.map((subtask, index) => (
+          <div key={index} className='flex flex-col gap-2 border p-3 rounded-lg'>
+            <TextInput
+              type='text'
+              placeholder='Subtask Title'
+              value={subtask.title}
+              onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+              required
+            />
+            <TextInput
+              type='text'
+              placeholder='Subtask Description'
+              value={subtask.description}
+              onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+              required
+            />
+            <Button type='button' onClick={() => removeSubtask(index)} color="failure">
+              Remove Subtask
+            </Button>
+          </div>
+        ))}
+        <Button type='button' onClick={addSubtask} color="success">
+          Add Subtask
         </Button>
-        {publishError && (
-          <Alert className='mt-5' color='failure'>
-            {publishError}
-          </Alert>
-        )}
+
+        <Button type='submit' gradientDuoTone='purpleToBlue' disabled={imageUploadProgress}>
+          Update
+        </Button>
+        {publishError && <Alert color='failure'>{publishError}</Alert>}
       </form>
     </div>
   );

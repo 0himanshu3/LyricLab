@@ -1,16 +1,18 @@
 import { Button, Spinner, Checkbox } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
 export default function PostPage() {
   const { postSlug } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
   const [recentPosts, setRecentPosts] = useState(null);
+  const [subtasks, setSubtasks] = useState([]); // Added state for subtasks
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -24,6 +26,7 @@ export default function PostPage() {
           return;
         }
         setPost(data.posts[0]);
+        setSubtasks(data.posts[0].subtasks); // Initialize subtasks
         setLoading(false);
         setError(false);
       } catch (error) {
@@ -32,22 +35,7 @@ export default function PostPage() {
       }
     };
     fetchPost();
-  }, []);
-
-  useEffect(() => {
-    const fetchRecentPosts = async () => {
-      try {
-        const res = await fetch(`/api/post/getposts?limit=3`);
-        const data = await res.json();
-        if (res.ok) {
-          setRecentPosts(data.posts);
-        }
-      } catch (error) {
-        console.log(error.message);
-      }
-    };
-    fetchRecentPosts();
-  }, []);
+  }, [postSlug]);
 
   const toggleSubtaskCompletion = async (subtaskId) => {
     try {
@@ -56,29 +44,41 @@ export default function PostPage() {
         headers: { 'Content-Type': 'application/json' },
       });
       if (res.ok) {
-        setPost((prev) => ({
-          ...prev,
-          subtasks: prev.subtasks.map((subtask) =>
+        setSubtasks((prev) =>
+          prev.map((subtask) =>
             subtask._id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
-          ),
-        }));
+          )
+        );
+      } else {
+        console.error('Failed to toggle subtask completion:', await res.json());
       }
     } catch (error) {
       console.error('Failed to update subtask:', error);
     }
   };
 
-  const completeTask = async () => {
+  const completeAllSubtasks = async () => {
+    const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
+    setSubtasks(updatedSubtasks);
+
     try {
       const res = await fetch(`/api/post/${post._id}/complete-subtasks`, {
         method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subtasks: updatedSubtasks }),
       });
-      if (res.ok) {
-        setPost((prev) => ({ ...prev, status: "completed" }));
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to update subtasks in the database');
       }
     } catch (error) {
-      console.error('Failed to complete task:', error);
+      console.error('Error updating subtasks in database:', error);
     }
+  };
+
+  const completeTask = () => {
+    completeAllSubtasks(); // Call the function to complete all subtasks
   };
 
   const deleteTask = async () => {
@@ -94,6 +94,14 @@ export default function PostPage() {
     }
   };
 
+  const addSubtask = () => {
+    // Logic to add a new subtask, such as opening a modal or form
+  };
+
+  const updatePost = async () => {
+    // Logic to update the post, such as opening a modal to edit post details or send an API request
+  };
+
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -101,11 +109,10 @@ export default function PostPage() {
       </div>
     );
 
-  // Calculate completion percentage
-  const completedSubtasks = post?.subtasks.filter(subtask => subtask.completed).length || 0;
-  const totalSubtasks = post?.subtasks.length || 1; // Prevent division by zero
-  const completionPercentage = (completedSubtasks / totalSubtasks) * 100;
-
+    const completedSubtasks = subtasks.filter((subtask) => subtask.completed).length;
+    const totalSubtasks = subtasks.length || 1; // Prevent division by zero
+    const completionPercentage = (completedSubtasks / totalSubtasks) * 100;
+    
   return (
     <main className="p-3 max-w-6xl mx-auto min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -133,10 +140,10 @@ export default function PostPage() {
         <div className="bg-gray-100 rounded-lg p-5 shadow-md space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Status</h3>
-            <p>{post && post.completed ? 'Completed' : 'In Progress'}</p>
+            <p>  {completedSubtasks === totalSubtasks ? 'Completed' : 'In Progress'}</p>
           </div>
 
-          {/* Circular Progress Bar */}
+          {/* Circular Progress Bar logic... */}
           <div className="flex justify-center">
             <CircularProgressbar
               value={completionPercentage}
@@ -155,8 +162,24 @@ export default function PostPage() {
 
           <div>
             <h3 className="text-lg font-semibold">Subtasks</h3>
-            <div className="mt-2 space-y-4"> {/* Increased space for subtasks */}
-              {post && post.subtasks && post.subtasks.map((subtask) => (
+            
+            {/* Add Subtask and Update Post Buttons */}
+            <div className="flex gap-2 mb-4">
+              <Button color="info" onClick={addSubtask}>
+                Add Subtask
+              </Button>
+              <Button color="warning" onClick={updatePost}>
+              <Link
+                      className='text-teal-500 hover:underline'
+                      to={`/update-post/${post._id}`}
+                    >
+                      <span>Update Post</span>
+                    </Link>
+              </Button>
+            </div>
+
+            <div className="mt-2 space-y-4">
+              {subtasks.map((subtask) => (
                 <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-white shadow">
                   <div className="flex items-center gap-2">
                     <Checkbox
@@ -167,20 +190,19 @@ export default function PostPage() {
                       {subtask.title}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">{subtask.description}</p> {/* Added description */}
+                  <p className="text-sm text-gray-600">{subtask.description}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Button color="success" onClick={completeTask} disabled={post && post.completed} className="w-full">
-              Complete Task
+            <Button color="success" onClick={completeTask} disabled={completedSubtasks === totalSubtasks}  className="w-full">
+              Complete All Subtasks
             </Button>
             <Button color="failure" onClick={deleteTask} className="w-full">
               Delete Task
             </Button>
-            
           </div>
         </div>
       </div>
