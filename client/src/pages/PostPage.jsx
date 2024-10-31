@@ -12,7 +12,8 @@ export default function PostPage() {
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
   const [recentPosts, setRecentPosts] = useState(null);
-  const [subtasks, setSubtasks] = useState([]); // Added state for subtasks
+  const [subtasks, setSubtasks] = useState([]);
+  const [completionPercentage, setCompletionPercentage] = useState(0); // State for completion percentage
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -26,9 +27,10 @@ export default function PostPage() {
           return;
         }
         setPost(data.posts[0]);
-        setSubtasks(data.posts[0].subtasks); // Initialize subtasks
+        setSubtasks(data.posts[0].subtasks);
         setLoading(false);
         setError(false);
+        updateCompletionPercentage(data.posts[0].subtasks); // Initial percentage calculation
       } catch (error) {
         setError(true);
         setLoading(false);
@@ -37,6 +39,13 @@ export default function PostPage() {
     fetchPost();
   }, [postSlug]);
 
+  const updateCompletionPercentage = (subtasks) => {
+    const completedSubtasks = subtasks.filter(subtask => subtask.completed).length;
+    const totalSubtasks = subtasks.length || 1; // Prevent division by zero
+    const percentage = (completedSubtasks / totalSubtasks) * 100;
+    setCompletionPercentage(percentage); // Update completion percentage state
+  };
+
   const toggleSubtaskCompletion = async (subtaskId) => {
     try {
       const res = await fetch(`/api/subtasks/${subtaskId}/toggle-completion`, {
@@ -44,11 +53,11 @@ export default function PostPage() {
         headers: { 'Content-Type': 'application/json' },
       });
       if (res.ok) {
-        setSubtasks((prev) =>
-          prev.map((subtask) =>
-            subtask._id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
-          )
+        const updatedSubtasks = subtasks.map((subtask) =>
+          subtask._id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
         );
+        setSubtasks(updatedSubtasks);
+        updateCompletionPercentage(updatedSubtasks); // Update the completion percentage
       } else {
         console.error('Failed to toggle subtask completion:', await res.json());
       }
@@ -60,6 +69,7 @@ export default function PostPage() {
   const completeAllSubtasks = async () => {
     const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
     setSubtasks(updatedSubtasks);
+    updateCompletionPercentage(updatedSubtasks); // Update the completion percentage
 
     try {
       const res = await fetch(`/api/post/${post._id}/complete-subtasks`, {
@@ -109,15 +119,9 @@ export default function PostPage() {
       </div>
     );
 
-  // Calculate completion percentage
-  const completedSubtasks = post?.subtasks.filter(subtask => subtask.completed).length || 0;
-  const totalSubtasks = post?.subtasks.length || 1; // Prevent division by zero
-  const completionPercentage = (completedSubtasks / totalSubtasks) * 100;
-
   return (
     <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
         <div className="md:col-span-2 space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
             <h1 className="text-3xl font-bold">{post && post.title}</h1>
@@ -135,12 +139,17 @@ export default function PostPage() {
           <div className="text-gray-600 dark:text-gray-400 text-sm mt-4">
             <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
           </div>
+
+          {/* Content section below image and date */}
+          <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
+            <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
+          </div>
         </div>
 
         <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Status</h3>
-            <p>  {completedSubtasks === totalSubtasks ? 'Completed' : 'In Progress'}</p>
+            <p>{completionPercentage === 100 ? 'Completed' : 'In Progress'}</p>
           </div>
 
           {/* Circular Progress Bar */}
@@ -151,29 +160,27 @@ export default function PostPage() {
               styles={{
                 path: { stroke: '#4caf50' },
                 text: { fill: '#ffffff', fontSize: '20px' },
-                background: { fill: '#333' }
+                background: { fill: '#333' },
               }}
             />
           </div>
 
           <div>
             <h3 className="text-lg font-semibold">Subtasks</h3>
-            
+
             {/* Add Subtask and Update Post Buttons */}
             <div className="flex gap-2 mb-4">
               <Button color="info" onClick={addSubtask}>
                 Add Subtask
               </Button>
-             
-              <Link className='text-teal-500 hover:underline' to={`/update-post/${post._id}`}>
-  <Button color="warning">
-    <span>Update Post</span>
-  </Button>
-</Link>
-
+              <Link className="text-teal-500 hover:underline" to={`/update-post/${post._id}`}>
+                <Button color="warning">
+                  <span>Update Post</span>
+                </Button>
+              </Link>
             </div>
 
-            <div className="mt-2 space-y-4">
+            <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
               {subtasks.map((subtask) => (
                 <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-gray-700 shadow">
                   <div className="flex items-center gap-2">
@@ -185,14 +192,14 @@ export default function PostPage() {
                       {subtask.title}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{subtask.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-h-[60px] overflow-y-auto">{subtask.description}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Button color="success" onClick={completeTask} disabled={completedSubtasks === totalSubtasks}  className="w-full">
+            <Button color="success" onClick={completeTask} disabled={completionPercentage === 100} className="w-full">
               Complete All Subtasks
             </Button>
             <Button color="failure" onClick={deleteTask} className="w-full">
@@ -200,10 +207,6 @@ export default function PostPage() {
             </Button>
           </div>
         </div>
-      </div>
-
-      <div className="mt-10 p-5 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg">
-        <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
       </div>
     </main>
   );
