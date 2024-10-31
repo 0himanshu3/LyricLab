@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+// import { completeTask } from '../../../api/controllers/post.controller';
 
 export default function PostPage() {
   const { postSlug } = useParams();
@@ -74,7 +75,8 @@ export default function PostPage() {
         const error = await res.json();
         throw new Error(error.message || 'Failed to update subtasks in the database');
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error updating subtasks in database:', error);
     }
   };
@@ -141,7 +143,7 @@ export default function PostPage() {
             <h3 className="text-lg font-semibold">Subtasks</h3>
             <div className="mt-2 space-y-4">
               {subtasks.map((subtask) => (
-                <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-white shadow">
+                <div key={subtask._id} className="flex flex-col p-4 border rounded-md shadow">
                   <div className="flex items-center gap-2">
                     <Checkbox
                       checked={subtask.completed}

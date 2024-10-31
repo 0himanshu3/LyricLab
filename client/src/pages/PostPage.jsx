@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+// import { completeTask } from '../../../api/controllers/post.controller';
 
 export default function PostPage() {
   const { postSlug } = useParams();
@@ -74,7 +75,14 @@ export default function PostPage() {
         method: 'PATCH',
       });
       if (res.ok) {
-        setPost((prev) => ({ ...prev, status: "completed" }));
+        setPost((prev) => ({
+          ...prev,
+          status: "completed",
+          subtasks: prev.subtasks.map(subtask => ({
+            ...subtask,
+            completed: true, 
+          })),
+        }));
       }
     } catch (error) {
       console.error('Failed to complete task:', error);
@@ -157,7 +165,7 @@ export default function PostPage() {
             <h3 className="text-lg font-semibold">Subtasks</h3>
             <div className="mt-2 space-y-4"> {/* Increased space for subtasks */}
               {post && post.subtasks && post.subtasks.map((subtask) => (
-                <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-white shadow">
+                <div key={subtask._id} className="flex flex-col p-4 border rounded-md shadow">
                   <div className="flex items-center gap-2">
                     <Checkbox
                       checked={subtask.completed}
