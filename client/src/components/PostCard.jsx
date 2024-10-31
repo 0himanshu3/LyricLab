@@ -1,12 +1,17 @@
-import { Card, Checkbox, Button } from 'flowbite-react';
+import { Card, Checkbox, Button, Spinner } from 'flowbite-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PostCard({ post }) {
+  const [loading, setLoading] = useState(true);
   const [subtasks, setSubtasks] = useState(post.subtasks || []);
   const completedCount = subtasks.filter(subtask => subtask.completed).length;
   const totalCount = subtasks.length;
   const completionPercentage = totalCount ? (completedCount / totalCount) * 100 : 0;
+
+  useEffect(() => {
+    setLoading(false); // Stop loading when the component mounts
+  }, []);
 
   const getPriorityColor = () => {
     switch (post.priority) {
@@ -123,7 +128,6 @@ export default function PostCard({ post }) {
 
       <div className='mt-3 flex gap-2'>
         <Button color='success' size='sm' onClick={completeAllSubtasks}  disabled={completedCount === totalCount}> {/* Call the new function here */}
-       
           Complete Task
         </Button>
         <Button color='failure' size='sm' onClick={deleteTask}>
