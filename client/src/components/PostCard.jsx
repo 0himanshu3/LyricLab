@@ -70,7 +70,7 @@ export default function PostCard({ post }) {
 
   const deleteTask = async () => {
     try {
-      const res = await fetch(`/api/posts/${post._id}`, {
+      const res = await fetch(`/api/post/${post._id}`, {
         method: 'DELETE',
       });
       if (res.ok) {

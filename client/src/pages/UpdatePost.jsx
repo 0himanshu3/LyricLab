@@ -19,8 +19,7 @@ import { useSelector } from 'react-redux';
 
 export default function UpdatePost() {
   const { postId } = useParams();
-  const { userId } = useSelector((state) => state.user);
-  
+  const { currentUser } = useSelector((state) => state.user);
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
@@ -30,7 +29,6 @@ export default function UpdatePost() {
   const [subtasks, setSubtasks] = useState([{ title: '', description: '' }]);
 
   const navigate = useNavigate();
-  
   
   useEffect(() => {
     const fetchPost = async () => {
@@ -46,8 +44,6 @@ export default function UpdatePost() {
         const post = data.posts[0];
         setFormData(post);
         setSubtasks(post.subtasks || [{ title: '', description: '' }]);
-  
-        // Set deadline state from the post data, converting it to a Date object
         setDeadline(post.deadline ? new Date(post.deadline) : null);
   
         setPublishError(null);
@@ -99,13 +95,12 @@ export default function UpdatePost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      
-      if (!userId) {
+      if (!currentUser._id) {
         setPublishError('User not authenticated');
         return;
       }
       
-      const res = await fetch(`/api/post/updatepost/${postId}/${userId}`, {
+      const res = await fetch(`/api/post/updatepost/${postId}/${currentUser._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -138,9 +133,6 @@ export default function UpdatePost() {
     const updatedSubtasks = subtasks.filter((_, i) => i !== index);
     setSubtasks(updatedSubtasks);
   };
-
-  
-  
 
   return (
     <div className='p-3 max-w-3xl mx-auto min-h-screen'>
@@ -184,13 +176,13 @@ export default function UpdatePost() {
         </Select>
 
         <DatePicker
-  selected={deadline} // Set the selected date to the deadline state
-  onChange={(date) => setDeadline(date)}
-  minDate={new Date()}
-  placeholderText="Select a deadline"
-  className="w-full p-2 border rounded-md"
-  required
-/>
+          selected={deadline}
+          onChange={(date) => setDeadline(date)}
+          minDate={new Date()}
+          placeholderText="Select a deadline"
+          className="w-full p-2 border rounded-md"
+          required
+        />
 
         <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
           <FileInput
@@ -260,14 +252,14 @@ export default function UpdatePost() {
             </Button>
           </div>
         ))}
-        <Button type='button' onClick={addSubtask} color="success">
+        <Button type='button' onClick={addSubtask}  color="success">
           Add Subtask
         </Button>
 
-        <Button type='submit' gradientDuoTone='purpleToBlue' disabled={imageUploadProgress}>
-          Update
-        </Button>
         {publishError && <Alert color='failure'>{publishError}</Alert>}
+        <Button type='submit' gradientDuoTone='purpleToBlue' className='my-4'>
+          Update Post
+        </Button>
       </form>
     </div>
   );

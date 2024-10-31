@@ -38,6 +38,7 @@ export const getposts = async (req, res, next) => {
     const posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }),
       ...(req.query.category && { category: req.query.category }),
+      ...(req.query.priority && { priority: req.query.priority }),
       ...(req.query.slug && { slug: req.query.slug }),
       ...(req.query.postId && { _id: req.query.postId }),
       ...(req.query.searchTerm && {
@@ -100,11 +101,7 @@ export const updatepost = async (req, res, next) => {
           image,
           priority,
           deadline,
-          subtasks: subtasks ? subtasks.map(subtask => ({
-            _id: subtask.id,
-            completed: subtask.completed,
-            title: subtask.title // Ensure to keep the title if needed
-          })) : undefined, // Only update subtasks if provided
+          subtasks,
         },
       },
       { new: true }
