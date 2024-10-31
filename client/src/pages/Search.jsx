@@ -16,7 +16,6 @@ export default function Search() {
   const [showMore, setShowMore] = useState(false);
 
   const location = useLocation();
-
   const navigate = useNavigate();
 
   useEffect(() => {

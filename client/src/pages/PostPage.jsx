@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-// import { completeTask } from '../../../api/controllers/post.controller';
 
 export default function PostPage() {
   const { postSlug } = useParams();
@@ -88,7 +87,7 @@ export default function PostPage() {
         method: 'DELETE',
       });
       if (res.ok) {
-        navigate('/'); // Redirect to home or another page after deletion
+        navigate('/');
       }
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -105,23 +104,24 @@ export default function PostPage() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <Spinner size="xl" />
       </div>
     );
 
-    const completedSubtasks = subtasks.filter((subtask) => subtask.completed).length;
-    const totalSubtasks = subtasks.length || 1; // Prevent division by zero
-    const completionPercentage = (completedSubtasks / totalSubtasks) * 100;
-    
+  // Calculate completion percentage
+  const completedSubtasks = post?.subtasks.filter(subtask => subtask.completed).length || 0;
+  const totalSubtasks = post?.subtasks.length || 1; // Prevent division by zero
+  const completionPercentage = (completedSubtasks / totalSubtasks) * 100;
+
   return (
-    <main className="p-3 max-w-6xl mx-auto min-h-screen">
+    <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left Column - Title, Priority, and Picture */}
+        
         <div className="md:col-span-2 space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-            <h1 className="text-4xl font-bold">{post && post.title}</h1>
-            <span className="text-lg font-semibold bg-gray-200 p-2 rounded-md">
+            <h1 className="text-3xl font-bold">{post && post.title}</h1>
+            <span className="text-base font-semibold bg-gray-200 dark:bg-gray-700 p-2 rounded-md">
               Priority: {post && post.priority}
             </span>
           </div>
@@ -132,31 +132,26 @@ export default function PostPage() {
             className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-md"
           />
 
-          <div className="text-gray-600 text-sm mt-4">
+          <div className="text-gray-600 dark:text-gray-400 text-sm mt-4">
             <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
           </div>
         </div>
 
-        {/* Right Column - Subtasks, Completion Status, Buttons */}
-        <div className="bg-gray-100 rounded-lg p-5 shadow-md space-y-6">
+        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Status</h3>
             <p>  {completedSubtasks === totalSubtasks ? 'Completed' : 'In Progress'}</p>
           </div>
 
-          {/* Circular Progress Bar logic... */}
+          {/* Circular Progress Bar */}
           <div className="flex justify-center">
             <CircularProgressbar
               value={completionPercentage}
               text={`${Math.round(completionPercentage)}%`}
               styles={{
-                path: {
-                  stroke: `#4caf50`, // Green color for the progress path
-                },
-                text: {
-                  fill: '#333', // Color for the text
-                  fontSize: '24px', // Font size for the text
-                },
+                path: { stroke: '#4caf50' },
+                text: { fill: '#ffffff', fontSize: '20px' },
+                background: { fill: '#333' }
               }}
             />
           </div>
@@ -171,7 +166,7 @@ export default function PostPage() {
               </Button>
               <Button color="warning" onClick={updatePost}>
               <Link
-                      className='text-teal-500 hover:underline'
+                      className='text-white hover:underline'
                       to={`/update-post/${post._id}`}
                     >
                       <span>Update Post</span>
@@ -181,7 +176,7 @@ export default function PostPage() {
 
             <div className="mt-2 space-y-4">
               {subtasks.map((subtask) => (
-                <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-white shadow">
+                <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-gray-700 shadow">
                   <div className="flex items-center gap-2">
                     <Checkbox
                       checked={subtask.completed}
@@ -191,7 +186,7 @@ export default function PostPage() {
                       {subtask.title}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">{subtask.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{subtask.description}</p>
                 </div>
               ))}
             </div>
@@ -208,8 +203,7 @@ export default function PostPage() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="mt-10 p-5 bg-gray-100 rounded-lg shadow-md">
+      <div className="mt-10 p-5 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg">
         <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
       </div>
     </main>
