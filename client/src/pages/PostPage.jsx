@@ -169,14 +169,13 @@ export default function PostPage() {
               <Button color="info" onClick={addSubtask}>
                 Add Subtask
               </Button>
-              <Button color="warning" onClick={updatePost}>
-              <Link
-                      className='text-teal-500 hover:underline'
-                      to={`/update-post/${post._id}`}
-                    >
-                      <span>Update Post</span>
-                    </Link>
-              </Button>
+             
+              <Link className='text-teal-500 hover:underline' to={`/update-post/${post._id}`}>
+  <Button color="warning">
+    <span>Update Post</span>
+  </Button>
+</Link>
+
             </div>
 
             <div className="mt-2 space-y-4">

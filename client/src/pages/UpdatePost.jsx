@@ -14,10 +14,13 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useSelector } from 'react-redux';
+
 
 export default function UpdatePost() {
   const { postId } = useParams();
-  const [userId, setUserId] = useState(null); // Added userId state
+  const { userId } = useSelector((state) => state.user);
+  
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
@@ -27,30 +30,25 @@ export default function UpdatePost() {
   const [subtasks, setSubtasks] = useState([{ title: '', description: '' }]);
 
   const navigate = useNavigate();
-
   
-
+  
   useEffect(() => {
     const fetchPost = async () => {
       try {
         const res = await fetch(`/api/post/getposts?postId=${postId}`);
         const data = await res.json();
-        
+  
         if (!res.ok) {
           setPublishError(data.message);
           return;
         }
   
         const post = data.posts[0];
-        console.log(post.title);
-        
         setFormData(post);
-        console.log(formData);
-        
-        
         setSubtasks(post.subtasks || [{ title: '', description: '' }]);
-        
-        
+  
+        // Set deadline state from the post data, converting it to a Date object
+        setDeadline(post.deadline ? new Date(post.deadline) : null);
   
         setPublishError(null);
       } catch (error) {
@@ -61,7 +59,6 @@ export default function UpdatePost() {
     fetchPost();
   }, [postId]);
   
-
   const handleUploadImage = async () => {
     try {
       if (!file) {
@@ -102,6 +99,7 @@ export default function UpdatePost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      
       if (!userId) {
         setPublishError('User not authenticated');
         return;
@@ -186,12 +184,13 @@ export default function UpdatePost() {
         </Select>
 
         <DatePicker
-          onChange={(date) => setDeadline(date)}
-          minDate={new Date()}
-          placeholderText="Select a deadline"
-          className="w-full p-2 border rounded-md"
-          required
-        />
+  selected={deadline} // Set the selected date to the deadline state
+  onChange={(date) => setDeadline(date)}
+  minDate={new Date()}
+  placeholderText="Select a deadline"
+  className="w-full p-2 border rounded-md"
+  required
+/>
 
         <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
           <FileInput

@@ -179,3 +179,19 @@ export const deleteTask = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while deleting the task' });
   }
 };
+
+export const getPostById = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    res.status(500).json({ message: 'Server error while fetching post' });
+  }
+};
