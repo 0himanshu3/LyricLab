@@ -65,7 +65,7 @@ export default function PostCard({ post }) {
 
   const deleteTask = async () => {
     try {
-      const res = await fetch(`/api/post/${post._id}`, {
+      const res = await fetch(`/api/posts/${post._id}`, {
         method: 'DELETE',
       });
       if (res.ok) {
@@ -75,6 +75,14 @@ export default function PostCard({ post }) {
       console.error('Failed to delete task:', error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="xl" />
+      </div>
+    );
+  }
 
   return (
     <Card className='max-w-sm p-5 shadow-lg'>
@@ -115,6 +123,7 @@ export default function PostCard({ post }) {
 
       <div className='mt-3 flex gap-2'>
         <Button color='success' size='sm' onClick={completeAllSubtasks}  disabled={completedCount === totalCount}> {/* Call the new function here */}
+       
           Complete Task
         </Button>
         <Button color='failure' size='sm' onClick={deleteTask}>

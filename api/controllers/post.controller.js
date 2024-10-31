@@ -80,6 +80,8 @@ export const deletepost = async (req, res, next) => {
     next(error);
   }
 };
+
+
 export const updatepost = async (req, res, next) => {
   if (!req.user.isAdmin || req.user.id !== req.params.userId) {
     return next(errorHandler(403, 'You are not allowed to update this post'));
@@ -137,6 +139,8 @@ export const toggleSubtaskCompletion = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating the subtask' });
   }
 };
+
+
 // Complete Task
 export const completeTask = async (req, res) => {
   try {

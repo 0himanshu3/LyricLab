@@ -9,7 +9,6 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { toggleSubtaskCompletion } from './controllers/post.controller.js';
 
-
 dotenv.config();
 
 mongoose
@@ -44,7 +43,6 @@ app.get('*', (req, res) => {
 });
 
 app.patch('/api/subtasks/:subtaskId/toggle-completion', toggleSubtaskCompletion);
-
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

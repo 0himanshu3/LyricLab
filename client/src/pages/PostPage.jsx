@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+// import { completeTask } from '../../../api/controllers/post.controller';
 
 export default function PostPage() {
   const { postSlug } = useParams();
