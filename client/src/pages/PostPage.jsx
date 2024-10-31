@@ -1,19 +1,19 @@
 import { Button, Spinner, Checkbox } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import moment from 'moment';
 
 export default function PostPage() {
   const { postSlug } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
-  const [recentPosts, setRecentPosts] = useState(null);
   const [subtasks, setSubtasks] = useState([]);
-  const [completionPercentage, setCompletionPercentage] = useState(0); // State for completion percentage
+  const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [remainingTime, setRemainingTime] = useState('');
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -30,7 +30,8 @@ export default function PostPage() {
         setSubtasks(data.posts[0].subtasks);
         setLoading(false);
         setError(false);
-        updateCompletionPercentage(data.posts[0].subtasks); // Initial percentage calculation
+        updateCompletionPercentage(data.posts[0].subtasks);
+        startDeadlineTimer(data.posts[0].deadline); // Start countdown timer
       } catch (error) {
         setError(true);
         setLoading(false);
@@ -41,9 +42,30 @@ export default function PostPage() {
 
   const updateCompletionPercentage = (subtasks) => {
     const completedSubtasks = subtasks.filter(subtask => subtask.completed).length;
-    const totalSubtasks = subtasks.length || 1; // Prevent division by zero
+    const totalSubtasks = subtasks.length || 1;
     const percentage = (completedSubtasks / totalSubtasks) * 100;
-    setCompletionPercentage(percentage); // Update completion percentage state
+    setCompletionPercentage(percentage);
+  };
+
+  const startDeadlineTimer = (deadline) => {
+    const interval = setInterval(() => {
+      const now = moment();
+      const dueDate = moment(deadline);
+      const duration = moment.duration(dueDate.diff(now));
+
+      if (duration.asMilliseconds() <= 0) {
+        setRemainingTime('Deadline Passed');
+        clearInterval(interval);
+      } else {
+        const days = duration.days();
+        const hours = duration.hours();
+        const minutes = duration.minutes();
+        const seconds = duration.seconds();
+        setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
   };
 
   const toggleSubtaskCompletion = async (subtaskId) => {
@@ -57,7 +79,7 @@ export default function PostPage() {
           subtask._id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
         );
         setSubtasks(updatedSubtasks);
-        updateCompletionPercentage(updatedSubtasks); // Update the completion percentage
+        updateCompletionPercentage(updatedSubtasks);
       } else {
         console.error('Failed to toggle subtask completion:', await res.json());
       }
@@ -69,7 +91,7 @@ export default function PostPage() {
   const completeAllSubtasks = async () => {
     const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
     setSubtasks(updatedSubtasks);
-    updateCompletionPercentage(updatedSubtasks); // Update the completion percentage
+    updateCompletionPercentage(updatedSubtasks);
 
     try {
       const res = await fetch(`/api/post/${post._id}/complete-subtasks`, {
@@ -88,7 +110,7 @@ export default function PostPage() {
   };
 
   const completeTask = () => {
-    completeAllSubtasks(); // Call the function to complete all subtasks
+    completeAllSubtasks();
   };
 
   const deleteTask = async () => {
@@ -108,8 +130,9 @@ export default function PostPage() {
     // Logic to add a new subtask, such as opening a modal or form
   };
 
-  const updatePost = async () => {
-    // Logic to update the post, such as opening a modal to edit post details or send an API request
+  const updateTask = () => {
+    // Logic to update the task, such as navigating to an update form
+    navigate(`/update-task/${post._id}`); // Example route for updating the task
   };
 
   if (loading)
@@ -140,13 +163,19 @@ export default function PostPage() {
             <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
           </div>
 
-          {/* Content section below image and date */}
           <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
             <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
           </div>
         </div>
 
         <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6">
+          {/* Deadline Timer Section */}
+          <div className="text-black  dark:text-white text-sm mb-6">
+            <h3 className="text-lg font-semibold">Deadline Timer</h3>
+            <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
+            <p>Time Remaining: {remainingTime}</p>
+          </div>
+
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Status</h3>
             <p>{completionPercentage === 100 ? 'Completed' : 'In Progress'}</p>
@@ -168,18 +197,7 @@ export default function PostPage() {
           <div>
             <h3 className="text-lg font-semibold">Subtasks</h3>
 
-            {/* Add Subtask and Update Post Buttons */}
-            <div className="flex gap-2 mb-4">
-              <Button color="info" onClick={addSubtask}>
-                Add Subtask
-              </Button>
-              <Link className="text-teal-500 hover:underline" to={`/update-post/${post._id}`}>
-                <Button color="warning">
-                  <span>Update Post</span>
-                </Button>
-              </Link>
-            </div>
-
+            
             <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
               {subtasks.map((subtask) => (
                 <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-gray-700 shadow">
@@ -198,11 +216,18 @@ export default function PostPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Button color="success" onClick={completeTask} disabled={completionPercentage === 100} className="w-full">
-              Complete All Subtasks
+          <div className="flex flex-col gap-3 mt-6">
+            <Button color="success" onClick={completeTask}>
+              Complete Task
             </Button>
-            <Button color="failure" onClick={deleteTask} className="w-full">
+            
+                <Button color="warning">
+                <Link   to={`/update-post/${post._id}`}>
+                      Update Post
+                  </Link>
+                </Button>
+              
+            <Button color="failure" onClick={deleteTask}>
               Delete Task
             </Button>
           </div>

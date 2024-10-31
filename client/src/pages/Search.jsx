@@ -30,10 +30,10 @@ export default function Search() {
     setSidebarData({
       ...sidebarData,
       searchTerm: searchTermFromUrl || '',
-      sort: sortFromUrl || 'desc',
-      category: categoryFromUrl || 'uncategorized',
-      priority: priorityFromUrl || 'all',
-      deadline: deadlineFromUrl || 'all',
+      sort: sortFromUrl,
+      category: categoryFromUrl,
+      priority: priorityFromUrl ,
+      deadline: deadlineFromUrl ,
     });
 
     const fetchPosts = async () => {
@@ -54,14 +54,29 @@ export default function Search() {
   }, [location.search]);
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setSidebarData(prevData => ({ ...prevData, [id]: value }));
+    if(e.target.id === "searchTerm") {
+      setSidebarData({...sidebarData,searchTerm: e.target.value});
+    }
+    if(e.target.id === "sort") {
+      const order=e.target.value || "desc";
+      setSidebarData({...sidebarData,sort : order});
+    }
+    if(e.target.id === "category") {
+
+      setSidebarData({...sidebarData,category:e.target.value});
+    }
+    if(e.target.id === "priority") {
+      setSidebarData({...sidebarData,priority:e.target.value});
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams(location.search);
-    Object.keys(sidebarData).forEach(key => urlParams.set(key, sidebarData[key]));
+    urlParams.set("searchTerm", sidebarData.searchTerm);
+    urlParams.set("sort", sidebarData.sort);
+    urlParams.set("category", sidebarData.category);
+    urlParams.set("priority", sidebarData.priority);
     navigate(`/search?${urlParams.toString()}`);
   };
 
