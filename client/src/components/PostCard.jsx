@@ -1,6 +1,7 @@
 import { Card, Checkbox, Button, Spinner } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import moment from 'moment';
 
 export default function PostCard({ post }) {
   const [loading, setLoading] = useState(true);
@@ -9,11 +10,14 @@ export default function PostCard({ post }) {
   const completedCount = subtasks.filter((subtask) => subtask.completed).length;
   const totalCount = subtasks.length;
   const completionPercentage = totalCount ? (completedCount / totalCount) * 100 : 0;
+  const [remainingTime, setRemainingTime] = useState('');
 
   useEffect(() => {
-    setLoading(false);
+    setLoading(false); // set loading to false once component mounts
+    startDeadlineTimer(post.deadline); // Initialize timer for the task's deadline
   }, []);
 
+  // priority color based on post's level
   const getPriorityColor = () => {
     switch (post.priority) {
       case 'high':
@@ -27,6 +31,7 @@ export default function PostCard({ post }) {
     }
   };
 
+  // toggles the completion state each subtask
   const toggleSubtaskCompletion = async (subtaskId) => {
     try {
       const res = await fetch(`/api/subtasks/${subtaskId}/toggle-completion`, {
@@ -41,10 +46,11 @@ export default function PostCard({ post }) {
         );
       }
     } catch (error) {
-      console.error('Failed to update subtask:', error);
+      console.error('Failed to update subtask:', error); // catching errrs in console
     }
   };
 
+  // marks all subtasks as complete and updates the backend
   const completeAllSubtasks = async () => {
     const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
     setSubtasks(updatedSubtasks);
@@ -58,20 +64,21 @@ export default function PostCard({ post }) {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || 'Failed to update subtasks in the database');
+        throw new Error(error.message || 'Failed to update subtasks in the database'); // error fetchng subtasks
       }
     } catch (error) {
       console.error('Error updating subtasks in database:', error);
     }
   };
 
+  // deletes the entire task from the database
   const deleteTask = async () => {
     try {
       const res = await fetch(`/api/post/${post._id}`, {
         method: 'DELETE',
       });
       if (res.ok) {
-        window.location.reload();
+        window.location.reload(); // refreshes page after deletion
         console.log('Task deleted');
       }
     } catch (error) {
@@ -79,6 +86,29 @@ export default function PostCard({ post }) {
     }
   };
 
+  //deadline timer for each task
+  const startDeadlineTimer = (deadline) => {
+    const interval = setInterval(() => {
+      const now = moment();
+      const dueDate = moment(deadline);
+      const duration = moment.duration(dueDate.diff(now));
+
+      if (duration.asMilliseconds() <= 0) {
+        setRemainingTime('Deadline Passed');
+        clearInterval(interval);
+      } else {
+        const days = duration.days();
+        const hours = duration.hours();
+        const minutes = duration.minutes();
+        const seconds = duration.seconds();
+        setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  };
+
+  // shows loading spinner if the component is still loading
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -103,7 +133,7 @@ export default function PostCard({ post }) {
           </Link>
           <Link to={`/post/${post.slug}`}>
             <p className="text-sm mb-2">
-              Status: {completedCount === totalCount ? 'Completed' : 'In Progress'}
+              Status: {completedCount === totalCount ? 'Completed' : `In Progress (${remainingTime})`}
             </p>
           </Link>
         </div>
