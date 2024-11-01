@@ -1,6 +1,7 @@
 import { Card, Checkbox, Button, Spinner } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import moment from 'moment';
 
 export default function PostCard({ post }) {
   const [loading, setLoading] = useState(true);
@@ -9,9 +10,12 @@ export default function PostCard({ post }) {
   const completedCount = subtasks.filter((subtask) => subtask.completed).length;
   const totalCount = subtasks.length;
   const completionPercentage = totalCount ? (completedCount / totalCount) * 100 : 0;
+  const [remainingTime, setRemainingTime] = useState('');
+  const [glow, setGlow] = useState(false);
 
   useEffect(() => {
     setLoading(false);
+    startDeadlineTimer(post.deadline);
   }, []);
 
   const getPriorityColor = () => {
@@ -29,16 +33,9 @@ export default function PostCard({ post }) {
 
   const toggleSubtaskCompletion = async (subtaskId) => {
     try {
-      const res = await fetch(`/api/subtasks/${subtaskId}/toggle-completion`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const res = await fetch(`/api/subtasks/${subtaskId}/toggle-completion`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' } });
       if (res.ok) {
-        setSubtasks((prev) =>
-          prev.map((subtask) =>
-            subtask._id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
-          )
-        );
+        setSubtasks((prev) => prev.map((subtask) => (subtask._id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask)));
       }
     } catch (error) {
       console.error('Failed to update subtask:', error);
@@ -48,14 +45,8 @@ export default function PostCard({ post }) {
   const completeAllSubtasks = async () => {
     const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
     setSubtasks(updatedSubtasks);
-
     try {
-      const res = await fetch(`/api/post/${post._id}/complete-subtasks`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subtasks: updatedSubtasks }),
-      });
-
+      const res = await fetch(`/api/post/${post._id}/complete-subtasks`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subtasks: updatedSubtasks }) });
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.message || 'Failed to update subtasks in the database');
@@ -67,9 +58,7 @@ export default function PostCard({ post }) {
 
   const deleteTask = async () => {
     try {
-      const res = await fetch(`/api/post/${post._id}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(`/api/post/${post._id}`, { method: 'DELETE' });
       if (res.ok) {
         window.location.reload();
         console.log('Task deleted');
@@ -77,6 +66,25 @@ export default function PostCard({ post }) {
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
+  };
+
+  const startDeadlineTimer = (deadline) => {
+    const interval = setInterval(() => {
+      const now = moment();
+      const dueDate = moment(deadline);
+      const duration = moment.duration(dueDate.diff(now));
+      if (duration.asMilliseconds() <= 0) {
+        setRemainingTime('Deadline Passed');
+        clearInterval(interval);
+      } else {
+        const days = duration.days();
+        const hours = duration.hours();
+        const minutes = duration.minutes();
+        const seconds = duration.seconds();
+        setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
   };
 
   if (loading) {
@@ -87,10 +95,33 @@ export default function PostCard({ post }) {
     );
   }
 
+  const handleMouseMove = (e) => {
+    const card = e.currentTarget;
+    const { left, top } = card.getBoundingClientRect();
+    const x = e.clientX - left;
+    const y = e.clientY - top;
+
+    // Set CSS variables for mouse position
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  };
+
+  const handleMouseLeave = (e) => {
+    // Reset CSS variables when mouse leaves
+    const card = e.currentTarget;
+    card.style.setProperty('--mouse-x', `0px`);
+    card.style.setProperty('--mouse-y', `0px`);
+  };
+
   return (
-    <div onClick={() => navigate(`/post/${post.slug}`)} className='cursor-pointer'>
-      <Card className="max-w-sm h-[450px] p-5 shadow-lg relative">
-        <div onClick={(e) => e.stopPropagation()}>
+    <div 
+      onClick={() => navigate(`/post/${post.slug}`)}
+      className='cursor-pointer'
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <Card className="card max-w-sm h-[420px] p-5 shadow-lg transition duration-200 relative">
+        <div onClick={(e) => e.stopPropagation()} className="card-content">
           <Link to={`/post/${post.slug}`}>
             <h2 className="text-xl font-bold mb-2">{post.title}</h2>
           </Link>
@@ -111,7 +142,7 @@ export default function PostCard({ post }) {
           </Link>
           <Link to={`/post/${post.slug}`}>
             <p className="text-sm mb-2">
-              Status: {completedCount === totalCount ? 'Completed' : 'In Progress'}
+              Status: {completedCount === totalCount ? 'Completed' : `In Progress (${remainingTime})`}
             </p>
           </Link>
         </div>
@@ -141,7 +172,7 @@ export default function PostCard({ post }) {
           <div className="text-xs mt-2">{completedCount}/{totalCount} Subtasks Completed</div>
         </div>
 
-        <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="mt-3 flex gap-2 button-container" onClick={(e) => e.stopPropagation()}>
           <Button color="success" size="sm" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
             Complete Task
           </Button>

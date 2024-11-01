@@ -1,7 +1,11 @@
 import { Footer } from 'flowbite-react';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { BsFacebook, BsInstagram, BsTwitter, BsGithub, BsDribbble } from 'react-icons/bs';
+
 export default function FooterCom() {
+  const { theme } = useSelector((state) => state.theme);
+
   return (
     <Footer container className='border border-t-8 border-teal-500'>
       <div className='w-full max-w-7xl mx-auto'>
@@ -11,15 +15,16 @@ export default function FooterCom() {
               to='/'
               className='self-center whitespace-nowrap text-xl sm:text-xxl font-semibold dark:text-white'
             >
-              Lyric
-              <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
-                Lab
-              </span>
+              <img
+              src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
+              alt='Lyric Lab Logo'
+              className='h-20 sm:h-[3.7rem]'  
+            />
             </Link>
           </div>
           <div className='grid grid-cols-2 gap-4 mt-4 sm:grid-cols-3 sm:gap-0'>
             <div>
-    
+
               <Footer.LinkGroup col>
                 <Footer.Link
                   href='/about'
@@ -32,7 +37,7 @@ export default function FooterCom() {
               </Footer.LinkGroup>
             </div>
             <div>
-    
+
               <Footer.LinkGroup col>
                 <Footer.Link
                   href='#'
@@ -50,7 +55,7 @@ export default function FooterCom() {
               </Footer.LinkGroup>
             </div>
             <div>
-    
+
               <Footer.LinkGroup col>
                 <Footer.Link href='#'>PRIVACY POLICY</Footer.Link>
                 <Footer.Link href='#'>TERMS &amp; CONDITIONS</Footer.Link>
