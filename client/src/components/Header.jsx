@@ -56,7 +56,7 @@ export default function Header() {
       >
         
         <img 
-        src={theme === 'light' ? './public/images/logo2.jpg' : './public/images/logo2dark.png'} 
+        src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
         alt='Lyric Lab Logo'
         className='h-20 sm:h-12'  
       />
