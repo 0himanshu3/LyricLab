@@ -25,7 +25,8 @@ export default function CreatePost() {
   const [subtasks, setSubtasks] = useState([{ title: '', description: '' }]);
   const [users, setUsers] = useState([]);
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
-  const [newCollaborator, setNewCollaborator] = useState(''); // State for the new collaborator
+  const [newCollaborator, setNewCollaborator] = useState('');
+  const [isCollaborative, setIsCollaborative] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,11 +48,40 @@ export default function CreatePost() {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    console.log("Updated users:", users);
-    console.log("Selected collaborators",selectedCollaborators);
-    
-  }, []);
+  const handleCollaborateChange = (e) => {
+    const shouldCollaborate = e.target.value === 'yes';
+    setIsCollaborative(shouldCollaborate);
+    if (!shouldCollaborate) {
+      setSelectedCollaborators([]);
+      setNewCollaborator('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/post/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          deadline,
+          subtasks,
+          isCollaborative,
+          selectedCollaborators,
+        }),
+      });
+      if (res.ok) {
+        navigate('/success');
+      } else {
+        setPublishError('Failed to publish post');
+      }
+    } catch (error) {
+      setPublishError('Something went wrong');
+    }
+  };
 
   const handleUploadImage = async () => {
     if (!file) {
@@ -84,28 +114,6 @@ export default function CreatePost() {
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/post/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...formData, deadline, subtasks, collaborators: selectedCollaborators }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setPublishError(data.message);
-        return;
-      }
-      setPublishError(null);
-      navigate(`/post/${data.slug}`);
-    } catch (error) {
-      setPublishError('Something went wrong');
-    }
-  };
-
   const handleSubtaskChange = (index, field, value) => {
     const updatedSubtasks = [...subtasks];
     updatedSubtasks[index][field] = value;
@@ -122,20 +130,24 @@ export default function CreatePost() {
   };
 
   const handleCollaboratorChange = (e) => {
-    setNewCollaborator(e.target.value); // Update state with the selected collaborator
+    setNewCollaborator(e.target.value);
   };
 
   const addCollaborator = () => {
     const collaborator = users.find(user => user.value === newCollaborator);
-    if (collaborator && !selectedCollaborators.includes(collaborator)) {
+    if (collaborator && !selectedCollaborators.some(selected => selected.value === collaborator.value)) {
       setSelectedCollaborators([...selectedCollaborators, collaborator]);
-      setNewCollaborator(''); // Clear the input after adding
+      setNewCollaborator('');
     }
+  };
+
+  const removeCollaborator = (collaboratorId) => {
+    setSelectedCollaborators(selectedCollaborators.filter(collaborator => collaborator.value !== collaboratorId));
   };
 
   return (
     <div className='p-3 max-w-3xl mx-auto min-h-screen'>
-      <h1 className='text-center text-3xl my-7 font-semibold'>Create a post</h1>
+      <h1 className='text-center text-3xl my-7 font-semibold'>Create a Post</h1>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4 sm:flex-row justify-between'>
           <TextInput
@@ -233,37 +245,55 @@ export default function CreatePost() {
             </Button>
           </div>
         ))}
-        <Button type='button' onClick={addSubtask} color="success">
+        <Button type='button' onClick={addSubtask}>
           Add Subtask
         </Button>
 
-        <div className='flex items-center'>
-          <Select
-            value={newCollaborator}
-            onChange={handleCollaboratorChange}
-          >
-            <option value='' disabled>Select collaborators</option>
-            {users.map((user) => (
-              <option key={user.value} value={user.value}>
-                {user.label}
-              </option>
-            ))}
-          </Select>
-          <Button type='button' onClick={addCollaborator} color="success">
-            Add Collaborator
-          </Button>
-        </div>
+        <label className='flex items-center gap-2'>
+          <input
+            type='checkbox'
+            onChange={handleCollaborateChange}
+            value={isCollaborative ? 'no' : 'yes'}
+          />
+          Collaborate on this post
+        </label>
 
-        <div>
-          <h3 className='font-semibold'>Collaborators:</h3>
-          <ul>
-            {selectedCollaborators.map((collaborator, index) => (
-              <li key={index}>{collaborator.label}</li>
-            ))}
-          </ul>
-        </div>
+        {isCollaborative && (
+          <>
+            <Select
+              onChange={handleCollaboratorChange}
+              value={newCollaborator}>
+              <option value=''>Select Collaborator</option>
+              {users.map(user => (
+                <option key={user.value} value={user.value}>{user.label}</option>
+              ))}
+            </Select>
+            <Button type='button' onClick={addCollaborator}>
+              Add Collaborator
+            </Button>
 
-        <Button type='submit'>Publish Post</Button>
+            <div className='flex gap-3 flex-wrap'>
+              {selectedCollaborators.map(collaborator => (
+                <div key={collaborator.value} className='flex items-center gap-2 border px-2 py-1 rounded-lg'>
+                  <span>{collaborator.label}</span>
+                  <Button
+                    type='button'
+                    size='xs'
+                    color='failure'
+                    onClick={() => removeCollaborator(collaborator.value)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <Button type='submit' gradientDuoTone='greenToBlue'>
+          Publish Post
+        </Button>
+
         {publishError && <Alert color='failure'>{publishError}</Alert>}
       </form>
     </div>

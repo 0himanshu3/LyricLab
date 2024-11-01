@@ -1,9 +1,12 @@
 import { Button, Select, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // Import useSelector
 import PostCard from '../components/PostCard';
 
 export default function Search() {
+  const userId = useSelector((state) => state.user.currentUser._id); // Extract user ID from Redux state
+
   const [sidebarData, setSidebarData] = useState({
     searchTerm: '',
     sort: 'desc',
@@ -21,52 +24,65 @@ export default function Search() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const searchTermFromUrl = urlParams.get('searchTerm');
+    const searchTermFromUrl = urlParams.get('searchTerm') || '';
     const sortFromUrl = urlParams.get('sort');
     const categoryFromUrl = urlParams.get('category');
-    const priorityFromUrl = urlParams.get('priority'); // Priority from URL
-    const deadlineFromUrl = urlParams.get('deadline'); // Deadline from URL
-
-    setSidebarData({
-      ...sidebarData,
-      searchTerm: searchTermFromUrl || '',
-      sort: sortFromUrl,
-      category: categoryFromUrl,
-      priority: priorityFromUrl ,
-      deadline: deadlineFromUrl ,
-    });
-
+    const priorityFromUrl = urlParams.get('priority');
+    const deadlineFromUrl = urlParams.get('deadline');
+  
+    setSidebarData(prevState => ({
+      ...prevState,
+      searchTerm: searchTermFromUrl,
+      sort: sortFromUrl || prevState.sort,
+      category: categoryFromUrl || prevState.category,
+      priority: priorityFromUrl || prevState.priority,
+      deadline: deadlineFromUrl || prevState.deadline,
+    }));
+  
     const fetchPosts = async () => {
       setLoading(true);
-      const searchQuery = urlParams.toString();
-      const res = await fetch(`/api/post/getposts?${searchQuery}`);
-      if (!res.ok) {
+      const searchQuery = new URLSearchParams({
+        ...sidebarData,
+        userId,
+      }).toString();
+      
+      try {
+        const res = await fetch(`/api/post/getposts?${searchQuery}`);
+        
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await res.json();
+        
+        setPosts(data.posts);
+        setShowMore(data.posts.length === 9);
+      } catch (error) {
+        console.error('Failed to fetch posts:', error);
+      } finally {
         setLoading(false);
-        return;
       }
-      const data = await res.json();
-      setPosts(data.posts);
-      setLoading(false);
-      setShowMore(data.posts.length === 9);
     };
-
+  
     fetchPosts();
-  }, [location.search]);
+  }, [location.search, userId]); // Remove sidebarData from here
+  
 
   const handleChange = (e) => {
-    if(e.target.id === "searchTerm") {
-      setSidebarData({...sidebarData,searchTerm: e.target.value});
+    if (e.target.id === "searchTerm") {
+      setSidebarData({ ...sidebarData, searchTerm: e.target.value });
     }
-    if(e.target.id === "sort") {
-      const order=e.target.value || "desc";
-      setSidebarData({...sidebarData,sort : order});
+    if (e.target.id === "sort") {
+      const order = e.target.value || "desc";
+      setSidebarData({ ...sidebarData, sort: order });
     }
-    if(e.target.id === "category") {
-
-      setSidebarData({...sidebarData,category:e.target.value});
+    if (e.target.id === "category") {
+      setSidebarData({ ...sidebarData, category: e.target.value });
     }
-    if(e.target.id === "priority") {
-      setSidebarData({...sidebarData,priority:e.target.value});
+    if (e.target.id === "priority") {
+      setSidebarData({ ...sidebarData, priority: e.target.value });
+    }
+    if (e.target.id === "deadline") {
+      setSidebarData({ ...sidebarData, deadline: e.target.value });
     }
   };
 
@@ -77,6 +93,7 @@ export default function Search() {
     urlParams.set("sort", sidebarData.sort);
     urlParams.set("category", sidebarData.category);
     urlParams.set("priority", sidebarData.priority);
+    urlParams.set("deadline", sidebarData.deadline);
     navigate(`/search?${urlParams.toString()}`);
   };
 
@@ -93,7 +110,7 @@ export default function Search() {
   };
 
   const handleDelete = (postId) => {
-    setPosts(prevPosts => prevPosts.filter(post => post._id !== postId));
+    setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
   };
 
   return (
@@ -120,7 +137,6 @@ export default function Search() {
           <div className='flex items-center gap-2'>
             <label className='font-semibold'>Category:</label>
             <Select id='category' onChange={handleChange} value={sidebarData.category}>
-            
               <option value='reactjs'>React.js</option>
               <option value='nextjs'>Next.js</option>
               <option value='javascript'>JavaScript</option>
@@ -152,24 +168,23 @@ export default function Search() {
       <div className='w-full'>
         <h1 className='text-3xl font-semibold sm:border-b border-gray-500 p-3 mt-5'>Posts results:</h1>
         <div className='p-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full'>
-        {loading && <p className='text-xl text-gray-500'>Loading...</p>}
-        {!loading && posts.length === 0 && (
-          <p className='text-xl text-gray-500'>No posts found.</p>
-        )}
-        {!loading &&
-          posts.map((post) => (
-            <PostCard key={post._id} post={post} onDelete={handleDelete} />
-          ))}
-        {showMore && (
-          <button
-            onClick={handleShowMore}
-            className='text-teal-500 text-lg hover:underline p-7 w-full'
-          >
-            Show More
-          </button>
-        )}
-      </div>
-
+          {loading && <p className='text-xl text-gray-500'>Loading...</p>}
+          {!loading && posts.length === 0 && (
+            <p className='text-xl text-gray-500'>No posts found.</p>
+          )}
+          {!loading &&
+            posts.map((post) => (
+              <PostCard key={post._id} post={post} onDelete={handleDelete} />
+            ))}
+          {showMore && (
+            <button
+              onClick={handleShowMore}
+              className='text-teal-500 text-lg hover:underline p-7 w-full'
+            >
+              Show More
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

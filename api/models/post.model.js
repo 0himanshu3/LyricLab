@@ -57,10 +57,30 @@ const postSchema = new mongoose.Schema(
       enum: ['completed', 'pending'],
       default: 'pending',
     },
-    subtasks: [subtaskSchema], // Include the subtasks array
+    subtasks: [subtaskSchema],
+    isCollaborative: { // New field to indicate collaboration
+      type: Boolean,
+      default: false,
+    },
+    teamName: { // Field for team name
+      type: String,
+      default: '',
+    },
+    collaborators: [{
+      label: {
+        type: String,
+        required: true, // Ensure a name is provided
+      },
+      value: {
+        type: String,
+        ref: 'User', // Reference to User model for the user ID
+        required: true, // Ensure a user ID is provided
+      },
+    }],
   },
   { timestamps: true }
 );
+
 
 const Post = mongoose.model('Post', postSchema);
 
