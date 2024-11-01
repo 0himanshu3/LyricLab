@@ -142,97 +142,96 @@ export default function PostPage() {
       </div>
     );
 
-  return (
-    <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-            <h1 className="text-3xl font-bold">{post && post.title}</h1>
-            <span className="text-base font-semibold bg-gray-200 dark:bg-gray-700 p-2 rounded-md">
-              Priority: {post && post.priority}
-            </span>
-          </div>
-
-          <img
-            src={post && post.image}
-            alt={post && post.title}
-            className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-md"
-          />
-
-          <div className="text-gray-600 dark:text-gray-400 text-sm mt-4">
-            <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
-          </div>
-
-          <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
-            <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
-          </div>
-        </div>
-
-        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6">
-          {/* Deadline Timer Section */}
-          <div className="text-black  dark:text-white text-sm mb-6">
-            <h3 className="text-lg font-semibold">Deadline Timer</h3>
-            <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
-            <p>Time Remaining: {remainingTime}</p>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Status</h3>
-            <p>{completionPercentage === 100 ? 'Completed' : 'In Progress'}</p>
-          </div>
-
-          {/* Circular Progress Bar */}
-          <div className="flex justify-center">
-            <CircularProgressbar
-              value={completionPercentage}
-              text={`${Math.round(completionPercentage)}%`}
-              styles={{
-                path: { stroke: '#4caf50' },
-                text: { fill: '#ffffff', fontSize: '20px' },
-                background: { fill: '#333' },
-              }}
+    return (
+      <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+              <h1 className="text-3xl font-bold">{post && post.title}</h1>
+              <span className="text-base font-semibold bg-gray-200 dark:bg-gray-700 p-2 rounded-md">
+                Priority: {post && post.priority}
+              </span>
+            </div>
+    
+            <img
+              src={post && post.image}
+              alt={post && post.title}
+              className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-md"
             />
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold">Subtasks</h3>
-
-            
-            <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
-              {subtasks.map((subtask) => (
-                <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-gray-700 shadow">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={subtask.completed}
-                      onChange={() => toggleSubtaskCompletion(subtask._id)}
-                    />
-                    <span className={`${subtask.completed ? 'line-through' : ''} text-sm font-medium`}>
-                      {subtask.title}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 max-h-[60px] overflow-y-auto">{subtask.description}</p>
-                </div>
-              ))}
+    
+            <div className="text-gray-600 dark:text-gray-400 text-sm mt-4">
+              <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
+            </div>
+    
+            <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
+              <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
             </div>
           </div>
-
-          <div className="flex flex-col gap-3 mt-6">
-            <Button color="success" onClick={completeTask}>
-              Complete Task
-            </Button>
-            
-                <Button color="warning">
-                <Link   to={`/update-post/${post._id}`}>
-                      Update Post
-                  </Link>
-                </Button>
-              
-            <Button color="failure" onClick={deleteTask}>
-              Delete Task
-            </Button>
+    
+          <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6">
+            {/* Deadline Timer Section */}
+            <div className="text-black dark:text-white text-sm mb-6">
+              <h3 className="text-lg font-semibold">Deadline Timer</h3>
+              <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
+              <p>Time Remaining: {remainingTime}</p>
+            </div>
+    
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Status</h3>
+              <p>{completionPercentage === 100 ? 'Completed' : 'In Progress'}</p>
+            </div>
+    
+            {/* Circular Progress Bar */}
+            <div className="flex justify-center">
+              <div style={{ width: '80%', maxWidth: '200px' }}> {/* Adjust maxWidth here */}
+                <CircularProgressbar
+                  value={completionPercentage}
+                  text={`${Math.round(completionPercentage)}%`}
+                  styles={{
+                    path: { stroke: '#4caf50' },
+                    text: { fill: '#ffffff', fontSize: '20px' },
+                    background: { fill: '#333' },
+                  }}
+                />
+              </div>
+            </div>
+    
+            <div>
+              <h3 className="text-lg font-semibold">Subtasks</h3>
+              <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
+                {subtasks.map((subtask) => (
+                  <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-gray-700 shadow">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={subtask.completed}
+                        onChange={() => toggleSubtaskCompletion(subtask._id)}
+                      />
+                      <span className={`${subtask.completed ? 'line-through' : ''} text-sm font-medium`}>
+                        {subtask.title}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 max-h-[60px] overflow-y-auto">{subtask.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+    
+            <div className="flex flex-col gap-3 mt-6">
+              <Button color="success" onClick={completeTask}>
+                Complete Task
+              </Button>
+              <Button color="warning">
+                <Link to={`/update-post/${post._id}`}>
+                  Update Post
+                </Link>
+              </Button>
+              <Button color="failure" onClick={deleteTask}>
+                Delete Task
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      
     </main>
   );
 }

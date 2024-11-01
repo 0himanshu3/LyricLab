@@ -8,6 +8,7 @@ export default function PostCard({ post }) {
   const completedCount = subtasks.filter(subtask => subtask.completed).length;
   const totalCount = subtasks.length;
   const completionPercentage = totalCount ? (completedCount / totalCount) * 100 : 0;
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     setLoading(false); // Stop loading when the component mounts
@@ -70,16 +71,19 @@ export default function PostCard({ post }) {
 
   const deleteTask = async () => {
     try {
-      const res = await fetch(`/api/post/${post._id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        console.log('Task deleted');
-      }
-    } catch (error) {
-      console.error('Failed to delete task:', error);
+        const res = await fetch(`/api/post/${post._id}`, {
+            method: 'DELETE',
+        });
+        if (res.ok) {
+            window.location.reload();
+            console.log('Task deleted');
+        }
     }
-  };
+    catch (error) {
+        console.error('Failed to delete task:', error);
+    }
+};
+
 
   if (loading) {
     return (
