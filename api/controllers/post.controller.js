@@ -228,18 +228,17 @@ export const deleteTask = async (req, res) => {
 };
 
 export const getPostById = async (req, res) => {
-  const { postId } = req.query;
+  const { postId } = req.params;
 
   try {
     const post = await Post.findById(postId);
-
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    res.status(200).json({ posts: [post] }); // Wrap in an array as per your frontend structure
+    res.status(200).json(post);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching post:', error);
+    res.status(500).json({ message: 'Server error while fetching post' });
   }
 };

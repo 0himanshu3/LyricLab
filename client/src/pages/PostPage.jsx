@@ -147,13 +147,7 @@ export default function PostPage() {
     }
   };
 
-  const addSubtask = () => {
-    // Logic to add a new subtask, such as opening a modal or form
-  };
-
-  const updateTask = () => {
-    navigate(`/update-task/${post._id}`);
-  };
+  
 
   if (loading)
     return (
@@ -257,9 +251,11 @@ export default function PostPage() {
             <Button color="failure" onClick={deleteTask}>
               Delete Task
             </Button>
-            <Button color="warning" onClick={updateTask}>
-              Edit Task
-            </Button>
+            <Button color="warning">
+                <Link to={`/update-post/${post._id}`}>
+                  Edit Task
+                </Link>
+              </Button>
           </div>
         </div>
       </div>
