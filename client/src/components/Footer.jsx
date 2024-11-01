@@ -1,13 +1,39 @@
 import { Footer } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { BsFacebook, BsInstagram, BsTwitter, BsGithub, BsDribbble } from 'react-icons/bs';
+import { BsFacebook, BsInstagram, BsTwitter, BsGithub } from 'react-icons/bs';
+import { useEffect } from 'react';
+
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 export default function FooterCom() {
   const { theme } = useSelector((state) => state.theme);
 
+  // Letter animation function
+  const animateLetters = (event) => {
+    let iteration = 0;
+    const originalText = event.target.dataset.value;
+    let interval = setInterval(() => {
+      event.target.innerText = originalText
+        .split("")
+        .map((letter, index) => {
+          if (index < iteration) {
+            return originalText[index];
+          }
+          return letters[Math.floor(Math.random() * 26)];
+        })
+        .join("");
+
+      if (iteration >= originalText.length) {
+        clearInterval(interval);
+      }
+
+      iteration += 1 / 3;
+    }, 30);
+  };
+
   return (
-    <Footer container className='border border-t-8 border-teal-500'>
+    <Footer container className='bg-gray-200 border border-t-1 border-teal-500'>
       <div className='w-full max-w-7xl mx-auto'>
         <div className='grid w-full justify-between sm:flex md:grid-cols-1'>
           <div className='mt-5'>
@@ -16,46 +42,47 @@ export default function FooterCom() {
               className='self-center whitespace-nowrap text-xl sm:text-xxl font-semibold dark:text-white'
             >
               <img
-              src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
-              alt='Lyric Lab Logo'
-              className='h-20 sm:h-[3.7rem]'  
-            />
+                src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'}
+                alt='Lyric Lab Logo'
+                className='h-20 sm:h-[3.7rem]'
+              />
             </Link>
           </div>
-          <div className='grid grid-cols-2 gap-4 mt-4 sm:grid-cols-3 sm:gap-0'>
+          <div className='grid grid-cols-2 gap-4 mt-4 sm:grid-cols-3 sm:gap-0 '>
             <div>
-
               <Footer.LinkGroup col>
                 <Footer.Link
                   href='/about'
                   target='_blank'
                   rel='noopener noreferrer'
                   data-value='LYRICLAB'
+                  onMouseOver={animateLetters} // Apply animation on hover
                 >
                   LYRICLAB
                 </Footer.Link>
               </Footer.LinkGroup>
             </div>
             <div>
-
               <Footer.LinkGroup col>
                 <Footer.Link
                   href='#'
                   target='_blank'
                   rel='noopener noreferrer'
                   data-value='GITHUB'
+                  onMouseOver={animateLetters}
                 >
                   GITHUB
                 </Footer.Link>
                 <Footer.Link
                   href='#'
                   data-value='DISCORD'
+                  onMouseOver={animateLetters}
                 >
-                  DISCORD</Footer.Link>
+                  DISCORD
+                </Footer.Link>
               </Footer.LinkGroup>
             </div>
             <div>
-
               <Footer.LinkGroup col>
                 <Footer.Link href='#'>PRIVACY POLICY</Footer.Link>
                 <Footer.Link href='#'>TERMS &amp; CONDITIONS</Footer.Link>
@@ -66,16 +93,12 @@ export default function FooterCom() {
         <Footer.Divider />
 
         <div className='w-full sm:flex sm:items-center sm:justify-between'>
-          <Footer.Copyright
-            href='#'
-            by="LyricLab"
-            year={new Date().getFullYear()}
-          />
+          <Footer.Copyright href='#' by="LyricLab" year={new Date().getFullYear()} />
           <div className="flex gap-4 sm:mt-0 mt-2 sm:justify-center">
-            <Footer.Icon href='#' icon={BsFacebook}/>
-            <Footer.Icon href='#' icon={BsInstagram}/>
-            <Footer.Icon href='#' icon={BsTwitter}/>
-            <Footer.Icon href='https://github.com/duke107' icon={BsGithub}/>
+            <Footer.Icon href='#' icon={BsFacebook} />
+            <Footer.Icon href='#' icon={BsInstagram} />
+            <Footer.Icon href='#' icon={BsTwitter} />
+            <Footer.Icon href='https://github.com/duke107' icon={BsGithub} />
           </div>
         </div>
       </div>
