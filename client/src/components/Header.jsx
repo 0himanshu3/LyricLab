@@ -49,7 +49,7 @@ export default function Header() {
   };
 
   return (
-    <Navbar className='border-b-2'>
+    <Navbar className='border-b-2 bg-gray-200 dark:bg-gray-800'>
       <Link
         to='/'
         className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
@@ -119,8 +119,8 @@ export default function Header() {
       <Navbar.Link active={path === '/about'} as={'div'} className="w-full">
         <Link to='/about' className="block w-full h-full px-4">About</Link>
       </Navbar.Link>
-      <Navbar.Link active={path === '/projects'} as={'div'} className="w-full">
-        <Link to='/projects' className="block w-full h-full px-4">Projects</Link>
+      <Navbar.Link active={path === '/search'} as={'div'} className="w-full">
+        <Link to='/search' className="block w-full h-full px-4">Search</Link>
       </Navbar.Link>
     </Navbar.Collapse>
     </Navbar>

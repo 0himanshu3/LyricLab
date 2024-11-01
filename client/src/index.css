@@ -1,9 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
   height: 100vh;
+  font-family: 'Roboto';
 }
 
 .ql-editor {
@@ -58,4 +62,9 @@ body {
   color: white;
   white-space: nowrap;
   border-radius: clamp(0.4rem, 0.75vw, 1rem);
+}
+
+.checkbox:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }

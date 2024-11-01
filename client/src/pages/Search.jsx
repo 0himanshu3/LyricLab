@@ -151,23 +151,25 @@ export default function Search() {
       </div>
       <div className='w-full'>
         <h1 className='text-3xl font-semibold sm:border-b border-gray-500 p-3 mt-5'>Posts results:</h1>
-        <div className='p-7 flex flex-wrap gap-4'>
-          {loading && <p className='text-xl text-gray-500'>Loading...</p>}
-          {!loading && posts.length === 0 && (
-            <p className='text-xl text-gray-500'>No posts found.</p>
-          )}
-          {!loading && posts.map(post => (
+        <div className='p-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full'>
+        {loading && <p className='text-xl text-gray-500'>Loading...</p>}
+        {!loading && posts.length === 0 && (
+          <p className='text-xl text-gray-500'>No posts found.</p>
+        )}
+        {!loading &&
+          posts.map((post) => (
             <PostCard key={post._id} post={post} onDelete={handleDelete} />
           ))}
-          {showMore && (
-            <button
-              onClick={handleShowMore}
-              className='text-teal-500 text-lg hover:underline p-7 w-full'
-            >
-              Show More
-            </button>
-          )}
-        </div>
+        {showMore && (
+          <button
+            onClick={handleShowMore}
+            className='text-teal-500 text-lg hover:underline p-7 w-full'
+          >
+            Show More
+          </button>
+        )}
+      </div>
+
       </div>
     </div>
   );

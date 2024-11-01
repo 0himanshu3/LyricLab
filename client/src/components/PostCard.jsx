@@ -108,12 +108,12 @@ export default function PostCard({ post }) {
           </Link>
         </div>
 
-        <div className="mb-3 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="overflow-hidden mb-0" onClick={(e) => e.stopPropagation()}>
           <h3 className="font-semibold text-sm mb-1">Subtasks</h3>
           {subtasks.slice(0, 3).map((subtask) => (
             <div key={subtask._id} className="flex items-center gap-2 py-0.5">
               <Checkbox
-                className="cursor-pointer"
+                className="checkbox cursor-pointer outline-none border-none shadow-none"
                 checked={subtask.completed}
                 onChange={() => toggleSubtaskCompletion(subtask._id)}
               />
@@ -130,7 +130,7 @@ export default function PostCard({ post }) {
             className="absolute top-0 left-0 h-full bg-teal-500 rounded"
             style={{ width: `${completionPercentage}%` }}
           />
-          <span className="text-xs">{completedCount}/{totalCount} Subtasks Completed</span>
+          <div className="text-xs mt-2">{completedCount}/{totalCount} Subtasks Completed</div>
         </div>
 
         <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
