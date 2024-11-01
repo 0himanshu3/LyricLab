@@ -52,3 +52,10 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
+
+.special-text {
+  /* font-family: "Jetbrains Mono", monospace; */
+  color: white;
+  white-space: nowrap;
+  border-radius: clamp(0.4rem, 0.75vw, 1rem);
+}

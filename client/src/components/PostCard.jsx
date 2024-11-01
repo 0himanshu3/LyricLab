@@ -68,7 +68,6 @@ export default function PostCard({ post }) {
     }
 };
   
-
   const deleteTask = async () => {
     try {
         const res = await fetch(`/api/post/${post._id}`, {
@@ -109,7 +108,7 @@ export default function PostCard({ post }) {
       <div className='mb-3'>
         <h3 className='font-semibold text-sm mb-1'>Subtasks</h3>
         {subtasks.map((subtask) => (
-          <div key={subtask._id} className='flex items-center gap-2'>
+          <div key={subtask._id} className='flex items-center gap-2 py-0.5'>
             <Checkbox
               checked={subtask.completed}
               onChange={() => toggleSubtaskCompletion(subtask._id)}
@@ -119,7 +118,7 @@ export default function PostCard({ post }) {
             </span>
           </div>
         ))}
-        {totalCount > 2 && <span className='text-xs text-gray-500'>+ {totalCount - 2} more subtasks</span>}
+        {totalCount > 2 && <span className='text-xs text-gray-500'>+{totalCount - 2} more subtasks</span>}
       </div>
 
       <div className='relative w-full h-2 bg-gray-200 rounded'>
