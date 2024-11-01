@@ -1,17 +1,17 @@
 import { Card, Checkbox, Button, Spinner } from 'flowbite-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 export default function PostCard({ post }) {
   const [loading, setLoading] = useState(true);
   const [subtasks, setSubtasks] = useState(post.subtasks || []);
-  const completedCount = subtasks.filter(subtask => subtask.completed).length;
+  const navigate = useNavigate();
+  const completedCount = subtasks.filter((subtask) => subtask.completed).length;
   const totalCount = subtasks.length;
   const completionPercentage = totalCount ? (completedCount / totalCount) * 100 : 0;
-  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    setLoading(false); // Stop loading when the component mounts
+    setLoading(false);
   }, []);
 
   const getPriorityColor = () => {
@@ -45,44 +45,39 @@ export default function PostCard({ post }) {
     }
   };
 
-  // New function to mark all subtasks as complete
   const completeAllSubtasks = async () => {
     const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
-
     setSubtasks(updatedSubtasks);
 
     try {
-        const res = await fetch(`/api/post/${post._id}/complete-subtasks`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subtasks: updatedSubtasks }),
-        });
+      const res = await fetch(`/api/post/${post._id}/complete-subtasks`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subtasks: updatedSubtasks }),
+      });
 
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.message || 'Failed to update subtasks in the database');
-        }
-        // Optionally handle success (e.g., show a message)
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to update subtasks in the database');
+      }
     } catch (error) {
-        console.error('Error updating subtasks in database:', error);
+      console.error('Error updating subtasks in database:', error);
     }
-};
-  
+  };
+
   const deleteTask = async () => {
     try {
-        const res = await fetch(`/api/post/${post._id}`, {
-            method: 'DELETE',
-        });
-        if (res.ok) {
-            window.location.reload();
-            console.log('Task deleted');
-        }
+      const res = await fetch(`/api/post/${post._id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        window.location.reload();
+        console.log('Task deleted');
+      }
+    } catch (error) {
+      console.error('Failed to delete task:', error);
     }
-    catch (error) {
-        console.error('Failed to delete task:', error);
-    }
-};
-
+  };
 
   if (loading) {
     return (
@@ -93,55 +88,60 @@ export default function PostCard({ post }) {
   }
 
   return (
-    <Card className='max-w-sm p-5 shadow-lg'>
-      <Link to={`/post/${post.slug}`}>
-        <h2 className='text-xl font-bold mb-2'>{post.title}</h2>
-        <div className={`text-sm font-bold ${getPriorityColor()} text-white px-2 py-1 rounded inline-block mb-3`}>
-          Priority: {post.priority.charAt(0).toUpperCase() + post.priority.slice(1)}
+    <div onClick={() => navigate(`/post/${post.slug}`)} className='cursor-pointer'>
+      <Card className="max-w-sm h-[420px] p-5 shadow-lg relative">
+        <div onClick={(e) => e.stopPropagation()}>
+          <Link to={`/post/${post.slug}`}>
+            <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+          </Link>
+          <Link to={`/post/${post.slug}`}>
+            <div
+              className={`text-sm font-bold ${getPriorityColor()} text-white px-2 py-1 rounded inline-block mb-3`}
+            >
+              Priority: {post.priority.charAt(0).toUpperCase() + post.priority.slice(1)}
+            </div>
+          </Link>
+          <Link to={`/post/${post.slug}`}>
+            <p className="text-sm mb-2">
+              Status: {completedCount === totalCount ? 'Completed' : 'In Progress'}
+            </p>
+          </Link>
         </div>
-      </Link>
 
-      <p className='text-sm mb-2'>
-        Status: {completedCount === totalCount ? 'Completed' : 'In Progress'}
-      </p>
+        <div className="mb-3 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <h3 className="font-semibold text-sm mb-1">Subtasks</h3>
+          {subtasks.slice(0, 3).map((subtask) => (
+            <div key={subtask._id} className="flex items-center gap-2 py-0.5">
+              <Checkbox
+                className="cursor-pointer"
+                checked={subtask.completed}
+                onChange={() => toggleSubtaskCompletion(subtask._id)}
+              />
+              <span className={`text-xs ${subtask.completed ? 'line-through' : ''}`}>
+                {subtask.title}
+              </span>
+            </div>
+          ))}
+          {totalCount > 3 && <span className="text-xs text-gray-500">+{totalCount - 3} subtasks remaining</span>}
+        </div>
 
-      <div className='mb-3'>
-        <h3 className='font-semibold text-sm mb-1'>Subtasks</h3>
-        {subtasks.map((subtask) => (
-          <div key={subtask._id} className='flex items-center gap-2 py-0.5'>
-            <Checkbox
-              checked={subtask.completed}
-              onChange={() => toggleSubtaskCompletion(subtask._id)}
-            />
-            <span className={`text-xs ${subtask.completed ? 'line-through' : ''}`}>
-              {subtask.title}
-            </span>
-          </div>
-        ))}
-        {totalCount > 2 && <span className='text-xs text-gray-500'>+{totalCount - 2} more subtasks</span>}
-      </div>
+        <div className="relative w-full h-2 bg-gray-200 rounded" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="absolute top-0 left-0 h-full bg-teal-500 rounded"
+            style={{ width: `${completionPercentage}%` }}
+          />
+          <span className="text-xs">{completedCount}/{totalCount} Subtasks Completed</span>
+        </div>
 
-      <div className='relative w-full h-2 bg-gray-200 rounded'>
-        <div
-          className='absolute top-0 left-0 h-full bg-teal-500 rounded'
-          style={{ width: `${completionPercentage}%` }}
-        />
-      </div>
-      <span className='text-xs'>{completedCount}/{totalCount} Subtasks Completed</span>
-
-      <div className='mt-3 flex gap-2'>
-        <Button color='success' size='sm' onClick={completeAllSubtasks}  disabled={completedCount === totalCount}> {/* Call the new function here */}
-          Complete Task
-        </Button>
-        <Button color='failure' size='sm' onClick={deleteTask}>
-          Delete Task
-        </Button>
-        <Link to={`/post/${post.slug}`}>
-          <Button color='info' size='sm'>
-            View Full Task
+        <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <Button color="success" size="sm" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
+            Complete Task
           </Button>
-        </Link>
-      </div>
-    </Card>
+          <Button color="failure" size="sm" onClick={deleteTask}>
+            Delete Task
+          </Button>
+        </div>
+      </Card>
+    </div>
   );
 }
