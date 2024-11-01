@@ -93,6 +93,32 @@ export const getposts = async (req, res) => {
   }
 };
 
+export const getPostBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params; // Extract slug from URL parameters
+
+    // Check if slug is provided
+    if (!slug) {
+      return res.status(400).json({ message: 'Slug is required' });
+    }
+
+    // Find post by slug
+    const post = await Post.findOne({ slug }).exec();
+
+    // If post is not found, return 404
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Return the found post
+    res.status(200).json( post );
+  } catch (error) {
+    console.error('Error fetching post by slug:', error);
+    res.status(500).json({ message: 'Failed to fetch post by slug' });
+  }
+};
+
+
 
 export const deletepost = async (req, res, next) => {
   if (!req.user.isAdmin || req.user.id !== req.params.userId) {
@@ -202,17 +228,18 @@ export const deleteTask = async (req, res) => {
 };
 
 export const getPostById = async (req, res) => {
-  const { postId } = req.params;
+  const { postId } = req.query;
 
   try {
     const post = await Post.findById(postId);
+
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    res.status(200).json(post);
+    res.status(200).json({ posts: [post] }); // Wrap in an array as per your frontend structure
   } catch (error) {
-    console.error('Error fetching post:', error);
-    res.status(500).json({ message: 'Server error while fetching post' });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

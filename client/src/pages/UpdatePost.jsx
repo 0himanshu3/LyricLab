@@ -33,7 +33,7 @@ export default function UpdatePost() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await fetch(`/api/post/getposts?postId=${postId}`);
+        const res = await fetch(`/api/post/getpostbyid?postId=${postId}`);
         const data = await res.json();
   
         if (!res.ok) {

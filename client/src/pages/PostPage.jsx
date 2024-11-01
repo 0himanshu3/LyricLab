@@ -7,6 +7,9 @@ import moment from 'moment';
 
 export default function PostPage() {
   const { postSlug } = useParams();
+  console.log('====================================');
+  console.log(postSlug);
+  console.log('====================================');
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -20,19 +23,22 @@ export default function PostPage() {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
+        const res = await fetch(`/api/post/${postSlug}`);
         const data = await res.json();
+        console.log('====================================');
+        console.log(data);
+        console.log('====================================');
         if (!res.ok) {
           setError(true);
           setLoading(false);
           return;
         }
-        setPost(data.posts[0]);
-        setSubtasks(data.posts[0].subtasks);
+        setPost(data);
+        setSubtasks(data.subtasks);
         setLoading(false);
         setError(false);
-        updateCompletionPercentage(data.posts[0].subtasks);
-        startDeadlineTimer(data.posts[0].deadline); // Start countdown timer
+        updateCompletionPercentage(data.subtasks);
+        startDeadlineTimer(data.deadline); // Start countdown timer
       } catch (error) {
         setError(true);
         setLoading(false);
@@ -226,19 +232,23 @@ export default function PostPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
-            <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
-              {subtasks.map((subtask) => (
-                <div key={subtask._id} className="flex flex-col p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
-                  <Checkbox
-                    checked={subtask.completed}
-                    label={subtask.title}
-                    onChange={() => toggleSubtaskCompletion(subtask._id)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
+  <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
+    {subtasks.map((subtask) => (
+      <div key={subtask._id} className="flex items-center p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
+        <Checkbox
+          checked={subtask.completed}
+          onChange={() => toggleSubtaskCompletion(subtask._id)}
+        />
+        <div className="ml-3">
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-200">{subtask.title}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">{subtask.description}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
 
           <div className="flex flex-col space-y-4">
             <Button color="success" onClick={completeTask}>

@@ -137,6 +137,7 @@ export default function Search() {
           <div className='flex items-center gap-2'>
             <label className='font-semibold'>Category:</label>
             <Select id='category' onChange={handleChange} value={sidebarData.category}>
+            <option value='all'>All</option>
               <option value='reactjs'>React.js</option>
               <option value='nextjs'>Next.js</option>
               <option value='javascript'>JavaScript</option>
