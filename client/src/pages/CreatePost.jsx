@@ -27,6 +27,7 @@ export default function CreatePost() {
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
   const [newCollaborator, setNewCollaborator] = useState('');
   const [isCollaborative, setIsCollaborative] = useState(false);
+  const [teamName, setTeamName] = useState(''); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export default function CreatePost() {
           subtasks,
           isCollaborative,
           selectedCollaborators,
+          teamName, // Include team name in the form data
         }),
       });
       if (res.ok) {
@@ -260,6 +262,14 @@ export default function CreatePost() {
 
         {isCollaborative && (
           <>
+                    <TextInput
+                type='text'
+                placeholder='Team Name'
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                required
+                className="my-2"
+              />
             <Select
               onChange={handleCollaboratorChange}
               value={newCollaborator}>
