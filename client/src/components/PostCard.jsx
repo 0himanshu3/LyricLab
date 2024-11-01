@@ -89,11 +89,19 @@ export default function PostCard({ post }) {
 
   return (
     <div onClick={() => navigate(`/post/${post.slug}`)} className='cursor-pointer'>
-      <Card className="max-w-sm h-[420px] p-5 shadow-lg relative">
+      <Card className="max-w-sm h-[450px] p-5 shadow-lg relative">
         <div onClick={(e) => e.stopPropagation()}>
           <Link to={`/post/${post.slug}`}>
             <h2 className="text-xl font-bold mb-2">{post.title}</h2>
           </Link>
+
+          {/* Display team name if isCollaborative is true */}
+          {post.isCollaborative && post.teamName && (
+            <p className="text-sm font-semibold text-gray-700 mb-2">
+              Team: {post.teamName}
+            </p>
+          )}
+
           <Link to={`/post/${post.slug}`}>
             <div
               className={`text-sm font-bold ${getPriorityColor()} text-white px-2 py-1 rounded inline-block mb-3`}

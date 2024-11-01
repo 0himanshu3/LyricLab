@@ -15,12 +15,21 @@ export const create = async (req, res, next) => {
     .toLowerCase()
     .replace(/[^a-zA-Z0-9-]/g, '');
 
+  // Create a new post instance with the provided data
   const newPost = new Post({
-    ...req.body,
+    title: req.body.title,
+    content: req.body.content,
+    image: req.body.image || undefined, // Use provided image or default
+    category: req.body.category || 'uncategorized', // Default category if not provided
     slug,
     userId: req.user.id,
+    priority: req.body.priority || 'low', // Default priority if not provided
+    deadline: req.body.deadline || undefined, // Optional field
+    isCollaborative: req.body.isCollaborative || false, // Collaboration flag
+    teamName: req.body.teamName || '', // Team name
+    collaborators: req.body.selectedCollaborators || [], // Collaborators list
+    subtasks: req.body.subtasks || [] // Subtasks array
   });
-
   try {
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);
@@ -29,46 +38,61 @@ export const create = async (req, res, next) => {
   }
 };
 
-export const getposts = async (req, res, next) => {
+
+export const getposts = async (req, res) => {
   try {
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 9;
-    const sortDirection = req.query.order === 'asc' ? 1 : -1;
+    const { userId,searchTerm, sort = 'desc', category = 'uncategorized', priority = 'all', deadline = 'all', limit = 10, skip = 0 } = req.query; // Get filters from query
     
-    const posts = await Post.find({
-      ...(req.query.userId && { userId: req.query.userId }),
-      ...(req.query.category && { category: req.query.category }),
-      ...(req.query.priority && { priority: req.query.priority }),
-      ...(req.query.slug && { slug: req.query.slug }),
-      ...(req.query.postId && { _id: req.query.postId }),
-      ...(req.query.searchTerm && {
-        $or: [
-          { title: { $regex: req.query.searchTerm, $options: 'i' } },
-          { content: { $regex: req.query.searchTerm, $options: 'i' } },
-        ],
-      }),
-    })
-      .sort({ updatedAt: sortDirection })
-      .skip(startIndex)
-      .limit(limit);
+    const query = {
+      $or: [
+        { userId: userId }, // Match posts created by the user
+        { 'collaborators.value': userId } // Match posts where the user is a collaborator
+      ]
+    };
+  
+    // Apply additional filters if provided
+    if (searchTerm) {
+      query.title = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
+    }
+    if (category && category!=='uncategorized') {
+      query.category = category;
+    }
+    if (priority && priority !== 'all') {
+      query.priority = priority;
+    }
+    if (deadline && deadline !== 'all') {
+      const today = new Date();
+      let dateFilter;
+      switch (deadline) {
+        case 'this_week':
+          dateFilter = new Date(today.setDate(today.getDate() + 7));
+          query.deadline = { $lte: dateFilter }; // Tasks due this week
+          break;
+        case 'next_week':
+          dateFilter = new Date(today.setDate(today.getDate() + 14));
+          query.deadline = { $gt: new Date(), $lte: dateFilter }; // Tasks due next week
+          break;
+        case 'this_month':
+          dateFilter = new Date(today.setMonth(today.getMonth() + 1));
+          query.deadline = { $lte: dateFilter }; // Tasks due this month
+          break;
+      }
+    }
 
-    const totalPosts = await Post.countDocuments();
+    // Fetch posts from the database with pagination
+    const posts = await Post.find(query)
+      .sort({ createdAt: sort === 'asc' ? 1 : -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .exec();
 
-    const now = new Date();
-    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    const lastMonthPosts = await Post.countDocuments({
-      createdAt: { $gte: oneMonthAgo },
-    });
-
-    res.status(200).json({
-      posts,
-      totalPosts,
-      lastMonthPosts,
-    });
+    res.status(200).json({ posts });
   } catch (error) {
-    next(error);
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ message: 'Failed to fetch posts' });
   }
 };
+
 
 export const deletepost = async (req, res, next) => {
   if (!req.user.isAdmin || req.user.id !== req.params.userId) {

@@ -14,6 +14,7 @@ export default function PostPage() {
   const [subtasks, setSubtasks] = useState([]);
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
+  const [showCollaborators, setShowCollaborators] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -40,7 +41,7 @@ export default function PostPage() {
     fetchPost();
   }, [postSlug]);
 
-  //to get priority colour
+  // Get priority color based on the task's priority level
   const getPriorityColor = () => {
     switch (post.priority) {
       case 'high':
@@ -53,7 +54,7 @@ export default function PostPage() {
         return '';
     }
   };
-
+  
   const updateCompletionPercentage = (subtasks) => {
     const completedSubtasks = subtasks.filter(subtask => subtask.completed).length;
     const totalSubtasks = subtasks.length || 1;
@@ -145,8 +146,7 @@ export default function PostPage() {
   };
 
   const updateTask = () => {
-    // Logic to update the task, such as navigating to an update form
-    navigate(`/update-task/${post._id}`); // Example route for updating the task
+    navigate(`/update-task/${post._id}`);
   };
 
   if (loading)
@@ -156,97 +156,103 @@ export default function PostPage() {
       </div>
     );
 
-    return (
-      <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2 space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-              <h1 className="text-3xl font-bold">{post && post.title}</h1>
-              <span className={`text-base font-semibold ${getPriorityColor()} text-white px-2 py-1 rounded-md`}>
-                Priority: {post && post.priority.charAt(0).toUpperCase() + post.priority.slice(1)}
-              </span>
+  return (
+    <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+            <h1 className="text-3xl font-bold">{post && post.title}</h1>
+            <span className={`text-base font-semibold ${getPriorityColor()} text-white px-2 py-1 rounded-md`}>
+              Priority: {post && post.priority.charAt(0).toUpperCase() + post.priority.slice(1)}
+            </span>
+          </div>
+
+          <img
+            src={post && post.image}
+            alt={post && post.title}
+            className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-md"
+          />
+
+          <div className="text-gray-800 dark:text-gray-400 text-sm mt-4">
+            <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
+          </div>
+
+          <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
+            <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
+          </div>
+
+          {/* Collaborative Feature */}
+          {post?.isCollaborative && (
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold">Team Name: {post.teamName}</h3>
+              <Button color="info" onClick={() => setShowCollaborators(!showCollaborators)}>
+                {showCollaborators ? 'Hide Collaborators' : 'Show Collaborators'}
+              </Button>
+              {showCollaborators && (
+                <ul className="mt-2 list-disc pl-5">
+                  {post.collaborators.map((collaborator, index) => (
+                    <li key={index}>{collaborator}</li>
+                  ))}
+                </ul>
+              )}
             </div>
-    
-            <img
-              src={post && post.image}
-              alt={post && post.title}
-              className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-md"
-            />
-    
-            <div className="text-gray-800 dark:text-gray-400 text-sm mt-4"> 
-              <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
-            </div>
-    
-            <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
-              <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
+          )}
+        </div>
+
+        <div className="bg-white dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6">
+          <div className="text-gray-800 dark:text-white text-sm mb-6">
+            <h3 className="text-lg font-semibold">Deadline Timer</h3>
+            <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
+            <p>Time Remaining: {remainingTime}</p>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Status</h3>
+            <p className="text-gray-800 dark:text-gray-200">{completionPercentage === 100 ? 'Completed' : 'In Progress'}</p>
+          </div>
+
+          <div className="flex justify-center">
+            <div style={{ width: '80%', maxWidth: '200px' }}>
+              <CircularProgressbar
+                value={completionPercentage}
+                text={`${Math.round(completionPercentage)}%`}
+                styles={{
+                  path: { stroke: '#4caf50' },
+                  text: { fill: '#000000', fontSize: '20px' },
+                  background: { fill: '#333' },
+                }}
+              />
             </div>
           </div>
-    
-          <div className="bg-white dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6"> 
-            {/* Deadline Timer Section */}
-            <div className="text-gray-800 dark:text-white text-sm mb-6">
-              <h3 className="text-lg font-semibold">Deadline Timer</h3>
-              <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
-              <p>Time Remaining: {remainingTime}</p>
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
+            <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
+              {subtasks.map((subtask) => (
+                <div key={subtask._id} className="flex flex-col p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
+                  <Checkbox
+                    checked={subtask.completed}
+                    label={subtask.title}
+                    onChange={() => toggleSubtaskCompletion(subtask._id)}
+                  />
+                </div>
+              ))}
             </div>
-    
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Status</h3> 
-              <p className="text-gray-800 dark:text-gray-200">{completionPercentage === 100 ? 'Completed' : 'In Progress'}</p>
-            </div>
-    
-            {/* Circular Progress Bar */}
-            <div className="flex justify-center">
-              <div style={{ width: '80%', maxWidth: '200px' }}>
-                <CircularProgressbar
-                  value={completionPercentage}
-                  text={`${Math.round(completionPercentage)}%`}
-                  styles={{
-                    path: { stroke: '#4caf50' },
-                    text: { fill: '#000000', fontSize: '20px'},
-                    background: { fill: '#333' },
-                  }}
-                />
-              </div>
-            </div>
-    
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
-              <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
-                {subtasks.map((subtask) => (
-                  <div key={subtask._id} className="flex flex-col p-4 border rounded-md bg-gray-100 dark:bg-gray-600 shadow"> 
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        className='checkbox cursor-pointer'
-                        checked={subtask.completed}
-                        onChange={() => toggleSubtaskCompletion(subtask._id)}
-                      />
-                      <span className={`${subtask.completed ? 'line-through' : ''} text-sm font-medium`}>
-                        {subtask.title}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 max-h-[60px] overflow-y-auto">{subtask.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-    
-            <div className="flex flex-col gap-3 mt-6">
-              <Button color="success" onClick={completeTask}>
-                Complete Task
-              </Button>
-              <Button color="warning">
-                <Link to={`/update-post/${post._id}`}>
-                  Update Post
-                </Link>
-              </Button>
-              <Button color="failure" onClick={deleteTask}>
-                Delete Task
-              </Button>
-            </div>
+          </div>
+
+          <div className="flex flex-col space-y-4">
+            <Button color="success" onClick={completeTask}>
+              Complete Task
+            </Button>
+            <Button color="failure" onClick={deleteTask}>
+              Delete Task
+            </Button>
+            <Button color="warning" onClick={updateTask}>
+              Edit Task
+            </Button>
           </div>
         </div>
-      </main>
-    );
-    
+      </div>
+    </main>
+  );
 }
