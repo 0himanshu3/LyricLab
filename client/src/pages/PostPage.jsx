@@ -231,7 +231,7 @@ export default function PostPage() {
             </div>
           </div>
         </div>
-      </main>
-    );
-    
+      
+    </main>
+  );
 }
