@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux'; 
 import PostCard from '../components/PostCard';
 import { HiAnnotation } from 'react-icons/hi';
+import LoadingScreen from '../components/LoadingScreen';
 
 export default function Search() {
   const userId = useSelector((state) => state.user.currentUser._id);
@@ -185,9 +186,9 @@ export default function Search() {
         {/* Posts Grid - scrollable container */}
         <div className="flex-grow overflow-y-scroll p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-            {loading && <p className="text-xl text-gray-500">Loading...</p>}
+            {loading && <LoadingScreen/>}
             {!loading && posts.length === 0 && (
-              <p className="text-xl text-gray-500">No posts found.</p>
+              <h1 className="text-xl text-gray-500">No posts found.</h1>
             )}
             {!loading &&
               posts.map((post) => (
