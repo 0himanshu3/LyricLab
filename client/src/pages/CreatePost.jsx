@@ -1,4 +1,4 @@
-import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
+import { Alert, FileInput, Select } from 'flowbite-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
@@ -14,6 +14,9 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import clsx from "clsx";
+import Button from "../components/Button";
+import Textbox from "../components/TextBox"; 
 
 export default function CreatePost() {
   const [file, setFile] = useState(null);
@@ -34,7 +37,9 @@ export default function CreatePost() {
     const fetchUsers = async () => {
       try {
         const res = await fetch(`/api/user/getusers`);
+    
         const data = await res.json();
+        console.log(data);
         if (res.ok && data.users) {
           const formattedUsers = data.users.map(user => ({
             label: user.username,
@@ -72,7 +77,7 @@ export default function CreatePost() {
           subtasks,
           isCollaborative,
           selectedCollaborators,
-          teamName, // Include team name in the form data
+          teamName,
         }),
       });
       if (res.ok) {
@@ -152,11 +157,11 @@ export default function CreatePost() {
       <h1 className='text-center text-3xl my-7 font-semibold'>Create a Post</h1>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4 sm:flex-row justify-between'>
-          <TextInput
+          <Textbox
             type='text'
             placeholder='Title'
             required
-            id='title'
+            label="Title"
             className='flex-1'
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           />
@@ -193,23 +198,10 @@ export default function CreatePost() {
             onChange={(e) => setFile(e.target.files[0])}
           />
           <Button
-            type='button'
-            gradientDuoTone='purpleToBlue'
-            size='sm'
-            outline
+            label={imageUploadProgress ? `${imageUploadProgress || 0}%` : 'Upload Image'}
             onClick={handleUploadImage}
-            disabled={imageUploadProgress}>
-            {imageUploadProgress ? (
-              <div className='w-16 h-16'>
-                <CircularProgressbar
-                  value={imageUploadProgress}
-                  text={`${imageUploadProgress || 0}%`}
-                />
-              </div>
-            ) : (
-              'Upload Image'
-            )}
-          </Button>
+            className="text-sm font-medium bg-purple-500 text-white rounded px-4 py-2"
+          />
         </div>
 
         {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
@@ -228,28 +220,26 @@ export default function CreatePost() {
         <h2 className='text-xl font-semibold'>Subtasks</h2>
         {subtasks.map((subtask, index) => (
           <div key={index} className='flex flex-col gap-2 border p-3 rounded-lg'>
-            <TextInput
+            <Textbox
               type='text'
               placeholder='Subtask Title'
+              label="Title"
               value={subtask.title}
               onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
               required
             />
-            <TextInput
+            <Textbox
               type='text'
               placeholder='Subtask Description'
+              label="Description"
               value={subtask.description}
               onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
               required
             />
-            <Button type='button' onClick={() => removeSubtask(index)} color="failure">
-              Remove Subtask
-            </Button>
+            <Button label="Remove Subtask" onClick={() => removeSubtask(index)} className="bg-red-500 text-white" />
           </div>
         ))}
-        <Button type='button' onClick={addSubtask}>
-          Add Subtask
-        </Button>
+        <Button label="Add Subtask" onClick={addSubtask} className="bg-blue-500 text-white" />
 
         <label className='flex items-center gap-2'>
           <input
@@ -262,49 +252,39 @@ export default function CreatePost() {
 
         {isCollaborative && (
           <>
-                    <TextInput
-                type='text'
-                placeholder='Team Name'
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                required
-                className="my-2"
-              />
+            <Textbox
+              type='text'
+              placeholder='Team Name'
+              label="Team Name"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              required
+            />
             <Select
-              onChange={handleCollaboratorChange}
-              value={newCollaborator}>
-              <option value=''>Select Collaborator</option>
+              value={newCollaborator}
+              onChange={handleCollaboratorChange}>
+              <option value=''>Select Collaborators</option>
               {users.map(user => (
                 <option key={user.value} value={user.value}>{user.label}</option>
               ))}
             </Select>
-            <Button type='button' onClick={addCollaborator}>
-              Add Collaborator
-            </Button>
-
-            <div className='flex gap-3 flex-wrap'>
+            <Button label="Add Collaborator" onClick={addCollaborator} className="bg-blue-500 text-white" />
+            <div className='flex flex-col gap-2'>
               {selectedCollaborators.map(collaborator => (
-                <div key={collaborator.value} className='flex items-center gap-2 border px-2 py-1 rounded-lg'>
+                <div key={collaborator.value} className='flex justify-between items-center'>
                   <span>{collaborator.label}</span>
                   <Button
-                    type='button'
-                    size='xs'
-                    color='failure'
+                    label="Remove"
                     onClick={() => removeCollaborator(collaborator.value)}
-                  >
-                    Remove
-                  </Button>
+                    className="bg-red-500 text-white"
+                  />
                 </div>
               ))}
             </div>
           </>
         )}
-
-        <Button type='submit' gradientDuoTone='greenToBlue'>
-          Publish Post
-        </Button>
-
-        {publishError && <Alert color='failure'>{publishError}</Alert>}
+        
+        <Button type='submit' label="Create Post" className="bg-green-500 text-white mt-4" />
       </form>
     </div>
   );

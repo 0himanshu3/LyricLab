@@ -1,18 +1,18 @@
 import { Button, Select, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux'; // Import useSelector
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux'; 
 import PostCard from '../components/PostCard';
 
 export default function Search() {
-  const userId = useSelector((state) => state.user.currentUser._id); // Extract user ID from Redux state
+  const userId = useSelector((state) => state.user.currentUser._id);
 
   const [sidebarData, setSidebarData] = useState({
     searchTerm: '',
     sort: 'desc',
     category: 'uncategorized',
-    priority: 'all', // Added priority filter
-    deadline: 'all' // Added deadline filter
+    priority: 'all',
+    deadline: 'all'
   });
 
   const [posts, setPosts] = useState([]);
@@ -64,8 +64,7 @@ export default function Search() {
     };
   
     fetchPosts();
-  }, [location.search, userId]); // Remove sidebarData from here
-  
+  }, [location.search, userId]);
 
   const handleChange = (e) => {
     if (e.target.id === "searchTerm") {
@@ -174,7 +173,9 @@ export default function Search() {
           )}
           {!loading &&
             posts.map((post) => (
-              <PostCard key={post._id} post={post} onDelete={handleDelete} />
+              <Link to={`/post/${post._id}`} key={post._id}>
+                <PostCard post={post} onDelete={handleDelete} />
+              </Link>
             ))}
           {showMore && (
             <button

@@ -11,7 +11,6 @@ export default function PostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
-  const [subtasks, setSubtasks] = useState([]);
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
   const [showCollaborators, setShowCollaborators] = useState(false);
@@ -27,12 +26,12 @@ export default function PostPage() {
           setLoading(false);
           return;
         }
-        setPost(data.posts[0]);
-        setSubtasks(data.posts[0].subtasks);
+        const fetchedPost = data.posts[0];
+        setPost(fetchedPost);
         setLoading(false);
         setError(false);
-        updateCompletionPercentage(data.posts[0].subtasks);
-        startDeadlineTimer(data.posts[0].deadline); // Start countdown timer
+        updateCompletionPercentage(fetchedPost.subtasks);
+        startDeadlineTimer(fetchedPost.deadline);
       } catch (error) {
         setError(true);
         setLoading(false);
@@ -41,7 +40,6 @@ export default function PostPage() {
     fetchPost();
   }, [postSlug]);
 
-  // Get priority color based on the task's priority level
   const getPriorityColor = () => {
     switch (post.priority) {
       case 'high':
@@ -54,7 +52,7 @@ export default function PostPage() {
         return '';
     }
   };
-  
+
   const updateCompletionPercentage = (subtasks) => {
     const completedSubtasks = subtasks.filter(subtask => subtask.completed).length;
     const totalSubtasks = subtasks.length || 1;
@@ -72,11 +70,9 @@ export default function PostPage() {
         setRemainingTime('Deadline Passed');
         clearInterval(interval);
       } else {
-        const days = duration.days();
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-        const seconds = duration.seconds();
-        setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+        setRemainingTime(
+          `${duration.days()}d ${duration.hours()}h ${duration.minutes()}m ${duration.seconds()}s`
+        );
       }
     }, 1000);
 
@@ -90,49 +86,36 @@ export default function PostPage() {
         headers: { 'Content-Type': 'application/json' },
       });
       if (res.ok) {
-        const updatedSubtasks = subtasks.map((subtask) =>
+        const updatedSubtasks = post.subtasks.map((subtask) =>
           subtask._id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
         );
-        setSubtasks(updatedSubtasks);
+        setPost({ ...post, subtasks: updatedSubtasks });
         updateCompletionPercentage(updatedSubtasks);
-      } else {
-        console.error('Failed to toggle subtask completion:', await res.json());
       }
     } catch (error) {
       console.error('Failed to update subtask:', error);
     }
   };
 
-  const completeAllSubtasks = async () => {
-    const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
-    setSubtasks(updatedSubtasks);
+  const completeTask = async () => {
+    const updatedSubtasks = post.subtasks.map((subtask) => ({ ...subtask, completed: true }));
+    setPost({ ...post, subtasks: updatedSubtasks });
     updateCompletionPercentage(updatedSubtasks);
 
     try {
-      const res = await fetch(`/api/post/${post._id}/complete-subtasks`, {
+      await fetch(`/api/post/${post._id}/complete-subtasks`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subtasks: updatedSubtasks }),
       });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to update subtasks in the database');
-      }
     } catch (error) {
       console.error('Error updating subtasks in database:', error);
     }
   };
 
-  const completeTask = () => {
-    completeAllSubtasks();
-  };
-
   const deleteTask = async () => {
     try {
-      const res = await fetch(`/api/post/${post._id}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(`/api/post/${post._id}`, { method: 'DELETE' });
       if (res.ok) {
         navigate('/');
       }
@@ -141,20 +124,17 @@ export default function PostPage() {
     }
   };
 
-  const addSubtask = () => {
-    // Logic to add a new subtask, such as opening a modal or form
-  };
-
   const updateTask = () => {
     navigate(`/update-task/${post._id}`);
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <Spinner size="xl" />
       </div>
     );
+  }
 
   return (
     <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-gray-200">
@@ -181,7 +161,6 @@ export default function PostPage() {
             <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
           </div>
 
-          {/* Collaborative Feature */}
           {post?.isCollaborative && (
             <div className="mt-4">
               <h3 className="text-lg font-semibold">Team Name: {post.teamName}</h3>
@@ -191,7 +170,7 @@ export default function PostPage() {
               {showCollaborators && (
                 <ul className="mt-2 list-disc pl-5">
                   {post.collaborators.map((collaborator, index) => (
-                    <li key={index}>{collaborator}</li>
+                    <li key={index}>{collaborator.label}</li>
                   ))}
                 </ul>
               )}
@@ -227,8 +206,8 @@ export default function PostPage() {
 
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
-            <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
-              {subtasks.map((subtask) => (
+            <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto">
+              {post.subtasks.map((subtask) => (
                 <div key={subtask._id} className="flex flex-col p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
                   <Checkbox
                     checked={subtask.completed}
@@ -241,15 +220,9 @@ export default function PostPage() {
           </div>
 
           <div className="flex flex-col space-y-4">
-            <Button color="success" onClick={completeTask}>
-              Complete Task
-            </Button>
-            <Button color="failure" onClick={deleteTask}>
-              Delete Task
-            </Button>
-            <Button color="warning" onClick={updateTask}>
-              Edit Task
-            </Button>
+            <Button color="success" onClick={completeTask}>Complete Task</Button>
+            <Button color="failure" onClick={deleteTask}>Delete Task</Button>
+            <Button color="warning" onClick={updateTask}>Edit Task</Button>
           </div>
         </div>
       </div>
