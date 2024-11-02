@@ -1,4 +1,4 @@
-import { Alert, FileInput, Select } from 'flowbite-react';
+import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
@@ -8,15 +8,54 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment, useRef } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import clsx from "clsx";
-import Button from "../components/Button";
-import Textbox from "../components/TextBox"; 
+import { Dialog, Transition } from "@headlessui/react"; // Import Dialog and Transition
+
+const ModalWrapper = ({ open, setOpen, children }) => {
+  const cancelButtonRef = useRef(null);
+
+  return (
+    <Transition.Root show={open} as={Fragment}>
+  <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={() => setOpen(false)}>
+    <Transition.Child
+      as={Fragment}
+      enter="ease-out duration-300"
+      enterFrom="opacity-0"
+      enterTo="opacity-100"
+      leave="ease-in duration-200"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+    >
+      <div className="fixed inset-0 bg-black bg-opacity-60 transition-opacity" />
+    </Transition.Child>
+
+    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div className="flex h-full items-center justify-center p-4 text-center sm:p-0">
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          enterTo="opacity-100 translate-y-0 sm:scale-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+          leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        >
+          <Dialog.Panel className="w-full max-w-md p-6 mx-auto bg-white rounded-lg shadow-xl max-h-[80vh] overflow-y-auto">
+            {children}
+          </Dialog.Panel>
+        </Transition.Child>
+      </div>
+    </div>
+  </Dialog>
+</Transition.Root>
+
+  );
+};
 
 export default function CreatePost() {
   const [file, setFile] = useState(null);
@@ -31,15 +70,14 @@ export default function CreatePost() {
   const [newCollaborator, setNewCollaborator] = useState('');
   const [isCollaborative, setIsCollaborative] = useState(false);
   const [teamName, setTeamName] = useState(''); 
+  const [modalOpen, setModalOpen] = useState(false); // Manage modal state
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch(`/api/user/getusers`);
-    
+        const res = await fetch(`/api/user/getallusers`);
         const data = await res.json();
-        console.log(data);
         if (res.ok && data.users) {
           const formattedUsers = data.users.map(user => ({
             label: user.username,
@@ -155,137 +193,123 @@ export default function CreatePost() {
   return (
     <div className='p-3 max-w-3xl mx-auto min-h-screen'>
       <h1 className='text-center text-3xl my-7 font-semibold'>Create a Post</h1>
-      <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
-        <div className='flex flex-col gap-4 sm:flex-row justify-between'>
-          <Textbox
-            type='text'
-            placeholder='Title'
-            required
-            label="Title"
-            className='flex-1'
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          />
-          <Select
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
-            <option value='uncategorized'>Select a category</option>
-            <option value='javascript'>JavaScript</option>
-            <option value='reactjs'>React.js</option>
-            <option value='nextjs'>Next.js</option>
-          </Select>
-        </div>
-
-        <Select
-          onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
-          <option value=''>Select Priority</option>
-          <option value='high'>High</option>
-          <option value='medium'>Medium</option>
-          <option value='low'>Low</option>
-        </Select>
-
-        <DatePicker
-          selected={deadline}
-          onChange={(date) => setDeadline(date)}
-          minDate={new Date()}
-          placeholderText="Select a deadline"
-          className="w-full p-2 border rounded-md"
-          required
-        />
-
-        <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
-          <FileInput
-            type='file'
-            accept='image/*'
-            onChange={(e) => setFile(e.target.files[0])}
-          />
-          <Button
-            label={imageUploadProgress ? `${imageUploadProgress || 0}%` : 'Upload Image'}
-            onClick={handleUploadImage}
-            className="text-sm font-medium bg-purple-500 text-white rounded px-4 py-2"
-          />
-        </div>
-
-        {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
-        {formData.image && (
-          <img src={formData.image} alt='upload' className='w-full h-72 object-cover' />
-        )}
-
-        <ReactQuill
-          theme='snow'
-          placeholder='Write something...'
-          className='h-72 mb-12'
-          required
-          onChange={(value) => setFormData({ ...formData, content: value })}
-        />
-
-        <h2 className='text-xl font-semibold'>Subtasks</h2>
-        {subtasks.map((subtask, index) => (
-          <div key={index} className='flex flex-col gap-2 border p-3 rounded-lg'>
-            <Textbox
+      <Button color='success' className='bg-green-500 hover:bg-green-600 text-white' onClick={() => setModalOpen(true)}>
+  Open Create Post Form
+</Button>
+      
+      <ModalWrapper open={modalOpen} setOpen={setModalOpen}>
+        <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+          <div className='flex flex-col gap-4 sm:flex-row justify-between'>
+            <TextInput
               type='text'
-              placeholder='Subtask Title'
-              label="Title"
-              value={subtask.title}
-              onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+              placeholder='Title'
               required
-            />
-            <Textbox
-              type='text'
-              placeholder='Subtask Description'
-              label="Description"
-              value={subtask.description}
-              onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
-              required
-            />
-            <Button label="Remove Subtask" onClick={() => removeSubtask(index)} className="bg-red-500 text-white" />
-          </div>
-        ))}
-        <Button label="Add Subtask" onClick={addSubtask} className="bg-blue-500 text-white" />
-
-        <label className='flex items-center gap-2'>
-          <input
-            type='checkbox'
-            onChange={handleCollaborateChange}
-            value={isCollaborative ? 'no' : 'yes'}
-          />
-          Collaborate on this post
-        </label>
-
-        {isCollaborative && (
-          <>
-            <Textbox
-              type='text'
-              placeholder='Team Name'
-              label="Team Name"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              required
+              id='title'
+              className='flex-1'
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             />
             <Select
-              value={newCollaborator}
-              onChange={handleCollaboratorChange}>
-              <option value=''>Select Collaborators</option>
-              {users.map(user => (
-                <option key={user.value} value={user.value}>{user.label}</option>
-              ))}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
+              <option value='uncategorized'>Select a category</option>
+              <option value='javascript'>JavaScript</option>
+              <option value='reactjs'>React.js</option>
+              <option value='nextjs'>Next.js</option>
             </Select>
-            <Button label="Add Collaborator" onClick={addCollaborator} className="bg-blue-500 text-white" />
-            <div className='flex flex-col gap-2'>
-              {selectedCollaborators.map(collaborator => (
-                <div key={collaborator.value} className='flex justify-between items-center'>
-                  <span>{collaborator.label}</span>
-                  <Button
-                    label="Remove"
-                    onClick={() => removeCollaborator(collaborator.value)}
-                    className="bg-red-500 text-white"
-                  />
-                </div>
-              ))}
+          </div>
+
+          <Select
+            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
+            <option value=''>Select Priority</option>
+            <option value='high'>High</option>
+            <option value='medium'>Medium</option>
+            <option value='low'>Low</option>
+          </Select>
+
+          <DatePicker
+            selected={deadline}
+            onChange={(date) => setDeadline(date)}
+            minDate={new Date()}
+            placeholderText="Select a deadline"
+            className="w-full p-2 border rounded-md"
+            required
+          />
+
+          <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dashed p-3 rounded-md'>
+            <div className='flex-1'>
+              <FileInput onChange={(e) => setFile(e.target.files[0])} />
+              {imageUploadProgress && (
+                <CircularProgressbar value={imageUploadProgress} text={`${imageUploadProgress}%`} />
+              )}
+              {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
             </div>
-          </>
-        )}
-        
-        <Button type='submit' label="Create Post" className="bg-green-500 text-white mt-4" />
-      </form>
+            <Button color='success' className="text-xs" onClick={handleUploadImage}>Upload Image</Button>
+          </div>
+
+          <TextInput
+            type='text'
+            placeholder='Description'
+            required
+            id='description'
+            className='flex-1'
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          />
+
+          <div>
+            <h2 className='text-lg'>Subtasks</h2>
+            {subtasks.map((subtask, index) => (
+              <div key={index} className='flex gap-2'>
+                <TextInput
+                  type='text'
+                  placeholder='Subtask Title'
+                  value={subtask.title}
+                  onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+                />
+                <TextInput
+                  type='text'
+                  placeholder='Subtask Description'
+                  value={subtask.description}
+                  onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+                />
+               <Button className="bg-red-500 hover:bg-red-600 text-white" onClick={() => removeSubtask(index)}>
+          Remove
+        </Button>
+              </div>
+            ))}
+            <Button className="bg-green-500 hover:bg-green-600" onClick={addSubtask} >Add Subtask</Button>
+          </div>
+
+          <div>
+            <label htmlFor='collaborate' className='block'>Collaborate</label>
+            <Select id='collaborate' onChange={handleCollaborateChange}>
+              <option value='no'>No</option>
+              <option value='yes'>Yes</option>
+            </Select>
+            {isCollaborative && (
+              <div className='flex flex-col'>
+                <h3 className='text-lg'>Select Collaborators</h3>
+                {selectedCollaborators.map(collaborator => (
+                  <div key={collaborator.value} className='flex items-center'>
+                    <span>{collaborator.label}</span>
+                    <Button onClick={() => removeCollaborator(collaborator.value)}>Remove</Button>
+                  </div>
+                ))}
+                <Select onChange={handleCollaboratorChange} value={newCollaborator}>
+                  <option value=''>Add Collaborator</option>
+                  {users.map(user => (
+                    <option key={user.value} value={user.value}>{user.label}</option>
+                  ))}
+                </Select>
+                <Button className='bg-green-500 hover:bg-green-600'color='success' onClick={addCollaborator}>Add</Button>
+              </div>
+            )}
+          </div>
+
+          {publishError && <Alert color='failure'>{publishError}</Alert>}
+        <Button type='submit' className="bg-green-500 hover:bg-green-600 text-white">
+          Publish
+        </Button>
+        </form>
+      </ModalWrapper>
     </div>
   );
 }

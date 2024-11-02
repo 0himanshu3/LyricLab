@@ -131,3 +131,16 @@ export const getUser = async (req, res, next) => {
     next(error);
   }
 };
+export const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find();
+    if (!users || users.length === 0) {
+      return next(errorHandler(404, 'Users not found'));
+    }
+
+    const sanitizedUsers = users.map(({ _doc: { password, ...rest } }) => rest);
+    res.status(200).json(sanitizedUsers);
+  } catch (error) {
+    next(error);
+  }
+};
