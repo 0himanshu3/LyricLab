@@ -96,16 +96,17 @@ export const getposts = async (req, res) => {
 
 export const getPostBySlug = async (req, res) => {
   try {
-    
-    const { postSlug } = req.params; // Extract slug from URL parameters
-    console.log(postSlug);
+    const { slug } = req.params; // Extract slug from URL parameters
+    console.log('====================================');
+    console.log(slug);
+    console.log('====================================');
     // Check if slug is provided
-    if (!postSlug) {
+    if (!slug) {
       return res.status(400).json({ message: 'Slug is required' });
     }
 
     // Find post by slug
-    const post = await Post.findById(postSlug);
+    const post = await Post.findOne({ slug }).exec();
 
     // If post is not found, return 404
     if (!post) {
