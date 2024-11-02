@@ -78,9 +78,14 @@ export default function CreatePost() {
           selectedCollaborators,
           teamName,
         }),
-      });
+      })
       if (res.ok) {
-        navigate('/success');
+        const slug = formData.title
+    .split(' ')
+    .join('-')
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9-]/g, '');
+        navigate(`/post/${slug}`);
       } else {
         setPublishError('Failed to publish post');
       }

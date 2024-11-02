@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux'; 
 import PostCard from '../components/PostCard';
-import { HiAnnotation } from 'react-icons/hi';
 import LoadingScreen from '../components/LoadingScreen';
 
 export default function Search() {
@@ -20,7 +19,7 @@ export default function Search() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -86,7 +85,7 @@ export default function Search() {
     urlParams.set("priority", sidebarData.priority);
     urlParams.set("deadline", sidebarData.deadline);
     navigate(`/search?${urlParams.toString()}`);
-    setIsModalOpen(false); // Close modal on submit
+    setIsModalOpen(false);
   };
 
   const handleShowMore = async () => {
@@ -121,11 +120,8 @@ export default function Search() {
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar or Navbar can go here if needed */}
-  
-      <div className="flex-grow flex flex-col overflow-hidden">
-        {/* Header */}
+    <div className="flex h-screen overflow-y-auto">
+      <div className="flex-grow flex flex-col">
         <div className="flex justify-between items-center border-b border-gray-500 p-4">
           <h1 className="text-3xl font-semibold">All Tasks:</h1>
           <div className="flex">
@@ -153,11 +149,11 @@ export default function Search() {
                 <option value="desc">Latest</option>
                 <option value="asc">Oldest</option>
               </Select>
-              <Select id='category' onChange={handleChange} value={sidebarData.category} label='Category:'>
-                <option value='uncategorized'>All</option>
-                <option value='reactjs'>React.js</option>
-                <option value='nextjs'>Next.js</option>
-                <option value='javascript'>JavaScript</option>
+              <Select id="category" onChange={handleChange} value={sidebarData.category} label="Category:">
+                <option value="uncategorized">All</option>
+                <option value="reactjs">React.js</option>
+                <option value="nextjs">Next.js</option>
+                <option value="javascript">JavaScript</option>
               </Select>
               <Select id="priority" onChange={handleChange} value={sidebarData.priority} label="Priority:">
                 <option value="all">All</option>
@@ -183,28 +179,26 @@ export default function Search() {
           </Modal.Body>
         </Modal>
   
-        {/* Posts Grid - scrollable container */}
-        <div className="flex-grow overflow-y-scroll p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-            {loading && <LoadingScreen/>}
+        {/* Scrollable Posts Grid */}
+        <div className='w-full flex-grow overflow-y-auto'>
+          
+          <div className='p-7 flex flex-wrap gap-4'>
             {!loading && posts.length === 0 && (
-              <h1 className="text-xl text-gray-500">No posts found.</h1>
+              <p className='text-xl text-gray-500'>No posts found.</p>
             )}
+            {loading && <LoadingScreen />}
             {!loading &&
-              posts.map((post) => (
-                <PostCard key={post._id} post={post} onDelete={handleDelete} />
-              ))}
+              posts &&
+              posts.map((post) => <PostCard key={post._id} post={post} />)}
+            {showMore && (
+              <button
+                onClick={handleShowMore}
+                className='text-teal-500 text-lg hover:underline p-7 w-full'
+              >
+                Show More
+              </button>
+            )}
           </div>
-  
-          {/* Show More Button */}
-          {showMore && (
-            <button
-              onClick={handleShowMore}
-              className="text-teal-500 text-lg hover:underline mt-6 w-full text-center"
-            >
-              Show More
-            </button>
-          )}
         </div>
       </div>
     </div>

@@ -215,37 +215,51 @@ export default function PostPage() {
                 text={`${Math.round(completionPercentage)}%`}
                 styles={{
                   path: { stroke: '#4caf50' },
-                  text: { fill: '#000000', fontSize: '20px' },
                   background: { fill: '#333' },
+                
                 }}
               />
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
-            <ul className="mt-2 space-y-2">
-              {subtasks.map((subtask) => (
-                <li key={subtask._id} className="flex items-center">
-                  <Checkbox
-                    checked={subtask.completed}
-                    onChange={() => toggleSubtaskCompletion(subtask._id)}
-                  />
-                  <span className={`ml-2 ${subtask.completed ? 'line-through text-gray-400' : ''}`}>
-                    {subtask.title}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
+<ul className="mt-2 space-y-2">
+  {subtasks.map((subtask) => (
+    <li key={subtask._id} className="flex flex-col items-start p-2 border-b border-gray-200 dark:border-gray-600">
+      <div className="flex items-center w-full">
+        <Checkbox
+          checked={subtask.completed}
+          onChange={() => toggleSubtaskCompletion(subtask._id)}
+        />
+        <span className={`ml-2 font-semibold ${subtask.completed ? 'line-through text-gray-400' : ''}`}>
+          {subtask.title}
+        </span>
+      </div>
+      {subtask.description && (
+        <p className={`ml-8 mt-1 text-sm ${subtask.completed ? 'text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+          {subtask.description}
+        </p>
+      )}
+    </li>
+  ))}
+</ul>
 
-            <Button color="success" className="mt-4 w-full" onClick={completeAllSubtasks}>
+
+            <Button color="success" className=" bg-green-700  mt-4 w-full" onClick={completeAllSubtasks}>
               Complete All Subtasks
             </Button>
           </div>
 
-          <Button color="failure" className="mt-8 w-full" onClick={deleteTask}>
+          <Button color="failure" className="mt-4 w-full " onClick={deleteTask}>
             Delete Task
           </Button>
+
+          <Button color="warning" className='bg-teal-400 mt-4 w-full '>
+                <Link to={`/update-post/${post._id}`}>
+                  Edit Task
+                </Link>
+              </Button>
         </div>
       </div>
     </main>

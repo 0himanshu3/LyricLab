@@ -1,9 +1,9 @@
 import { Button, Select, TextInput, Modal } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux'; 
+import { useSelector } from 'react-redux';
 import PostCard from '../components/PostCard';
-
+import LoadingScreen from './LoadingScreen';
 export default function Search() {
   const userId = useSelector((state) => state.user.currentUser._id);
 
@@ -119,22 +119,20 @@ export default function Search() {
   };
 
   return (
-    <div className='flex h-screen'>
+    <div className='flex h-screen overflow-y-auto'>
       
-      <div className='flex-grow p-6'>
+      <div className='flex-grow flex flex-col'>
         {/* Header */}
-        <div className='flex justify-between items-center border-b border-gray-500 mb-4 pb-4'>
-          <h1 className='text-3xl font-semibold'>All Tasks:</h1>
+        <div className='flex justify-between items-center border-b border-gray-500 p-4'>
+          <h1 className='text-3xl font-semibold'>My Tasks:</h1>
           <div className='flex flex-row justify-between'>
             <Button onClick={() => setIsModalOpen(true)} className='mx-2'>Filter By</Button>
-          <Link to='/create-post'>
-             <Button > 
-                      Add Task
-                      
+            <Link to='/create-post'>
+              <Button>
+                Add Task
               </Button>
-              </Link>
-</div>
-          
+            </Link>
+          </div>
         </div>
 
         {/* Modal for Filtering */}
@@ -185,25 +183,26 @@ export default function Search() {
         </Modal>
 
         {/* Posts Grid */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {loading && <p className='text-xl text-gray-500'>Loading...</p>}
-          {!loading && posts.length === 0 && (
-            <p className='text-xl text-gray-500'>No posts found.</p>
-          )}
-          {!loading && posts.map((post) => (
-            <PostCard key={post._id} post={post} onDelete={handleDelete} />
-          ))}
+        <div className='w-full flex-grow overflow-y-auto'>
+          
+          <div className='p-7 flex flex-wrap gap-4'>
+            {!loading && posts.length === 0 && (
+              <p className='text-xl text-gray-500'>No posts found.</p>
+            )}
+            {loading && <LoadingScreen/>}
+            {!loading &&
+              posts &&
+              posts.map((post) => <PostCard key={post._id} post={post} />)}
+            {showMore && (
+              <button
+                onClick={handleShowMore}
+                className='text-teal-500 text-lg hover:underline p-7 w-full'
+              >
+                Show More
+              </button>
+            )}
+          </div>
         </div>
-
-        {/* Show More Button */}
-        {showMore && (
-          <button
-            onClick={handleShowMore}
-            className='text-teal-500 text-lg hover:underline mt-6 w-full text-center'
-          >
-            Show More
-          </button>
-        )}
       </div>
     </div>
   );
