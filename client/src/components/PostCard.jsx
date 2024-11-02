@@ -179,6 +179,11 @@ export default function PostCard({ post }) {
           <Button color="failure" size="sm" onClick={deleteTask}>
             Delete Task
           </Button>
+          
+          <Link to={`/post/${post.slug}`}>
+          <Button color='info' size='sm'>
+            View Full Task
+            </Button> </Link>
         </div>
       </Card>
     </div>
