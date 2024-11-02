@@ -21,11 +21,11 @@ export default function PostCard({ post }) {
   const getPriorityColor = () => {
     switch (post.priority) {
       case 'high':
-        return 'bg-red-500';
+        return 'bg-red-700';
       case 'medium':
-        return 'bg-yellow-500';
+        return 'bg-yellow-600';
       case 'low':
-        return 'bg-green-500';
+        return 'bg-green-600';
       default:
         return '';
     }
@@ -119,7 +119,7 @@ export default function PostCard({ post }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <Card className="card max-w-sm h-[420px] p-5 shadow-lg transition duration-200 relative">
+      <Card className="card max-w-sm h-[440px] p-4 shadow-lg transition duration-200 relative">
         <div onClick={(e) => e.stopPropagation()} className="card-content">
           <Link to={`/post/${post.slug}`}>
             <h2 className="text-xl font-bold mb-2">{post.title}</h2>
@@ -127,7 +127,7 @@ export default function PostCard({ post }) {
 
           {/* Display team name if isCollaborative is true */}
           {post.isCollaborative && post.teamName && (
-            <p className="text-sm font-semibold text-gray-700 mb-2">
+            <p className="text-sm font-semibold text-gray-500 mb-2">
               Team: {post.teamName}
             </p>
           )}
@@ -140,13 +140,13 @@ export default function PostCard({ post }) {
             </div>
           </Link>
           <Link to={`/post/${post.slug}`}>
-            <p className="text-sm mb-2">
+            <p className="text-sm mb-0">
               Status: {completedCount === totalCount ? 'Completed' : `In Progress (${remainingTime})`}
             </p>
           </Link>
         </div>
 
-        <div className="overflow-hidden mb-0" onClick={(e) => e.stopPropagation()}>
+        <div className="overflow-hidden mb-0 mt-0" onClick={(e) => e.stopPropagation()}>
           <h3 className="font-semibold text-sm mb-1">Subtasks</h3>
           {subtasks.slice(0, 3).map((subtask) => (
             <div key={subtask._id} className="flex items-center gap-2 py-0.5">
@@ -171,21 +171,18 @@ export default function PostCard({ post }) {
           <div className="text-xs mt-2">{completedCount}/{totalCount} Subtasks Completed</div>
         </div>
 
-        <div className="mt-3 flex gap-2 button-container" onClick={(e) => e.stopPropagation()}>
-        <Button className="bg-green-500 text-white" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
-  Complete Task
-</Button>
-<Button className="bg-red-500 text-white" onClick={deleteTask}>
-  Delete Task
-</Button>
-<Link to={`/post/${post.slug}`}>
-<Button className="bg-teal-500 text-white">
-  View Full Task
-</Button>
-</Link>
-
-       
-            
+        <div className="mt-4 flex gap-2 button-container" onClick={(e) => e.stopPropagation()}>
+        <Button className="bg-green-800 text-white border-none hover:bg-green-900" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
+          Complete Task
+        </Button>
+        <Button className="bg-red-800 text-white border-none hover:bg-red-900" onClick={deleteTask}>
+          Delete Task
+        </Button>
+        {/* <Link to={`/post/${post.slug}`}>
+        <Button className="bg-teal-500 text-white">
+          View Full Task
+        </Button>
+        </Link> */}
         </div>
       </Card>
     </div>

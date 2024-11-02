@@ -58,7 +58,7 @@ export default function Header() {
         />
       </Link>
 
-      <form onSubmit={handleSubmit} className='flex items-center flex-grow justify-center mx-4'>
+      {/* <form onSubmit={handleSubmit} className='flex items-center flex-grow justify-center mx-4'>
         <TextInput
           type='text'
           placeholder='Search...'
@@ -70,7 +70,7 @@ export default function Header() {
         <Button type='submit' className='w-12 h-10 hidden' color='gray' pill>
           <AiOutlineSearch />
         </Button>
-      </form>
+      </form> */}
 
       <div className='flex items-center gap-2 md:order-2'>
      

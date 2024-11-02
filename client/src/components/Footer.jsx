@@ -34,7 +34,7 @@ export default function FooterCom() {
   return (
     <Footer container className='bg-gray-200 text-gray-700 border border-t-1 border-gray-600 dark:bg-gray-900'>
       <div className='w-full max-w-7xl mx-auto'>
-        <div className='grid w-full justify-between sm:flex md:grid-cols-1'>
+        <div className='grid w-full justify-between sm:flex md:grid-cols-1 mb-3'>
           <div className='mt-5'>
             <Link
               to='/'
@@ -91,7 +91,7 @@ export default function FooterCom() {
         </div>
         <Footer.Divider />
 
-        <div className='w-full sm:flex sm:items-center sm:justify-between mt-0'>
+        <div className='w-full sm:flex sm:items-center sm:justify-between mt-3'>
           <Footer.Copyright href='#' by="LyricLab" year={new Date().getFullYear()} />
           <div className="flex gap-4 sm:mt-0 mt-2 sm:justify-center">
             <Footer.Icon href='#' icon={BsFacebook} />
