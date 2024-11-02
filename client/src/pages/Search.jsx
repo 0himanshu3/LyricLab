@@ -1,18 +1,18 @@
 import { Button, Select, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux'; 
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // Import useSelector
 import PostCard from '../components/PostCard';
 
 export default function Search() {
-  const userId = useSelector((state) => state.user.currentUser._id);
+  const userId = useSelector((state) => state.user.currentUser._id); // Extract user ID from Redux state
 
   const [sidebarData, setSidebarData] = useState({
     searchTerm: '',
     sort: 'desc',
     category: 'uncategorized',
-    priority: 'all',
-    deadline: 'all'
+    priority: 'all', // Added priority filter
+    deadline: 'all' // Added deadline filter
   });
 
   const [posts, setPosts] = useState([]);
@@ -64,7 +64,8 @@ export default function Search() {
     };
   
     fetchPosts();
-  }, [location.search, userId]);
+  }, [location.search, userId]); // Remove sidebarData from here
+  
 
   const handleChange = (e) => {
     if (e.target.id === "searchTerm") {
@@ -136,7 +137,6 @@ export default function Search() {
           <div className='flex items-center gap-2'>
             <label className='font-semibold'>Category:</label>
             <Select id='category' onChange={handleChange} value={sidebarData.category}>
-            <option value='all'>All</option>
               <option value='reactjs'>React.js</option>
               <option value='nextjs'>Next.js</option>
               <option value='javascript'>JavaScript</option>
@@ -174,9 +174,7 @@ export default function Search() {
           )}
           {!loading &&
             posts.map((post) => (
-              <Link to={`/post/${post._id}`} key={post._id}>
-                <PostCard post={post} onDelete={handleDelete} />
-              </Link>
+              <PostCard key={post._id} post={post} onDelete={handleDelete} />
             ))}
           {showMore && (
             <button

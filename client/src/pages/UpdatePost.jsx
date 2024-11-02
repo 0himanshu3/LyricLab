@@ -33,7 +33,7 @@ export default function UpdatePost() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await fetch(`/api/post/getpostbyid/${postId}`);
+        const res = await fetch(`/api/post/getposts?postId=${postId}`);
         const data = await res.json();
   
         if (!res.ok) {
@@ -41,7 +41,7 @@ export default function UpdatePost() {
           return;
         }
   
-        const post = data;
+        const post = data.posts[0];
         setFormData(post);
         setSubtasks(post.subtasks || [{ title: '', description: '' }]);
         setDeadline(post.deadline ? new Date(post.deadline) : null);
