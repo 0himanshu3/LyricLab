@@ -1,6 +1,6 @@
-import { Button, Select, TextInput } from 'flowbite-react';
+import { Button, Select, TextInput, Modal } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux'; 
 import PostCard from '../components/PostCard';
 
@@ -18,6 +18,7 @@ export default function Search() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -67,22 +68,11 @@ export default function Search() {
   }, [location.search, userId]);
 
   const handleChange = (e) => {
-    if (e.target.id === "searchTerm") {
-      setSidebarData({ ...sidebarData, searchTerm: e.target.value });
-    }
-    if (e.target.id === "sort") {
-      const order = e.target.value || "desc";
-      setSidebarData({ ...sidebarData, sort: order });
-    }
-    if (e.target.id === "category") {
-      setSidebarData({ ...sidebarData, category: e.target.value });
-    }
-    if (e.target.id === "priority") {
-      setSidebarData({ ...sidebarData, priority: e.target.value });
-    }
-    if (e.target.id === "deadline") {
-      setSidebarData({ ...sidebarData, deadline: e.target.value });
-    }
+    const { id, value } = e.target;
+    setSidebarData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -94,6 +84,7 @@ export default function Search() {
     urlParams.set("priority", sidebarData.priority);
     urlParams.set("deadline", sidebarData.deadline);
     navigate(`/search?${urlParams.toString()}`);
+    setIsModalOpen(false); // Close modal on submit
   };
 
   const handleShowMore = async () => {
@@ -111,6 +102,7 @@ export default function Search() {
   const handleDelete = (postId) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
   };
+
   const handleReset = () => {
     const defaultData = {
       searchTerm: '',
@@ -120,99 +112,97 @@ export default function Search() {
       deadline: 'all'
     };
   
-    // Update `sidebarData` with default values
     setSidebarData(defaultData);
-  
-    // Update the URL with the default filter values
-    const urlParams = new URLSearchParams({
-      searchTerm: defaultData.searchTerm,
-      sort: defaultData.sort,
-      category: defaultData.category,
-      priority: defaultData.priority,
-      deadline: defaultData.deadline,
-    });
-    navigate(`/search`);
+    const urlParams = new URLSearchParams(defaultData);
+    navigate(`/search?${urlParams.toString()}`);
   };
-  
 
   return (
-    <div className='flex flex-col md:flex-row'>
-      <div className='p-7 border-b md:border-r md:min-h-screen border-gray-500'>
-        <form className='flex flex-col gap-8' onSubmit={handleSubmit}>
-          <div className='flex items-center gap-2'>
-            <label className='font-semibold'>Search Term:</label>
-            <TextInput
-              placeholder='Search...'
-              id='searchTerm'
-              type='text'
-              value={sidebarData.searchTerm}
-              onChange={handleChange}
-            />
-          </div>
-          <div className='flex items-center gap-2'>
-            <label className='font-semibold'>Sort:</label>
-            <Select id='sort' onChange={handleChange} value={sidebarData.sort}>
-              <option value='desc'>Latest</option>
-              <option value='asc'>Oldest</option>
-            </Select>
-          </div>
-          <div className='flex items-center gap-2'>
-            <label className='font-semibold'>Category:</label>
-            <Select id='category' onChange={handleChange} value={sidebarData.category}>
-            <option value='all'>All</option>
-              <option value='reactjs'>React.js</option>
-              <option value='nextjs'>Next.js</option>
-              <option value='javascript'>JavaScript</option>
-            </Select>
-          </div>
-          <div className='flex items-center gap-2'>
-            <label className='font-semibold'>Priority:</label>
-            <Select id='priority' onChange={handleChange} value={sidebarData.priority}>
-              <option value='all'>All</option>
-              <option value='high'>High</option>
-              <option value='medium'>Medium</option>
-              <option value='low'>Low</option>
-            </Select>
-          </div>
-          <div className='flex items-center gap-2'>
-            <label className='font-semibold'>Deadline:</label>
-            <Select id='deadline' onChange={handleChange} value={sidebarData.deadline}>
-              <option value='all'>All</option>
-              <option value='this_week'>This Week</option>
-              <option value='next_week'>Next Week</option>
-              <option value='this_month'>This Month</option>
-            </Select>
-          </div>
-          <div className='flex gap-4'>
-            <Button className='bg-cyan-400' type='submit' outline>
-              Apply Filters
-            </Button>
-            <Button color='gray' onClick={handleReset} outline>
-              Reset Filters
-            </Button>
-          </div>
-        </form>
-      </div>
-      <div className='w-full'>
-        <h1 className='text-3xl font-semibold sm:border-b border-gray-500 p-3 mt-5'>Posts results:</h1>
-        <div className='p-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full'>
+    <div className='flex h-screen'>
+      
+      <div className='flex-grow p-6'>
+        {/* Header */}
+        <div className='flex justify-between items-center border-b border-gray-500 mb-4 pb-4'>
+          <h1 className='text-3xl font-semibold'>All Tasks:</h1>
+          <div className='flex flex-row justify-between'>
+            <Button onClick={() => setIsModalOpen(true)} className='mx-2'>Filter By</Button>
+          <Link to='/create-post'>
+             <Button > 
+                      Add Task
+                      
+              </Button>
+              </Link>
+</div>
+          
+        </div>
+
+        {/* Modal for Filtering */}
+        <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <Modal.Header>Filter Posts</Modal.Header>
+          <Modal.Body>
+            <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+              <TextInput
+                placeholder='Search...'
+                id='searchTerm'
+                type='text'
+                value={sidebarData.searchTerm}
+                onChange={handleChange}
+                label='Search Term:'
+              />
+              <Select id='sort' onChange={handleChange} value={sidebarData.sort} label='Sort:'>
+                <option value='desc'>Latest</option>
+                <option value='asc'>Oldest</option>
+              </Select>
+              <Select id='category' onChange={handleChange} value={sidebarData.category} label='Category:'>
+                <option value='all'>All</option>
+                <option value='reactjs'>React.js</option>
+                <option value='nextjs'>Next.js</option>
+                <option value='javascript'>JavaScript</option>
+              </Select>
+              <Select id='priority' onChange={handleChange} value={sidebarData.priority} label='Priority:'>
+                <option value='all'>All</option>
+                <option value='high'>High</option>
+                <option value='medium'>Medium</option>
+                <option value='low'>Low</option>
+              </Select>
+              <Select id='deadline' onChange={handleChange} value={sidebarData.deadline} label='Deadline:'>
+                <option value='all'>All</option>
+                <option value='this_week'>This Week</option>
+                <option value='next_week'>Next Week</option>
+                <option value='this_month'>This Month</option>
+              </Select>
+              <div className='flex gap-4'>
+                <Button type='submit' outline>
+                  Apply Filters
+                </Button>
+                <Button color='gray' onClick={handleReset} outline>
+                  Reset Filters
+                </Button>
+              </div>
+            </form>
+          </Modal.Body>
+        </Modal>
+
+        {/* Posts Grid */}
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
           {loading && <p className='text-xl text-gray-500'>Loading...</p>}
           {!loading && posts.length === 0 && (
             <p className='text-xl text-gray-500'>No posts found.</p>
           )}
-          {!loading &&
-            posts.map((post) => (
-                <PostCard post={post} onDelete={handleDelete} />
-            ))}
-          {showMore && (
-            <button
-              onClick={handleShowMore}
-              className='text-teal-500 text-lg hover:underline p-7 w-full'
-            >
-              Show More
-            </button>
-          )}
+          {!loading && posts.map((post) => (
+            <PostCard key={post._id} post={post} onDelete={handleDelete} />
+          ))}
         </div>
+
+        {/* Show More Button */}
+        {showMore && (
+          <button
+            onClick={handleShowMore}
+            className='text-teal-500 text-lg hover:underline mt-6 w-full text-center'
+          >
+            Show More
+          </button>
+        )}
       </div>
     </div>
   );

@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import DashSidebar from '../components/DashSidebar';
 import DashProfile from '../components/DashProfile';
-import DashPosts from '../components/DashPosts';
-import DashUsers from '../components/DashUsers';
-import DashComments from '../components/DashComments';
 import DashboardComp from '../components/DashboardComp';
+import Search from './Search';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -26,11 +24,11 @@ export default function Dashboard() {
       {/* profile... */}
       {tab === 'profile' && <DashProfile />}
       {/* posts... */}
-      {tab === 'posts' && <DashPosts />}
+      {tab === 'all' && <Search />}
       {/* users */}
-      {tab === 'users' && <DashUsers />}
+      {tab === 'personal' && <Search />}
       {/* comments  */}
-      {tab === 'comments' && <DashComments />}
+      {tab === 'team' && <Search />}
       {/* dashboard comp */}
       {tab === 'dash' && <DashboardComp />}
     </div>

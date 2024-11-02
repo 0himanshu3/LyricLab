@@ -34,6 +34,7 @@ export default function Header() {
       } else {
         dispatch(signoutSuccess());
       }
+      navigate('/')
     } catch (error) {
       console.log(error.message);
     }
@@ -72,7 +73,7 @@ export default function Header() {
       </form>
 
       <div className='flex items-center gap-2 md:order-2'>
-      <Button color="success">Success</Button>
+     
         <Button
           className='w-12 h-10 sm:inline text-white'
           color='gray'

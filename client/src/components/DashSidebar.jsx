@@ -7,6 +7,7 @@ import {
   HiAnnotation,
   HiChartPie,
 } from 'react-icons/hi';
+import { FaTasks } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { signoutSuccess } from '../redux/user/userSlice';
@@ -25,6 +26,7 @@ export default function DashSidebar() {
       setTab(tabFromUrl);
     }
   }, [location.search]);
+ 
   const handleSignout = async () => {
     try {
       const res = await fetch('/api/user/signout', {
@@ -36,6 +38,7 @@ export default function DashSidebar() {
       } else {
         dispatch(signoutSuccess());
       }
+      navigate('/')
     } catch (error) {
       console.log(error.message);
     }
@@ -67,45 +70,39 @@ export default function DashSidebar() {
             </Sidebar.Item>
           </Link>
           {currentUser.isAdmin && (
-            <Link to='/dashboard?tab=posts'>
+            <Link to='/search?tab=all'>
               <Sidebar.Item
                 active={tab === 'posts'}
                 icon={HiDocumentText}
                 as='div'
               >
-                Posts
+                All Tasks
               </Sidebar.Item>
             </Link>
           )}
           {currentUser.isAdmin && (
             <>
-              <Link to='/dashboard?tab=users'>
+              <Link to='/dashboard?tab=personal'>
                 <Sidebar.Item
                   active={tab === 'users'}
+                  icon={FaTasks}
+                  as='div'
+                >
+                 Personal Tasks
+                </Sidebar.Item>
+              </Link>
+              <Link to='/dashboard?tab=team'>
+                <Sidebar.Item
+                  active={tab === 'comments'}
                   icon={HiOutlineUserGroup}
                   as='div'
                 >
-                  Users
-                </Sidebar.Item>
-              </Link>
-              <Link to='/dashboard?tab=comments'>
-                <Sidebar.Item
-                  active={tab === 'comments'}
-                  icon={HiAnnotation}
-                  as='div'
-                >
-                  Comments
+                  Team Tasks
                 </Sidebar.Item>
               </Link>
             </>
           )}
-          <Sidebar.Item
-            icon={HiArrowSmRight}
-            className='cursor-pointer'
-            onClick={handleSignout}
-          >
-            Sign Out
-          </Sidebar.Item>
+          
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>
