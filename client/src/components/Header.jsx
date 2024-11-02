@@ -8,7 +8,6 @@ import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
 
 export default function Header() {
-  const path = useLocation().pathname;
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -49,19 +48,15 @@ export default function Header() {
   };
 
   return (
-    <Navbar className='border-b-2 bg-gray-200 dark:bg-gray-800'>
-    <Link
-      to='/'
-      className='self-center'
-      >
-        
+    <Navbar className='border-b-2 bg-gray-200 text-gray-700 dark:bg-gray-900'>
+      <Link to='/' className='flex-shrink-0 ml-4'>
         <img 
-        src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
-        alt='Lyric Lab Logo'
-        className='h-20 sm:h-12'  
-      />
-    </Link>
-      <form onSubmit={handleSubmit}>
+          src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
+          alt='Lyric Lab Logo'
+          className='h-7 md:h-7 lg:h-10'  
+        />
+      </Link>
+      <form onSubmit={handleSubmit} className='flex items-center flex-grow justify-center'>
         <TextInput
           type='text'
           placeholder='Search...'
@@ -70,13 +65,13 @@ export default function Header() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        <Button type='submit' className='w-12 h-10 hidden' color='gray' pill>
+          <AiOutlineSearch />
+        </Button>
       </form>
-      <Button className='w-12 h-10 lg:hidden' color='gray' pill>
-        <AiOutlineSearch />
-      </Button>
       <div className='flex gap-2 md:order-2'>
         <Button
-          className='w-12 h-10 hidden sm:inline'
+          className='w-12 h-10 sm:inline'
           color='gray'
           pill
           onClick={() => dispatch(toggleTheme())}
@@ -84,46 +79,19 @@ export default function Header() {
           {theme === 'light' ? <FaSun /> : <FaMoon />}
         </Button>
         {currentUser ? (
-          <Dropdown
-            arrowIcon={false}
-            inline
-            label={
-              <Avatar alt='user' img={currentUser.profilePicture} rounded />
-            }
-          >
-            <Dropdown.Header>
-              <span className='block text-sm'>@{currentUser.username}</span>
-              <span className='block text-sm font-medium truncate'>
-                {currentUser.email}
-              </span>
-            </Dropdown.Header>
-            <Link to={'/dashboard?tab=profile'}>
-              <Dropdown.Item>Profile</Dropdown.Item>
-            </Link>
-            <Dropdown.Divider />
-            <Dropdown.Item onClick={handleSignout}>Sign out</Dropdown.Item>
-          </Dropdown>
+          <>
+            <Dropdown label={<Avatar alt={currentUser?.name} img={currentUser?.avatar} rounded />} inline>
+              <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
+            </Dropdown>
+          </>
         ) : (
-          <Link to='/sign-in'>
-            <Button gradientDuoTone='purpleToBlue' outline>
-              Sign In
-            </Button>
+          <Link to="/sign-up">
+            <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+              Get Started
+            </button>
           </Link>
         )}
-        <Navbar.Toggle />
       </div>
-      
-      <Navbar.Collapse>
-      <Navbar.Link active={path === '/'} as={'div'} className="w-full">
-        <Link to='/' className="block w-full h-full px-4">Home</Link>
-      </Navbar.Link>
-      <Navbar.Link active={path === '/about'} as={'div'} className="w-full">
-        <Link to='/about' className="block w-full h-full px-4">About</Link>
-      </Navbar.Link>
-      <Navbar.Link active={path === '/search'} as={'div'} className="w-full">
-        <Link to='/search' className="block w-full h-full px-4">Search</Link>
-      </Navbar.Link>
-    </Navbar.Collapse>
     </Navbar>
   );
 }
