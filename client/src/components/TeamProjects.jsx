@@ -48,13 +48,13 @@ export default function Search() {
       }).toString();
       
       try {
-        const res = await fetch(`/api/post/getposts?${searchQuery}`);
+        const res = await fetch(`/api/post/getteamposts?${searchQuery}`);
         
         if (!res.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await res.json();
-        
+        console.log(data.posts);
         setPosts(data.posts);
         setShowMore(data.posts.length === 9);
       } catch (error) {
@@ -91,7 +91,7 @@ export default function Search() {
     const startIndex = posts.length;
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('startIndex', startIndex);
-    const res = await fetch(`/api/post/getposts?${urlParams.toString()}`);
+    const res = await fetch(`/api/post/getteamposts?${urlParams.toString()}`);
     if (res.ok) {
       const data = await res.json();
       setPosts([...posts, ...data.posts]);

@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import DashSidebar from '../components/DashSidebar';
 import DashProfile from '../components/DashProfile';
 import DashboardComp from '../components/DashboardComp';
+import Personal from '../components/Personal';
+import TeamProjects from '../components/TeamProjects';
 import Search from './Search';
 
 export default function Dashboard() {
@@ -26,9 +28,9 @@ export default function Dashboard() {
       {/* posts... */}
       {tab === 'all' && <Search />}
       {/* users */}
-      {tab === 'personal' && <Search />}
+      {tab === 'personal' && <Personal />}
       {/* comments  */}
-      {tab === 'team' && <Search />}
+      {tab === 'team' && <TeamProjects/>}
       {/* dashboard comp */}
       {tab === 'dash' && <DashboardComp />}
     </div>

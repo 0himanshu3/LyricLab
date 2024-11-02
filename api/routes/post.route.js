@@ -10,12 +10,16 @@ import {
   getposts,
   toggleSubtaskCompletion,
   updatepost,
+  getteamposts,
+  getpersonalposts,
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
 
 router.post('/create',verifyToken,create);
 router.get('/getposts', getposts);
+router.get('/getteamposts', getteamposts);
+router.get('/getpersonalposts', getpersonalposts);
 router.get('/getpostbyslug/:slug',getPostBySlug);
 router.get('/getpostbyid/:postId',getPostById);
 router.delete('/deletepost/:postId/:userId', verifyToken, deletepost);

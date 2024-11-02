@@ -48,7 +48,7 @@ export default function Search() {
       }).toString();
       
       try {
-        const res = await fetch(`/api/post/getposts?${searchQuery}`);
+        const res = await fetch(`/api/post/getpersonalposts?${searchQuery}`);
         
         if (!res.ok) {
           throw new Error('Network response was not ok');

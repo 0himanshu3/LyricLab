@@ -93,6 +93,114 @@ export const getposts = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch posts' });
   }
 };
+export const getpersonalposts = async (req, res) => {
+  try {
+    const { userId,searchTerm, sort = 'desc', category = 'uncategorized', priority = 'all', deadline = 'all', limit = 10, skip = 0 } = req.query; // Get filters from query
+    
+    const query = {
+      $or: [
+        { userId: userId }, // Match posts created by the user
+        { 'collaborators.value': userId } // Match posts where the user is a collaborator
+      ],
+      isCollaborative: false
+    };
+  
+    // Apply additional filters if provided
+    if (searchTerm) {
+      query.title = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
+    }
+    if (category && category!=='uncategorized') {
+      query.category = category;
+    }
+    if (priority && priority !== 'all') {
+      query.priority = priority;
+    }
+    if (deadline && deadline !== 'all') {
+      const today = new Date();
+      let dateFilter;
+      switch (deadline) {
+        case 'this_week':
+          dateFilter = new Date(today.setDate(today.getDate() + 7));
+          query.deadline = { $lte: dateFilter }; // Tasks due this week
+          break;
+        case 'next_week':
+          dateFilter = new Date(today.setDate(today.getDate() + 14));
+          query.deadline = { $gt: new Date(), $lte: dateFilter }; // Tasks due next week
+          break;
+        case 'this_month':
+          dateFilter = new Date(today.setMonth(today.getMonth() + 1));
+          query.deadline = { $lte: dateFilter }; // Tasks due this month
+          break;
+      }
+    }
+
+    // Fetch posts from the database with pagination
+    const posts = await Post.find(query)
+      .sort({ createdAt: sort === 'asc' ? 1 : -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .exec();
+
+    res.status(200).json({ posts });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ message: 'Failed to fetch posts' });
+  }
+};
+export const getteamposts = async (req, res) => {
+  try {
+    const { userId,searchTerm, sort = 'desc', category = 'uncategorized', priority = 'all', deadline = 'all', limit = 10, skip = 0 } = req.query; // Get filters from query
+  
+    const query = {
+      $or: [
+        { userId: userId }, // Match posts created by the user
+        { 'collaborators.value': userId } // Match posts where the user is a collaborator
+      ],
+      isCollaborative: true
+    };
+  
+    // Apply additional filters if provided
+    if (searchTerm) {
+      query.title = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
+    }
+    if (category && category!=='uncategorized') {
+      query.category = category;
+    }
+    if (priority && priority !== 'all') {
+      query.priority = priority;
+    }
+    if (deadline && deadline !== 'all') {
+      const today = new Date();
+      let dateFilter;
+      switch (deadline) {
+        case 'this_week':
+          dateFilter = new Date(today.setDate(today.getDate() + 7));
+          query.deadline = { $lte: dateFilter }; // Tasks due this week
+          break;
+        case 'next_week':
+          dateFilter = new Date(today.setDate(today.getDate() + 14));
+          query.deadline = { $gt: new Date(), $lte: dateFilter }; // Tasks due next week
+          break;
+        case 'this_month':
+          dateFilter = new Date(today.setMonth(today.getMonth() + 1));
+          query.deadline = { $lte: dateFilter }; // Tasks due this month
+          break;
+      }
+    }
+
+    // Fetch posts from the database with pagination
+    const posts = await Post.find(query)
+      .sort({ createdAt: sort === 'asc' ? 1 : -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .exec();
+
+    res.status(200).json({ posts });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ message: 'Failed to fetch posts' });
+  }
+};
 
 export const getPostBySlug = async (req, res) => {
   try {
