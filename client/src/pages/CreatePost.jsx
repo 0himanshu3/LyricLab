@@ -8,54 +8,12 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useEffect, useState, Fragment, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Dialog, Transition } from "@headlessui/react"; // Import Dialog and Transition
-
-const ModalWrapper = ({ open, setOpen, children }) => {
-  const cancelButtonRef = useRef(null);
-
-  return (
-    <Transition.Root show={open} as={Fragment}>
-  <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={() => setOpen(false)}>
-    <Transition.Child
-      as={Fragment}
-      enter="ease-out duration-300"
-      enterFrom="opacity-0"
-      enterTo="opacity-100"
-      leave="ease-in duration-200"
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0"
-    >
-      <div className="fixed inset-0 bg-black bg-opacity-60 transition-opacity" />
-    </Transition.Child>
-
-    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-      <div className="flex h-full items-center justify-center p-4 text-center sm:p-0">
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-          enterTo="opacity-100 translate-y-0 sm:scale-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-          leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        >
-          <Dialog.Panel className="w-full max-w-md p-6 mx-auto bg-white rounded-lg shadow-xl max-h-[80vh] overflow-y-auto">
-            {children}
-          </Dialog.Panel>
-        </Transition.Child>
-      </div>
-    </div>
-  </Dialog>
-</Transition.Root>
-
-  );
-};
 
 export default function CreatePost() {
   const [file, setFile] = useState(null);
@@ -69,8 +27,7 @@ export default function CreatePost() {
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
   const [newCollaborator, setNewCollaborator] = useState('');
   const [isCollaborative, setIsCollaborative] = useState(false);
-  const [teamName, setTeamName] = useState(''); 
-  const [modalOpen, setModalOpen] = useState(false); // Manage modal state
+  const [teamName, setTeamName] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,8 +35,8 @@ export default function CreatePost() {
       try {
         const res = await fetch(`/api/user/getallusers`);
         const data = await res.json();
-        if (res.ok && data.users) {
-          const formattedUsers = data.users.map(user => ({
+        if (res.ok && data) {
+          const formattedUsers = data.map(user => ({
             label: user.username,
             value: user._id,
           }));
@@ -103,6 +60,10 @@ export default function CreatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isCollaborative && !teamName) {
+      setPublishError("Team name is required for collaborative posts.");
+      return;
+    }
     try {
       const res = await fetch('/api/post/create', {
         method: 'POST',
@@ -193,123 +154,167 @@ export default function CreatePost() {
   return (
     <div className='p-3 max-w-3xl mx-auto min-h-screen'>
       <h1 className='text-center text-3xl my-7 font-semibold'>Create a Post</h1>
-      <Button color='success' className='bg-green-500 hover:bg-green-600 text-white' onClick={() => setModalOpen(true)}>
-  Open Create Post Form
-</Button>
-      
-      <ModalWrapper open={modalOpen} setOpen={setModalOpen}>
-        <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
-          <div className='flex flex-col gap-4 sm:flex-row justify-between'>
-            <TextInput
-              type='text'
-              placeholder='Title'
-              required
-              id='title'
-              className='flex-1'
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            />
-            <Select
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
-              <option value='uncategorized'>Select a category</option>
-              <option value='javascript'>JavaScript</option>
-              <option value='reactjs'>React.js</option>
-              <option value='nextjs'>Next.js</option>
-            </Select>
-          </div>
-
-          <Select
-            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
-            <option value=''>Select Priority</option>
-            <option value='high'>High</option>
-            <option value='medium'>Medium</option>
-            <option value='low'>Low</option>
-          </Select>
-
-          <DatePicker
-            selected={deadline}
-            onChange={(date) => setDeadline(date)}
-            minDate={new Date()}
-            placeholderText="Select a deadline"
-            className="w-full p-2 border rounded-md"
-            required
-          />
-
-          <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dashed p-3 rounded-md'>
-            <div className='flex-1'>
-              <FileInput onChange={(e) => setFile(e.target.files[0])} />
-              {imageUploadProgress && (
-                <CircularProgressbar value={imageUploadProgress} text={`${imageUploadProgress}%`} />
-              )}
-              {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
-            </div>
-            <Button color='success' className="text-xs" onClick={handleUploadImage}>Upload Image</Button>
-          </div>
-
+      <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+        <div className='flex flex-col gap-4 sm:flex-row justify-between'>
           <TextInput
             type='text'
-            placeholder='Description'
+            placeholder='Title'
             required
-            id='description'
+            id='title'
             className='flex-1'
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           />
+          <Select
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
+            <option value='uncategorized'>Select a category</option>
+            <option value='javascript'>JavaScript</option>
+            <option value='reactjs'>React.js</option>
+            <option value='nextjs'>Next.js</option>
+          </Select>
+        </div>
 
-          <div>
-            <h2 className='text-lg'>Subtasks</h2>
-            {subtasks.map((subtask, index) => (
-              <div key={index} className='flex gap-2'>
-                <TextInput
-                  type='text'
-                  placeholder='Subtask Title'
-                  value={subtask.title}
-                  onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
-                />
-                <TextInput
-                  type='text'
-                  placeholder='Subtask Description'
-                  value={subtask.description}
-                  onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
-                />
-               <Button className="bg-red-500 hover:bg-red-600 text-white" onClick={() => removeSubtask(index)}>
-          Remove
-        </Button>
-              </div>
-            ))}
-            <Button className="bg-green-500 hover:bg-green-600" onClick={addSubtask} >Add Subtask</Button>
-          </div>
+        <Select
+          onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
+          <option value=''>Select Priority</option>
+          <option value='high'>High</option>
+          <option value='medium'>Medium</option>
+          <option value='low'>Low</option>
+        </Select>
 
-          <div>
-            <label htmlFor='collaborate' className='block'>Collaborate</label>
-            <Select id='collaborate' onChange={handleCollaborateChange}>
-              <option value='no'>No</option>
-              <option value='yes'>Yes</option>
-            </Select>
-            {isCollaborative && (
-              <div className='flex flex-col'>
-                <h3 className='text-lg'>Select Collaborators</h3>
-                {selectedCollaborators.map(collaborator => (
-                  <div key={collaborator.value} className='flex items-center'>
-                    <span>{collaborator.label}</span>
-                    <Button onClick={() => removeCollaborator(collaborator.value)}>Remove</Button>
-                  </div>
-                ))}
-                <Select onChange={handleCollaboratorChange} value={newCollaborator}>
-                  <option value=''>Add Collaborator</option>
-                  {users.map(user => (
-                    <option key={user.value} value={user.value}>{user.label}</option>
-                  ))}
-                </Select>
-                <Button className='bg-green-500 hover:bg-green-600'color='success' onClick={addCollaborator}>Add</Button>
+        <DatePicker
+          selected={deadline}
+          onChange={(date) => setDeadline(date)}
+          minDate={new Date()}
+          placeholderText="Select a deadline"
+          className="w-full p-2 border rounded-md"
+          required
+        />
+
+        <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+          <FileInput
+            type='file'
+            accept='image/*'
+            onChange={(e) => setFile(e.target.files[0])}
+          />
+          <Button
+            type='button'
+            gradientDuoTone='purpleToBlue'
+            size='sm'
+            outline
+            onClick={handleUploadImage}
+            disabled={imageUploadProgress}>
+            {imageUploadProgress ? (
+              <div className='w-16 h-16'>
+                <CircularProgressbar
+                  value={imageUploadProgress}
+                  text={`${imageUploadProgress || 0}%`}
+                />
               </div>
+            ) : (
+              'Upload Image'
             )}
-          </div>
+          </Button>
+        </div>
 
-          {publishError && <Alert color='failure'>{publishError}</Alert>}
-        <Button type='submit' className="bg-green-500 hover:bg-green-600 text-white">
-          Publish
+        {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
+        {formData.image && (
+          <img src={formData.image} alt='upload' className='w-full h-72 object-cover' />
+        )}
+
+        <ReactQuill
+          theme='snow'
+          placeholder='Write something...'
+          className='h-72 mb-12'
+          required
+          onChange={(value) => setFormData({ ...formData, content: value })}
+        />
+
+        <h2 className='text-xl font-semibold'>Subtasks</h2>
+        {subtasks.map((subtask, index) => (
+          <div key={index} className='flex flex-col gap-2 border p-3 rounded-lg'>
+            <TextInput
+              type='text'
+              placeholder='Subtask Title'
+              value={subtask.title}
+              onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+              required
+            />
+            <TextInput
+              type='text'
+              placeholder='Subtask Description'
+              value={subtask.description}
+              onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+              required
+            />
+            <Button type='button' onClick={() => removeSubtask(index)} color="failure">
+              Remove Subtask
+            </Button>
+          </div>
+        ))}
+        <Button type='button' onClick={addSubtask}>
+          Add Subtask
         </Button>
-        </form>
-      </ModalWrapper>
+
+        <label className='flex items-center gap-2'>
+          <input
+            type='checkbox'
+            onChange={handleCollaborateChange}
+            value={isCollaborative ? 'no' : 'yes'}
+          />
+          Collaborate on this post
+        </label>
+
+        {isCollaborative && (
+  <>
+    {/* Team Name Field */}
+    <TextInput
+      type='text'
+      placeholder='Team Name'
+      value={teamName}
+      onChange={(e) => setTeamName(e.target.value)}
+      required
+      className="my-2"
+    />
+
+    {/* Collaborators Selection */}
+    <Select
+      onChange={handleCollaboratorChange}
+      value={newCollaborator}
+    >
+      <option value=''>Select Collaborator</option>
+      {users.map(user => (
+        <option key={user.value} value={user.value}>{user.label}</option>
+      ))}
+    </Select>
+    
+    <Button type='button' onClick={addCollaborator}>
+      Add Collaborator
+    </Button>
+
+    <div className='flex gap-3 flex-wrap'>
+      {selectedCollaborators.map(collaborator => (
+        <div key={collaborator.value} className='flex items-center gap-2 border px-2 py-1 rounded-lg'>
+          <span>{collaborator.label}</span>
+          <Button
+            type='button'
+            size='xs'
+            color='failure'
+            onClick={() => removeCollaborator(collaborator.value)}
+          >
+            Remove
+          </Button>
+        </div>
+      ))}
+    </div>
+  </>
+)}
+
+        <Button type='submit' gradientDuoTone='greenToBlue'>
+          Publish Post
+        </Button>
+
+        {publishError && <Alert color='failure'>{publishError}</Alert>}
+      </form>
     </div>
   );
 }

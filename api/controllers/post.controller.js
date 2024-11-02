@@ -30,6 +30,7 @@ export const create = async (req, res, next) => {
     collaborators: req.body.selectedCollaborators || [], // Collaborators list
     subtasks: req.body.subtasks || [] // Subtasks array
   });
+  
   try {
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);
@@ -95,15 +96,16 @@ export const getposts = async (req, res) => {
 
 export const getPostBySlug = async (req, res) => {
   try {
-    const { slug } = req.params; // Extract slug from URL parameters
-
+    
+    const { postSlug } = req.params; // Extract slug from URL parameters
+    console.log(postSlug);
     // Check if slug is provided
-    if (!slug) {
+    if (!postSlug) {
       return res.status(400).json({ message: 'Slug is required' });
     }
 
     // Find post by slug
-    const post = await Post.findOne({ slug }).exec();
+    const post = await Post.findById(postSlug);
 
     // If post is not found, return 404
     if (!post) {
@@ -204,7 +206,6 @@ export const completeTask = async (req, res) => {
       completed: true
     }));
 
-    // Save the post with updated subtasks
     await post.save();
 
     res.status(200).json({ message: 'Task and subtasks completed successfully', post });
