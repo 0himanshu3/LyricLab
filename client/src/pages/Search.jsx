@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux'; 
 import PostCard from '../components/PostCard';
+import { HiAnnotation } from 'react-icons/hi';
 
 export default function Search() {
   const userId = useSelector((state) => state.user.currentUser._id);
@@ -119,40 +120,37 @@ export default function Search() {
   };
 
   return (
-    <div className='flex h-screen'>
-      
-      <div className='flex-grow p-6'>
+    <div className="flex h-screen">
+      {/* Sidebar or Navbar can go here if needed */}
+  
+      <div className="flex-grow flex flex-col overflow-hidden">
         {/* Header */}
-        <div className='flex justify-between items-center border-b border-gray-500 mb-4 pb-4'>
-          <h1 className='text-3xl font-semibold'>All Tasks:</h1>
-          <div className='flex flex-row justify-between'>
-            <Button onClick={() => setIsModalOpen(true)} className='mx-2'>Filter By</Button>
-          <Link to='/create-post'>
-             <Button > 
-                      Add Task
-                      
-              </Button>
-              </Link>
-</div>
-          
+        <div className="flex justify-between items-center border-b border-gray-500 p-4">
+          <h1 className="text-3xl font-semibold">All Tasks:</h1>
+          <div className="flex">
+            <Button onClick={() => setIsModalOpen(true)} className="mx-2">Filter By</Button>
+            <Link to="/create-post">
+              <Button>Add Task</Button>
+            </Link>
+          </div>
         </div>
-
+  
         {/* Modal for Filtering */}
         <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <Modal.Header>Filter Posts</Modal.Header>
           <Modal.Body>
-            <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               <TextInput
-                placeholder='Search...'
-                id='searchTerm'
-                type='text'
+                placeholder="Search..."
+                id="searchTerm"
+                type="text"
                 value={sidebarData.searchTerm}
                 onChange={handleChange}
-                label='Search Term:'
+                label="Search Term:"
               />
-              <Select id='sort' onChange={handleChange} value={sidebarData.sort} label='Sort:'>
-                <option value='desc'>Latest</option>
-                <option value='asc'>Oldest</option>
+              <Select id="sort" onChange={handleChange} value={sidebarData.sort} label="Sort:">
+                <option value="desc">Latest</option>
+                <option value="asc">Oldest</option>
               </Select>
               <Select id='category' onChange={handleChange} value={sidebarData.category} label='Category:'>
                 <option value='uncategorized'>All</option>
@@ -160,50 +158,53 @@ export default function Search() {
                 <option value='nextjs'>Next.js</option>
                 <option value='javascript'>JavaScript</option>
               </Select>
-              <Select id='priority' onChange={handleChange} value={sidebarData.priority} label='Priority:'>
-                <option value='all'>All</option>
-                <option value='high'>High</option>
-                <option value='medium'>Medium</option>
-                <option value='low'>Low</option>
+              <Select id="priority" onChange={handleChange} value={sidebarData.priority} label="Priority:">
+                <option value="all">All</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
               </Select>
-              <Select id='deadline' onChange={handleChange} value={sidebarData.deadline} label='Deadline:'>
-                <option value='all'>All</option>
-                <option value='this_week'>This Week</option>
-                <option value='next_week'>Next Week</option>
-                <option value='this_month'>This Month</option>
+              <Select id="deadline" onChange={handleChange} value={sidebarData.deadline} label="Deadline:">
+                <option value="all">All</option>
+                <option value="this_week">This Week</option>
+                <option value="next_week">Next Week</option>
+                <option value="this_month">This Month</option>
               </Select>
-              <div className='flex gap-4'>
-                <Button type='submit' outline>
+              <div className="flex gap-4">
+                <Button type="submit" outline>
                   Apply Filters
                 </Button>
-                <Button color='gray' onClick={handleReset} outline>
+                <Button color="gray" onClick={handleReset} outline>
                   Reset Filters
                 </Button>
               </div>
             </form>
           </Modal.Body>
         </Modal>
-
-        {/* Posts Grid */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {loading && <p className='text-xl text-gray-500'>Loading...</p>}
-          {!loading && posts.length === 0 && (
-            <p className='text-xl text-gray-500'>No posts found.</p>
+  
+        {/* Posts Grid - scrollable container */}
+        <div className="flex-grow overflow-y-scroll p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            {loading && <p className="text-xl text-gray-500">Loading...</p>}
+            {!loading && posts.length === 0 && (
+              <p className="text-xl text-gray-500">No posts found.</p>
+            )}
+            {!loading &&
+              posts.map((post) => (
+                <PostCard key={post._id} post={post} onDelete={handleDelete} />
+              ))}
+          </div>
+  
+          {/* Show More Button */}
+          {showMore && (
+            <button
+              onClick={handleShowMore}
+              className="text-teal-500 text-lg hover:underline mt-6 w-full text-center"
+            >
+              Show More
+            </button>
           )}
-          {!loading && posts.map((post) => (
-            <PostCard key={post._id} post={post} onDelete={handleDelete} />
-          ))}
         </div>
-
-        {/* Show More Button */}
-        {showMore && (
-          <button
-            onClick={handleShowMore}
-            className='text-teal-500 text-lg hover:underline mt-6 w-full text-center'
-          >
-            Show More
-          </button>
-        )}
       </div>
     </div>
   );

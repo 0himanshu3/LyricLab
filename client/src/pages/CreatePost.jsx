@@ -224,7 +224,7 @@ export default function CreatePost() {
         <ReactQuill
           theme='snow'
           placeholder='Write something...'
-          className='h-72 mb-12'
+          className='h-72 mb-12 text-gray-200'
           required
           onChange={(value) => setFormData({ ...formData, content: value })}
         />
@@ -251,7 +251,7 @@ export default function CreatePost() {
             </Button>
           </div>
         ))}
-        <Button type='button' onClick={addSubtask}>
+        <Button type='button' onClick={addSubtask} className='bg-green-800 border-none'>
           Add Subtask
         </Button>
 
@@ -287,7 +287,7 @@ export default function CreatePost() {
       ))}
     </Select>
     
-    <Button type='button' onClick={addCollaborator}>
+    <Button type='button' onClick={addCollaborator} className='bg-green-800 border-none'>
       Add Collaborator
     </Button>
 
@@ -300,6 +300,7 @@ export default function CreatePost() {
             size='xs'
             color='failure'
             onClick={() => removeCollaborator(collaborator.value)}
+            className='border-none'
           >
             Remove
           </Button>
@@ -309,7 +310,7 @@ export default function CreatePost() {
   </>
 )}
 
-        <Button type='submit' gradientDuoTone='greenToBlue'>
+        <Button type='submit' gradientDuoTone='greenToBlue' className='bg-teal-700'>
           Publish Post
         </Button>
 
