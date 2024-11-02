@@ -27,13 +27,12 @@ export default function FooterCom() {
       if (iteration >= originalText.length) {
         clearInterval(interval);
       }
-
       iteration += 1 / 3;
     }, 30);
   };
 
   return (
-    <Footer container className='bg-gray-200 border border-t-1 border-teal-500'>
+    <Footer container className='bg-gray-200 text-gray-700 border border-t-1 border-gray-600 dark:bg-gray-900'>
       <div className='w-full max-w-7xl mx-auto'>
         <div className='grid w-full justify-between sm:flex md:grid-cols-1'>
           <div className='mt-5'>
@@ -41,14 +40,14 @@ export default function FooterCom() {
               to='/'
               className='self-center whitespace-nowrap text-xl sm:text-xxl font-semibold dark:text-white'
             >
-              <img
-                src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'}
+              <img 
+                src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
                 alt='Lyric Lab Logo'
-                className='h-20 sm:h-[3.7rem]'
+                className='h-7 md:h-7 lg:h-10'  
               />
             </Link>
           </div>
-          <div className='grid grid-cols-2 gap-4 mt-4 sm:grid-cols-3 sm:gap-0 '>
+          <div className='grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 sm:gap-0 '>
             <div>
               <Footer.LinkGroup col>
                 <Footer.Link
@@ -92,7 +91,7 @@ export default function FooterCom() {
         </div>
         <Footer.Divider />
 
-        <div className='w-full sm:flex sm:items-center sm:justify-between'>
+        <div className='w-full sm:flex sm:items-center sm:justify-between mt-0'>
           <Footer.Copyright href='#' by="LyricLab" year={new Date().getFullYear()} />
           <div className="flex gap-4 sm:mt-0 mt-2 sm:justify-center">
             <Footer.Icon href='#' icon={BsFacebook} />
