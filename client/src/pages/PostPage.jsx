@@ -1,5 +1,5 @@
 import { Button, Spinner, Checkbox } from 'flowbite-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -15,6 +15,17 @@ export default function PostPage() {
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
   const [showCollaborators, setShowCollaborators] = useState(false);
+  const [createdByUsername, setCreatedByUsername] = useState(null);
+
+  const fetchUsername = useCallback(async (userId) => {
+    try {
+      const response = await fetch(`/api/user/${userId}`);
+      const data = await response.json();
+      setCreatedByUsername(data.username);
+    } catch (error) {
+      console.error("Failed to fetch username:", error);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -22,7 +33,7 @@ export default function PostPage() {
         setLoading(true);
         const res = await fetch(`/api/post/getpostbyslug/${postSlug}`);
         const data = await res.json();
-        console.log(data);
+        
         if (!res.ok) {
           setError(true);
           setLoading(false);
@@ -32,36 +43,32 @@ export default function PostPage() {
         setSubtasks(data.subtasks);
         setLoading(false);
         setError(false);
+        
+        if (data.isCollaborative) fetchUsername(data.userId);
+        
         updateCompletionPercentage(data.subtasks);
-        startDeadlineTimer(data.deadline); 
+        startDeadlineTimer(data.deadline);
       } catch (error) {
         setError(true);
         setLoading(false);
       }
     };
     fetchPost();
-  }, [postSlug]);
-  
-  
-  // Get priority color based on the task's priority level
+  }, [postSlug, fetchUsername]);
+
   const getPriorityColor = () => {
     switch (post.priority) {
-      case 'high':
-        return 'bg-red-500';
-      case 'medium':
-        return 'bg-yellow-500';
-      case 'low':
-        return 'bg-green-500';
-      default:
-        return '';
+      case 'high': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return '';
     }
   };
-  
+
   const updateCompletionPercentage = (subtasks) => {
     const completedSubtasks = subtasks.filter(subtask => subtask.completed).length;
     const totalSubtasks = subtasks.length || 1;
-    const percentage = (completedSubtasks / totalSubtasks) * 100;
-    setCompletionPercentage(percentage);
+    setCompletionPercentage((completedSubtasks / totalSubtasks) * 100);
   };
 
   const startDeadlineTimer = (deadline) => {
@@ -126,29 +133,13 @@ export default function PostPage() {
     }
   };
 
-  const completeTask = () => {
-    completeAllSubtasks();
-  };
-
   const deleteTask = async () => {
     try {
-      const res = await fetch(`/api/post/${post._id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        navigate('/');
-      }
+      const res = await fetch(`/api/post/${post._id}`, { method: 'DELETE' });
+      if (res.ok) navigate('/');
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
-  };
-
-  const addSubtask = () => {
-    // Logic to add a new subtask, such as opening a modal or form
-  };
-
-  const updateTask = () => {
-    navigate(`/update-task/${post._id}`);
   };
 
   if (loading)
@@ -163,40 +154,44 @@ export default function PostPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-            <h1 className="text-3xl font-bold">{post && post.title}</h1>
+            <h1 className="text-3xl font-bold">{post?.title}</h1>
             <span className={`text-base font-semibold ${getPriorityColor()} text-white px-2 py-1 rounded-md`}>
               Priority: {post && post.priority.charAt(0).toUpperCase() + post.priority.slice(1)}
             </span>
           </div>
 
-          <img
-            src={post && post.image}
-            alt={post && post.title}
-            className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-md"
-          />
+          <img src={post?.image} alt={post?.title} className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-md" />
 
           <div className="text-gray-800 dark:text-gray-400 text-sm mt-4">
             <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
           </div>
 
           <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
-            <div dangerouslySetInnerHTML={{ __html: post && post.content }} />
+            <div dangerouslySetInnerHTML={{ __html: post?.content }} />
           </div>
 
           {/* Collaborative Feature */}
           {post?.isCollaborative && (
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold">Team Name: {post.teamName}</h3>
-              <Button color="info" onClick={() => setShowCollaborators(!showCollaborators)}>
-                {showCollaborators ? 'Hide Collaborators' : 'Show Collaborators'}
-              </Button>
-              {showCollaborators && (
-                <ul className="mt-2 list-disc pl-5">
-                  {post.collaborators.map((collaborator, index) => (
-                    <li key={index._id}>{collaborator.label}</li>
-                  ))}
-                </ul>
-              )}
+            <div className="mt-4 flex justify-between items-start">
+              <div className="flex-1 mr-4">
+                <h3 className="text-lg font-semibold">Team Name: {post.teamName}</h3>
+                <Button color="info" onClick={() => setShowCollaborators(!showCollaborators)}>
+                  {showCollaborators ? 'Hide Collaborators' : 'Show Collaborators'}
+                </Button>
+                {showCollaborators && (
+                  <ul className="mt-2 list-disc pl-5">
+                    {post.collaborators.map((collaborator) => (
+                      <li key={collaborator._id}>{collaborator.label}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="flex-none">
+                <h3 className="text-lg font-semibold">
+                  Created By: {createdByUsername || "Loading..."}
+                </h3>
+              </div>
             </div>
           )}
         </div>
@@ -228,37 +223,29 @@ export default function PostPage() {
           </div>
 
           <div>
-  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
-  <div className="mt-2 space-y-4 max-h-[300px] overflow-y-auto scrollable">
-    {subtasks.map((subtask) => (
-      <div key={subtask._id} className="flex items-center p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
-        <Checkbox
-          checked={subtask.completed}
-          onChange={() => toggleSubtaskCompletion(subtask._id)}
-        />
-        <div className="ml-3">
-          <p className="text-sm font-semibold text-gray-900 dark:text-gray-200">{subtask.title}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">{subtask.description}</p>
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
+            <ul className="mt-2 space-y-2">
+              {subtasks.map((subtask) => (
+                <li key={subtask._id} className="flex items-center">
+                  <Checkbox
+                    checked={subtask.completed}
+                    onChange={() => toggleSubtaskCompletion(subtask._id)}
+                  />
+                  <span className={`ml-2 ${subtask.completed ? 'line-through text-gray-400' : ''}`}>
+                    {subtask.title}
+                  </span>
+                </li>
+              ))}
+            </ul>
 
-
-          <div className="flex flex-col space-y-4">
-            <Button color="success" className='bg-green-500' onClick={completeTask}>
-              Complete Task
+            <Button color="success" className="mt-4 w-full" onClick={completeAllSubtasks}>
+              Complete All Subtasks
             </Button>
-            <Button color="failure" className='bg-red-600' onClick={deleteTask}>
-              Delete Task
-            </Button>
-            <Button color="warning" className='bg-teal-400'>
-                <Link to={`/update-post/${post._id}`}>
-                  Edit Task
-                </Link>
-              </Button>
           </div>
+
+          <Button color="failure" className="mt-8 w-full" onClick={deleteTask}>
+            Delete Task
+          </Button>
         </div>
       </div>
     </main>
