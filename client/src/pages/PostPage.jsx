@@ -247,13 +247,13 @@ export default function PostPage() {
 
 
           <div className="flex flex-col space-y-4">
-            <Button color="success" onClick={completeTask}>
+            <Button color="success" className='bg-green-500' onClick={completeTask}>
               Complete Task
             </Button>
-            <Button color="failure" onClick={deleteTask}>
+            <Button color="failure" className='bg-red-600' onClick={deleteTask}>
               Delete Task
             </Button>
-            <Button color="warning">
+            <Button color="warning" className='bg-teal-400'>
                 <Link to={`/update-post/${post._id}`}>
                   Edit Task
                 </Link>

@@ -17,7 +17,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-300 dark:bg-gray-950 text-gray-800 dark:text-gray-200 flex">
+    <div className="min-h-screen bg-gray-300 dark:bg-gray-950 text-gray-800 dark:text-gray-200 dark:hov flex">
       {/* Sidebar */}
       <Sidebar />
 

@@ -58,45 +58,28 @@ export default function MySidebar() {
       {isSidebarVisible && (
         <Sidebar theme={customSidebar}>
           <Sidebar.Items>
-            <Sidebar.ItemGroup className='flex flex-col gap-1'>
+            <Sidebar.ItemGroup className='flex flex-col gap-1 dark:text-white'>
               {/* Home */}
               <Link to='/'>
                 <Sidebar.Item
                   active={tab === 'home' || !tab}
                   icon={HiHome}
                   as='div'
+                  
                 >
                   Home
                 </Sidebar.Item>
               </Link>
 
-              {/* About */}
-              <Link to='/about'>
-                <Sidebar.Item
-                  active={tab === 'about'}
-                  icon={HiInformationCircle}
-                  as='div'
-                >
-                  About
-                </Sidebar.Item>
-              </Link>
+              
 
-              { /*sign-in */}
-              <Link to='/sign-in'>
-                <Sidebar.Item
-                  active={tab === 'sign-in'}
-                  icon={HiOutlineLogin}
-                  as='div'
-                >
-                  SignIn
-                </Sidebar.Item>
-              </Link>
+              
 
               {/* Conditionally render other items if user is logged in */}
               {currentUser && (
                 <>
                   {/* Add Task button */}
-                  <Link to='/add-task'>
+                  <Link to='/create-post'>
                     <Sidebar.Item
                       active={tab === 'add-task'}
                       icon={HiPlusCircle}

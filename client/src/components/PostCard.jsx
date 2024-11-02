@@ -115,7 +115,6 @@ export default function PostCard({ post }) {
 
   return (
     <div 
-      onClick={() => navigate(`/post/${post.slug}`)}
       className='cursor-pointer'
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -173,17 +172,20 @@ export default function PostCard({ post }) {
         </div>
 
         <div className="mt-3 flex gap-2 button-container" onClick={(e) => e.stopPropagation()}>
-          <Button color="success" size="sm" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
-            Complete Task
-          </Button>
-          <Button color="failure" size="sm" onClick={deleteTask}>
-            Delete Task
-          </Button>
-          
-          <Link to={`/post/${post.slug}`}>
-          <Button color='info' size='sm'>
-            View Full Task
-            </Button> </Link>
+        <Button className="bg-green-500 text-white" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
+  Complete Task
+</Button>
+<Button className="bg-red-500 text-white" onClick={deleteTask}>
+  Delete Task
+</Button>
+<Link to={`/post/${post.slug}`}>
+<Button className="bg-teal-500 text-white">
+  View Full Task
+</Button>
+</Link>
+
+       
+            
         </div>
       </Card>
     </div>

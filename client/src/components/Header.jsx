@@ -53,10 +53,11 @@ export default function Header() {
         <img 
           src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
           alt='Lyric Lab Logo'
-          className='h-7 md:h-7 lg:h-10'  
+          className='h-5 md:h-6 lg:h-8'  
         />
       </Link>
-      <form onSubmit={handleSubmit} className='flex items-center flex-grow justify-center'>
+
+      <form onSubmit={handleSubmit} className='flex items-center flex-grow justify-center mx-4'>
         <TextInput
           type='text'
           placeholder='Search...'
@@ -69,9 +70,11 @@ export default function Header() {
           <AiOutlineSearch />
         </Button>
       </form>
-      <div className='flex gap-2 md:order-2'>
+
+      <div className='flex items-center gap-2 md:order-2'>
+      <Button color="success">Success</Button>
         <Button
-          className='w-12 h-10 sm:inline'
+          className='w-12 h-10 sm:inline text-white'
           color='gray'
           pill
           onClick={() => dispatch(toggleTheme())}
@@ -79,11 +82,9 @@ export default function Header() {
           {theme === 'light' ? <FaSun /> : <FaMoon />}
         </Button>
         {currentUser ? (
-          <>
-            <Dropdown label={<Avatar alt={currentUser?.name} img={currentUser?.avatar} rounded />} inline>
-              <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
-            </Dropdown>
-          </>
+          <Dropdown label={<Avatar alt={currentUser?.name} img={currentUser?.avatar} rounded />} inline>
+            <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
+          </Dropdown>
         ) : (
           <Link to="/sign-up">
             <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">

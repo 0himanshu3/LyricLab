@@ -111,6 +111,29 @@ export default function Search() {
   const handleDelete = (postId) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
   };
+  const handleReset = () => {
+    const defaultData = {
+      searchTerm: '',
+      sort: 'desc',
+      category: 'all',
+      priority: 'all',
+      deadline: 'all'
+    };
+  
+    // Update `sidebarData` with default values
+    setSidebarData(defaultData);
+  
+    // Update the URL with the default filter values
+    const urlParams = new URLSearchParams({
+      searchTerm: defaultData.searchTerm,
+      sort: defaultData.sort,
+      category: defaultData.category,
+      priority: defaultData.priority,
+      deadline: defaultData.deadline,
+    });
+    navigate(`/search`);
+  };
+  
 
   return (
     <div className='flex flex-col md:flex-row'>
@@ -160,9 +183,14 @@ export default function Search() {
               <option value='this_month'>This Month</option>
             </Select>
           </div>
-          <Button type='submit' outline gradientDuoTone='purpleToPink'>
-            Apply Filters
-          </Button>
+          <div className='flex gap-4'>
+            <Button className='bg-cyan-400' type='submit' outline>
+              Apply Filters
+            </Button>
+            <Button color='gray' onClick={handleReset} outline>
+              Reset Filters
+            </Button>
+          </div>
         </form>
       </div>
       <div className='w-full'>
@@ -174,9 +202,7 @@ export default function Search() {
           )}
           {!loading &&
             posts.map((post) => (
-              <Link to={`/post/${post._id}`} key={post._id}>
                 <PostCard post={post} onDelete={handleDelete} />
-              </Link>
             ))}
           {showMore && (
             <button
