@@ -1,6 +1,6 @@
 import Post from '../models/post.model.js';
 import { errorHandler } from '../utils/error.js';
-
+import {UserNotice,Notice} from '../models/notification.js';
 export const create = async (req, res, next) => {
   if (!req.user.isAdmin) {
     return next(errorHandler(403, 'You are not allowed to create a post'));
@@ -30,11 +30,44 @@ export const create = async (req, res, next) => {
     collaborators: req.body.selectedCollaborators || [], // Collaborators list
     subtasks: req.body.subtasks || [] // Subtasks array
   });
-  
   try {
     const savedPost = await newPost.save();
+    
+    let text = "New task has been assigned to you";
+    if (newPost.isCollaborative) {
+      text = text + ` and ${newPost.collaborators.length} others.`;
+    }
+
+    text =
+      text +
+      ` The task priority is set a ${
+        newPost.priority
+      } priority, so check and act accordingly. The task date is ${savedPost.createdAt.toDateString()}. Thank you!!!`;
+    const newNotice = new Notice({
+      text,
+      task: savedPost._id, 
+      notiType: "alert" ,
+      isRead:false,
+    });
+    const usersToNotify = [req.user.id, ...newPost.collaborators];
+    for (const userId of usersToNotify) {
+      const userNotice = await UserNotice.findOne({ userId });
+  
+      if (!userNotice) {
+        const newUserNotice = new UserNotice({
+          userId,
+          notifications: [newNotice], 
+        });
+        await newUserNotice.save();
+      } 
+      else {
+        userNotice.notifications.push(newNotice);
+        await userNotice.save();
+      }
+    }
     res.status(201).json(savedPost);
   } catch (error) {
+    console.error('Error creating post:', error);
     next(error);
   }
 };

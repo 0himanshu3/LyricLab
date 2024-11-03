@@ -14,6 +14,7 @@ import PostPage from './pages/PostPage';
 import ScrollToTop from './components/ScrollToTop';
 import Search from './pages/Search';
 import { useSelector } from 'react-redux';
+import Notifications from './components/Notifications';
 
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
         <Route path='/search' element={<Dashboard />} />
         <Route element={<PrivateRoute />}>
           <Route path='/dashboard' element={<Dashboard />} />
+          <Route path="/notifications" element={<Notifications/>} />
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path='/create-post' element={<CreatePost />} />

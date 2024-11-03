@@ -6,6 +6,7 @@ import {
   HiOutlineUserGroup,
   HiAnnotation,
   HiChartPie,
+  HiBell, 
 } from 'react-icons/hi';
 import { FaTasks } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
@@ -19,6 +20,7 @@ export default function DashSidebar() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [tab, setTab] = useState('');
+  
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get('tab');
@@ -43,6 +45,7 @@ export default function DashSidebar() {
       console.log(error.message);
     }
   };
+  
   return (
     <Sidebar className='w-full md:w-56'>
       <Sidebar.Items>
@@ -102,7 +105,15 @@ export default function DashSidebar() {
               </Link>
             </>
           )}
-          
+          <Link to='/notifications'>
+            <Sidebar.Item
+              active={tab === 'notifications'}
+              icon={HiBell} 
+              as='div'
+            >
+              Notifications
+            </Sidebar.Item>
+          </Link>
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>

@@ -136,7 +136,7 @@ export default function PostPage() {
   const deleteTask = async () => {
     try {
       const res = await fetch(`/api/post/${post._id}`, { method: 'DELETE' });
-      if (res.ok) navigate('/');
+      if (res.ok) navigate('/dashboard?tab=profile');
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
