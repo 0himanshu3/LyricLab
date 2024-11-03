@@ -12,6 +12,7 @@ import {
   updatepost,
   getteamposts,
   getpersonalposts,
+  updatePostOrder,
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
@@ -26,6 +27,8 @@ router.delete('/deletepost/:postId/:userId', verifyToken, deletepost);
 router.put('/updatepost/:postId/:userId', verifyToken, updatepost);
 
 router.patch('/:postId/complete-subtasks', completeTask);
+router.patch('/update-order', verifyToken, updatePostOrder);
+//to update the order of the post
 
 // Delete a task
 router.delete('/:postId', deleteTask);

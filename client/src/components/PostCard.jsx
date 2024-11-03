@@ -119,7 +119,7 @@ export default function PostCard({ post }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <Card className="card max-w-sm h-[440px] p-4 shadow-lg transition duration-200 relative">
+      <Card className="card max-w-sm h-[440px] w-[280px] p-4 shadow-lg transition duration-200 relative">
         <div onClick={(e) => e.stopPropagation()} className="card-content">
           <Link to={`/post/${post.slug}`}>
             <h2 className="text-xl font-bold mb-2">{post.title}</h2>

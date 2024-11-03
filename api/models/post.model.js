@@ -58,6 +58,7 @@ const postSchema = new mongoose.Schema(
       default: 'pending',
     },
     subtasks: [subtaskSchema],
+
     isCollaborative: { // New field to indicate collaboration
       type: Boolean,
       default: false,
@@ -77,6 +78,11 @@ const postSchema = new mongoose.Schema(
         required: true, // Ensure a user ID is provided
       },
     }],
+    order: {
+      type: Number,
+      default: 0,
+      // required: true,
+    }
   },
   { timestamps: true }
 );
