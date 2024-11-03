@@ -1,22 +1,35 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  signInStart,
-  signInSuccess,
-  signInFailure,
-} from '../redux/user/userSlice';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import OAuth from '../components/OAuth';
 
-export default function SignIn() {
+export default function SignInPage() {
   const [formData, setFormData] = useState({});
-  const { loading = false, error: errorMessage = null, user = null } =useSelector((state) => state.user.currentUser || {});
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { loading = false, error: errorMessage = null, user = null } = useSelector((state) => state.user.currentUser || {});
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Redirect if user is already logged in
- 
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (user) {
+      navigate('/search?tab=profile');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsModalOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [modalRef]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -24,102 +37,153 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
-      return dispatch(signInFailure('Please fill all the fields'));
-    }
-    try {
-      dispatch(signInStart());
-      const res = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
+    if (showSignUp) {
+      if (!formData.username || !formData.email || !formData.password) {
+        return dispatch(signInFailure('Please fill out all fields.'));
       }
-
-      if (res.ok) {
-        dispatch(signInSuccess(data));
-        navigate('/search?tab=profile');
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success === false) {
+          return dispatch(signInFailure(data.message));
+        }
+        navigate('/sign-in');
+      } catch (error) {
+        dispatch(signInFailure(error.message));
       }
-    } catch (error) {
-      dispatch(signInFailure(error.message));
+    } else {
+      if (!formData.email || !formData.password) {
+        return dispatch(signInFailure('Please fill out all fields.'));
+      }
+      try {
+        dispatch(signInStart());
+        const res = await fetch('/api/auth/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success === false) {
+          dispatch(signInFailure(data.message));
+        }
+        if (res.ok) {
+          dispatch(signInSuccess(data));
+          navigate('/search?tab=profile');
+        }
+      } catch (error) {
+        dispatch(signInFailure(error.message));
+      }
     }
   };
-  console.log('====================================');
-  console.log(user);
-  console.log('====================================');
- 
-  if(user){
-    return <Navigate to="/search?tab=profile" />;
-  }else
+
   return (
-    <div className='min-h-screen mt-20'>
-      <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5'>
-        {/* left */}
-        <div className='flex-1'>
-          <Link to='/' className='font-bold dark:text-white text-4xl'>
-            <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
-              Sahand's
-            </span>
-            Blog 
-          </Link>
-          <p className='text-sm mt-5'>
-            This is a demo project. You can sign in with your email and password
-            or with Google.
-          </p>
-        </div>
-        {/* right */}
-        <div className='flex-1'>
-          <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
-            <div>
-              <Label value='Your email' />
-              <TextInput
-                type='email'
-                placeholder='name@company.com'
-                id='email'
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label value='Your password' />
-              <TextInput
-                type='password'
-                placeholder='**********'
-                id='password'
-                onChange={handleChange}
-              />
-            </div>
-            <Button
-              gradientDuoTone='purpleToPink'
-              type='submit'
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Spinner size='sm' />
-                  <span className='pl-3'>Loading...</span>
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </Button>
-            <OAuth />
-          </form>
-          <div className='flex gap-2 text-sm mt-5'>
-            <span>Don't have an account?</span>
-            <Link to='/sign-up' className='text-blue-500'>
-              Sign Up
-            </Link>
-          </div>
-          {errorMessage && (
-            <Alert className='mt-5' color='failure'>
-              {errorMessage}
-            </Alert>
-          )}
-        </div>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center relative"
+      style={{
+        backgroundImage: "url(https://images.unsplash.com/photo-1508973379184-7517410fb0bc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)",
+      }}
+    >
+      <div className="absolute inset-0 bg-black opacity-60"></div>
+
+      <div className="relative z-10 text-center p-6">
+        <h2 className="text-4xl font-bold text-blue-500 mb-4">Collaborate & Work with Your Teammates</h2>
+        <p className="text-lg text-orange-300 mb-8">
+          Join our platform to start collaborating and managing your projects effortlessly.
+        </p>
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="w-full max-w-xs mx-auto bg-gradient-to-r from-orange-600 to-blue-500"
+        >
+          {showSignUp ? 'Sign Up' : 'Sign In'}
+        </Button>
       </div>
+
+      {/* Custom Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div ref={modalRef} className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <h2 className="text-2xl mb-4 text-blue-500">{showSignUp ? 'Sign Up' : 'Sign In'}</h2>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+              {showSignUp && (
+                <div>
+                  <Label value="Your username" className="text-gray-600" />
+                  <TextInput
+                    type="text"
+                    placeholder="Username"
+                    id="username"
+                    onChange={handleChange}
+                    className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+              )}
+              <div>
+                <Label value="Your email" className="text-gray-600" />
+                <TextInput
+                  type="email"
+                  placeholder="name@company.com"
+                  id="email"
+                  onChange={handleChange}
+                  className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <Label value="Your password" className="text-gray-600" />
+                <TextInput
+                  type="password"
+                  placeholder="Password"
+                  id="password"
+                  onChange={handleChange}
+                  className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <Button
+                gradientDuoTone="purpleToPink"
+                type="submit"
+                disabled={loading}
+                className="mt-4 w-full rounded-md py-2 bg-gradient-to-r from-orange-500 to-blue-500"
+              >
+                {loading ? (
+                  <>
+                    <Spinner size="sm" />
+                    <span className="pl-3">Loading...</span>
+                  </>
+                ) : (
+                  showSignUp ? 'Sign Up' : 'Sign In'
+                )}
+              </Button>
+              <OAuth />
+            </form>
+            <div className="flex gap-2 text-sm mt-5 justify-center">
+              <span className="text-gray-600">
+                {showSignUp ? 'Already have an account?' : "Don't have an account?"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowSignUp(!showSignUp)}
+                className="text-blue-500 underline"
+              >
+                {showSignUp ? 'Sign In' : 'Sign Up'}
+              </button>
+            </div>
+            {errorMessage && (
+              <Alert className="mt-5" color="failure">
+                {errorMessage}
+              </Alert>
+            )}
+            <Button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="mt-4 text-red-500"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
