@@ -15,26 +15,30 @@ export const create = async (req, res, next) => {
     .toLowerCase()
     .replace(/[^a-zA-Z0-9-]/g, '');
 
-  // Create a new post instance with the provided data
-  const newPost = new Post({
-    title: req.body.title,
-    content: req.body.content,
-    image: req.body.image || undefined, // Use provided image or default
-    category: req.body.category || 'uncategorized', // Default category if not provided
-    slug,
-    userId: req.user.id,
-    priority: req.body.priority || 'low', // Default priority if not provided
-    deadline: req.body.deadline || undefined, // Optional field
-    isCollaborative: req.body.isCollaborative || false, // Collaboration flag
-    teamName: req.body.teamName || '', // Team name
-    collaborators: req.body.selectedCollaborators || [], // Collaborators list
-    subtasks: req.body.subtasks || [] // Subtasks array
-  });
-  
   try {
+    const lastPost = await Post.findOne().sort({ order: -1 });
+    const newOrder = lastPost ? lastPost.order + 1 : 1;
+  
+    const newPost = new Post({
+      title: req.body.title,
+      content: req.body.content,
+      image: req.body.image || undefined, // Use provided image or default
+      category: req.body.category || 'uncategorized', // Default category if not provided
+      slug,
+      userId: req.user.id,
+      priority: req.body.priority || 'low', // Default priority if not provided
+      deadline: req.body.deadline || undefined, // Optional field
+      isCollaborative: req.body.isCollaborative || false, // Collaboration flag
+      teamName: req.body.teamName || '', // Team name
+      collaborators: req.body.selectedCollaborators || [], // Collaborators list
+      subtasks: req.body.subtasks || [], // Subtasks array
+      order: newOrder, //to maintian the order in dnd
+    });
+  
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);
-  } catch (error) {
+  }
+  catch (error) {
     next(error);
   }
 };
@@ -93,6 +97,8 @@ export const getposts = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch posts' });
   }
 };
+
+
 export const getpersonalposts = async (req, res) => {
   try {
     const { userId,searchTerm, sort = 'desc', category = 'uncategorized', priority = 'all', deadline = 'all', limit = 10, skip = 0 } = req.query; // Get filters from query
@@ -147,6 +153,8 @@ export const getpersonalposts = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch posts' });
   }
 };
+
+
 export const getteamposts = async (req, res) => {
   try {
     const { userId,searchTerm, sort = 'desc', category = 'uncategorized', priority = 'all', deadline = 'all', limit = 10, skip = 0 } = req.query; // Get filters from query
@@ -235,10 +243,24 @@ export const deletepost = async (req, res, next) => {
   if (!req.user.isAdmin || req.user.id !== req.params.userId) {
     return next(errorHandler(403, 'You are not allowed to delete this post'));
   }
+
   try {
+    const postToDelete = await Post.findById(req.params.postId);
+    if (!postToDelete) {
+      return next(errorHandler(404, 'Post not found'));
+    }
+
+    const deletedOrder = postToDelete.order;
     await Post.findByIdAndDelete(req.params.postId);
+
+    await Post.updateMany(
+      { order: { $gt: deletedOrder } },
+      { $inc: { order: -1 } } 
+    );
+
     res.status(200).json('The post has been deleted');
-  } catch (error) {
+  }
+  catch (error) {
     next(error);
   }
 };
@@ -277,7 +299,6 @@ export const updatepost = async (req, res, next) => {
     next(error);
   }
 };
-
 
 
 // Toggle Subtask Completion
@@ -331,8 +352,16 @@ export const deleteTask = async (req, res) => {
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
+
+    //change the order index of posts afyer the one deleted
+    await Post.updateMany(
+      { order: { $gt: post.order } },
+      { $inc: { order: -1 } }
+    );
+
     res.status(200).json({ message: 'Task deleted successfully' });
-  } catch (error) {
+  }
+  catch (error) {
     res.status(500).json({ error: 'An error occurred while deleting the task' });
   }
 };
@@ -350,5 +379,24 @@ export const getPostById = async (req, res) => {
   } catch (error) {
     console.error('Error fetching post:', error);
     res.status(500).json({ message: 'Server error while fetching post' });
+  }
+};
+
+
+export const updatePostOrder = async (req, res) => {
+  try {
+    const { postOrder } = req.body; 
+
+    // Update all post orders concurrently
+    const updatePromises = postOrder.map((postId, index) =>
+      Post.findByIdAndUpdate(postId, { order: index })
+    );
+
+    await Promise.all(updatePromises); 
+
+    res.status(200).json({ message: 'Post order updated' });
+  } catch (error) {
+    console.error('Error updating post order:', error);
+    res.status(500).json({ message: 'Failed to update order' });
   }
 };
