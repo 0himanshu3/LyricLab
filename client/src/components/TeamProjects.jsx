@@ -55,7 +55,6 @@ export default function Search() {
           throw new Error('Network response was not ok');
         }
         const data = await res.json();
-        console.log(data.posts);
         setPosts(data.posts);
         setShowMore(data.posts.length === 9);
       } catch (error) {

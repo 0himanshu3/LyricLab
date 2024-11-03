@@ -11,7 +11,7 @@ import OAuth from '../components/OAuth';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const { loading, error: errorMessage, user } = useSelector((state) => state.user.currentUser);
+  const { loading = false, error: errorMessage = null, user = null } =useSelector((state) => state.user.currentUser || {});
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

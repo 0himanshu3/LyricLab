@@ -7,6 +7,7 @@ import { toggleTheme } from '../redux/theme/themeSlice';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
 
+
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export default function Header() {
       setSearchTerm(searchTermFromUrl);
     }
   }, [location.search]);
+  
 
   const handleSignout = async () => {
     try {
@@ -47,10 +49,9 @@ export default function Header() {
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
   };
-
   return (
     <Navbar className='border-b-2 bg-gray-200 text-gray-700 dark:bg-gray-900'>
-      <Link to='/' className='flex-shrink-0 ml-4'>
+      <Link to={currentUser ? '/search?tab=profile' : '/'} className='flex-shrink-0 ml-4'>
         <img 
           src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
           alt='Lyric Lab Logo'
