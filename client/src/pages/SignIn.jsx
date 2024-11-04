@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import OAuth from '../components/OAuth';
+import LoadingScreen from '../components/LoadingScreen';
 
 export default function SignInPage() {
   const [formData, setFormData] = useState({});
@@ -90,13 +91,13 @@ export default function SignInPage() {
       <div className="absolute inset-0 bg-black opacity-60"></div>
 
       <div className="relative z-10 text-center p-6">
-        <h2 className="text-4xl font-bold text-blue-500 mb-4">Collaborate & Work with Your Teammates</h2>
-        <p className="text-lg text-orange-300 mb-8">
+        <h2 className="text-4xl font-bold text-slate-400 mb-4">Collaborate & Work with Your Teammates</h2>
+        <p className="text-lg text-gray-200 mb-8">
           Join our platform to start collaborating and managing your projects effortlessly.
         </p>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="w-full max-w-xs mx-auto bg-gradient-to-r from-orange-600 to-blue-500"
+          className="w-full max-w-xs mx-auto bg-gradient-to-r from-gray-500 to-slate-600"
         >
           {showSignUp ? 'Sign Up' : 'Sign In'}
         </Button>
@@ -105,8 +106,8 @@ export default function SignInPage() {
       {/* Custom Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div ref={modalRef} className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-            <h2 className="text-2xl mb-4 text-blue-500">{showSignUp ? 'Sign Up' : 'Sign In'}</h2>
+          <div ref={modalRef} className="bg-slate-900 rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <h2 className="text-2xl mb-4 text-blue-800">{showSignUp ? 'Sign Up' : 'Sign In'}</h2>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               {showSignUp && (
                 <div>
@@ -144,12 +145,11 @@ export default function SignInPage() {
                 gradientDuoTone="purpleToPink"
                 type="submit"
                 disabled={loading}
-                className="mt-4 w-full rounded-md py-2 bg-gradient-to-r from-orange-500 to-blue-500"
+                className="mt-4 w-full rounded-md py-2 bg-gradient-to-r from-violet-700 to-gray-400"
               >
                 {loading ? (
                   <>
-                    <Spinner size="sm" />
-                    <span className="pl-3">Loading...</span>
+                    <LoadingScreen/>
                   </>
                 ) : (
                   showSignUp ? 'Sign Up' : 'Sign In'
@@ -158,7 +158,7 @@ export default function SignInPage() {
               <OAuth />
             </form>
             <div className="flex gap-2 text-sm mt-5 justify-center">
-              <span className="text-gray-600">
+              <span className="text-gray-500">
                 {showSignUp ? 'Already have an account?' : "Don't have an account?"}
               </span>
               <button
