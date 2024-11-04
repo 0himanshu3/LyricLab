@@ -372,25 +372,34 @@ export const toggleSubtaskCompletion = async (req, res) => {
 export const completeTask = async (req, res) => {
   try {
     const post = await Post.findById(req.params.postId);
-    
+
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
-    
-    // Update the main task and each subtask's completed status
-    post.status = "completed";
-    post.subtasks = post.subtasks.map(subtask => ({
-      ...subtask,
-      completed: true
-    }));
+
+    // Check if all subtasks are completed
+    const allSubtasksCompleted = post.subtasks.every(subtask => subtask.completed);
+
+    // If all subtasks are completed, update the main task status to "completed"
+    if (allSubtasksCompleted) {
+      post.status = "completed";
+    }else{
+      post.status="pending"
+    }
 
     await post.save();
 
-    res.status(200).json({ message: 'Task and subtasks completed successfully', post });
+    res.status(200).json({
+      message: allSubtasksCompleted
+        ? 'Task and all subtasks are completed successfully'
+        : 'Task not marked as completed since some subtasks are incomplete',
+      post
+    });
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while completing the task' });
   }
 };
+
 
 
 // Delete Task
