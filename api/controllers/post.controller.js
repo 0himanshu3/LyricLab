@@ -260,9 +260,9 @@ export const getteamposts = async (req, res) => {
 export const getPostBySlug = async (req, res) => {
   try {
     const { slug } = req.params; // Extract slug from URL parameters
-    console.log('====================================');
-    console.log(slug);
-    console.log('====================================');
+    // console.log('====================================');
+    // console.log(slug);
+    // console.log('====================================');
     // Check if slug is provided
     if (!slug) {
       return res.status(400).json({ message: 'Slug is required' });
