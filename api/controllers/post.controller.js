@@ -61,14 +61,14 @@ export const create = async (req, res, next) => {
       text +
       ` The task priority is set a ${
         newPost.priority
-      } priority, so check and act accordingly. The task date is ${savedPost.createdAt.toDateString()}. Thank you!!!`;
+      } priority, so check and act accordingly. The task deadline is ${savedPost.deadline.toDateString()}. Thank you!!!`;
     const newNotice = new Notice({
       text,
       task: savedPost._id, 
       notiType: "alert" ,
       isRead:false,
     });
-    const usersToNotify = [req.user.id, ...newPost.collaborators];
+    const usersToNotify = [req.user.id, ...newPost.collaborators.map(collaborator => collaborator.value)];
     for (const userId of usersToNotify) {
       const userNotice = await UserNotice.findOne({ userId });
   
@@ -98,12 +98,11 @@ export const getposts = async (req, res) => {
     
     const query = {
       $or: [
-        { userId: userId }, // Match posts created by the user
-        { 'collaborators.value': userId } // Match posts where the user is a collaborator
+        { userId: userId }, 
+        { 'collaborators.value': userId } 
       ]
     };
   
-    // Apply additional filters if provided
     if (searchTerm) {
       query.title = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
     }

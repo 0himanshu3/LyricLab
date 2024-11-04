@@ -14,6 +14,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useSelector } from 'react-redux';
 
 export default function CreatePost() {
   const [file, setFile] = useState(null);
@@ -29,14 +30,16 @@ export default function CreatePost() {
   const [isCollaborative, setIsCollaborative] = useState(false);
   const [teamName, setTeamName] = useState('');
   const navigate = useNavigate();
-
+  const userid = useSelector((state) => state.user.currentUser._id);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await fetch(`/api/user/getallusers`);
         const data = await res.json();
         if (res.ok && data) {
-          const formattedUsers = data.map(user => ({
+          const formattedUsers = data
+          .filter(user => user._id !== userid) 
+          .map(user => ({
             label: user.username,
             value: user._id,
           }));
@@ -64,6 +67,7 @@ export default function CreatePost() {
       setPublishError("Team name is required for collaborative posts.");
       return;
     }
+    console.log(selectedCollaborators);
     try {
       const res = await fetch('/api/post/create', {
         method: 'POST',
