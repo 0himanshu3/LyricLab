@@ -5,7 +5,6 @@ export const getnotifications = async (req, res, next) => {
   console.log(id);
   try {
       const userNotice = await UserNotice.findOne({ userId: id }).populate('notifications.task');
-      console.log(userNotice);
       if (!userNotice) {
           return res.status(404).json({ message: 'No notifications found for this user' });
       }
