@@ -61,7 +61,7 @@ export const create = async (req, res, next) => {
       text +
       ` The task priority is set a ${
         newPost.priority
-      } priority, so check and act accordingly. The task date is ${savedPost.createdAt.toDateString()}. Thank you!!!`;
+      } priority, so check and act accordingly. The task deadline is ${savedPost.deadline.toDateString()}. Thank you!!!`;
     const newNotice = new Notice({
       text,
       task: savedPost._id, 

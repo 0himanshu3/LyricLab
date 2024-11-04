@@ -105,15 +105,7 @@ export default function DashSidebar() {
               </Link>
             </>
           )}
-          <Link to='/notifications'>
-            <Sidebar.Item
-              active={tab === 'notifications'}
-              icon={HiBell} 
-              as='div'
-            >
-              Notifications
-            </Sidebar.Item>
-          </Link>
+          
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>
