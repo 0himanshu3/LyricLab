@@ -188,51 +188,61 @@ export default function Search() {
         </div>
 
         {/* Modal for Filtering */}
-          <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
-             <Modal.Header>Filter Posts</Modal.Header>
-            <Modal.Body>
-              <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                <TextInput
-                  placeholder="Search..."
-                  id="searchTerm"
-                  type="text"
-                  value={sidebarData.searchTerm}
-                  onChange={handleChange}
-                  label="Search Term:"
-                />
-                <Select id="sort" onChange={handleChange} value={sidebarData.sort} label="Sort:">
-                  <option value="desc">Latest</option>
-                  <option value="asc">Oldest</option>
-                </Select>
-                <Select id="category" onChange={handleChange} value={sidebarData.category} label="Category:">
-                  <option value="uncategorized">All</option>
-                  <option value="reactjs">React.js</option>
-                  <option value="nextjs">Next.js</option>
-                  <option value="javascript">JavaScript</option>
-                </Select>
-                <Select id="priority" onChange={handleChange} value={sidebarData.priority} label="Priority:">
-                  <option value="all">All</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </Select>
-                <Select id="deadline" onChange={handleChange} value={sidebarData.deadline} label="Deadline:">
-                  <option value="all">All</option>
-                  <option value="this_week">This Week</option>
-                  <option value="next_week">Next Week</option>
-                  <option value="this_month">This Month</option>
-                </Select>
-                <div className="flex gap-4">
-                  <Button type="submit" outline>
-                    Apply Filters
-                  </Button>
-                  <Button color="gray" onClick={handleReset} outline>
-                    Reset Filters
-                  </Button>
-                </div>
-              </form>
-            </Modal.Body>
-           </Modal>
+        <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+  <Modal.Header>Filter Posts</Modal.Header>
+  <Modal.Body>
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <label htmlFor="searchTerm" className="font-semibold">Search Term:</label>
+      <TextInput
+        placeholder="Search..."
+        id="searchTerm"
+        type="text"
+        value={sidebarData.searchTerm}
+        onChange={handleChange}
+      />
+
+      <label htmlFor="sort" className="font-semibold">Sort:</label>
+      <Select id="sort" onChange={handleChange} value={sidebarData.sort}>
+        <option value="desc">Latest</option>
+        <option value="asc">Oldest</option>
+      </Select>
+
+      <label htmlFor="category" className="font-semibold">Category:</label>
+      <Select id="category" onChange={handleChange} value={sidebarData.category}>
+        <option value="uncategorized">All</option>
+        <option value="reactjs">React.js</option>
+        <option value="nextjs">Next.js</option>
+        <option value="javascript">JavaScript</option>
+      </Select>
+
+      <label htmlFor="priority" className="font-semibold">Priority:</label>
+      <Select id="priority" onChange={handleChange} value={sidebarData.priority}>
+        <option value="all">All</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </Select>
+
+      <label htmlFor="deadline" className="font-semibold">Deadline:</label>
+      <Select id="deadline" onChange={handleChange} value={sidebarData.deadline}>
+        <option value="all">All</option>
+        <option value="this_week">This Week</option>
+        <option value="next_week">Next Week</option>
+        <option value="this_month">This Month</option>
+      </Select>
+
+      <div className="flex gap-4">
+        <Button type="submit" outline>
+          Apply Filters
+        </Button>
+        <Button color="gray" onClick={handleReset} outline>
+          Reset Filters
+        </Button>
+      </div>
+    </form>
+  </Modal.Body>
+</Modal>
+
 
         {/* Scrollable Posts Grid */}
         <DndContext sensors={ sensors } onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
