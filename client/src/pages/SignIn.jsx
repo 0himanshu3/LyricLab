@@ -52,7 +52,8 @@ export default function SignInPage() {
         if (data.success === false) {
           return dispatch(signInFailure(data.message));
         }
-        navigate('/sign-in');
+        alert("Successful");
+        setIsModalOpen(false);
       } catch (error) {
         dispatch(signInFailure(error.message));
       }
