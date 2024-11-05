@@ -188,7 +188,7 @@ export default function Search() {
         </div>
 
         {/* Modal for Filtering */}
-        <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-md mx-auto">
   <Modal.Header>Filter Posts</Modal.Header>
   <Modal.Body>
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -242,6 +242,7 @@ export default function Search() {
     </form>
   </Modal.Body>
 </Modal>
+
 
 
         {/* Scrollable Posts Grid */}

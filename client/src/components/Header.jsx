@@ -113,7 +113,7 @@ export default function Header() {
         )}
         
         {currentUser && (
-          <Dropdown label={<Avatar alt={currentUser?.name} img={currentUser?.avatar} rounded />} inline>
+          <Dropdown label={<Avatar alt={currentUser?.name} img={currentUser?.profilePicture} rounded />} inline>
             <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
           </Dropdown>
         //  : (

@@ -51,7 +51,7 @@ export default function FooterCom() {
             <div>
               <Footer.LinkGroup col>
                 <Footer.Link
-                  href='/about'
+                  href='/'
                   target='_blank'
                   rel='noopener noreferrer'
                   data-value='LYRICLAB'
