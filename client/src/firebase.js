@@ -7,11 +7,11 @@ import { initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: 'mern-blog-b327f.firebaseapp.com',
-  projectId: 'mern-blog-b327f',
-  storageBucket: 'mern-blog-b327f.appspot.com',
-  messagingSenderId: '699397991367',
-  appId: '1:699397991367:web:88ff565ef72a182d6b87e2',
+  authDomain: "lyriclab-f275c.firebaseapp.com",
+  projectId: "lyriclab-f275c",
+  storageBucket: "lyriclab-f275c.firebasestorage.app",
+  messagingSenderId: "538424755375",
+  appId: "1:538424755375:web:d816ce71c9ffbd0ff9405a"
 };
 
 // Initialize Firebase

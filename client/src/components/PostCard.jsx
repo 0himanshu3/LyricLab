@@ -43,6 +43,7 @@ export default function PostCard({ post }) {
   };
 
   const completeAllSubtasks = async () => {
+    console.log("triggered btn");
     const updatedSubtasks = subtasks.map((subtask) => ({ ...subtask, completed: true }));
     setSubtasks(updatedSubtasks);
     try {
@@ -57,6 +58,7 @@ export default function PostCard({ post }) {
   };
 
   const deleteTask = async () => {
+    console.log("trigger delete");
     try {
       const res = await fetch(`/api/post/${post._id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -119,7 +121,7 @@ export default function PostCard({ post }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <Card className="card max-w-sm h-[440px] w-[280px] p-4 shadow-lg transition duration-200 relative">
+      <Card className="card max-w-sm h-[440px] w-[295px] p-1 shadow-lg transition duration-200 relative">
         <div onClick={(e) => e.stopPropagation()} className="card-content">
           <Link to={`/post/${post.slug}`}>
             <h2 className="text-xl font-bold mb-2">{post.title}</h2>
@@ -163,7 +165,7 @@ export default function PostCard({ post }) {
           {totalCount > 3 && <span className="text-xs text-gray-500">+{totalCount - 3} subtasks remaining</span>}
         </div>
 
-        <div className="relative w-full h-2 bg-gray-200 rounded" onClick={(e) => e.stopPropagation()}>
+        <div className="relative w-60 h-1.5 bg-gray-200 rounded" onClick={(e) => e.stopPropagation()}>
           <div
             className="absolute top-0 left-0 h-full bg-teal-500 rounded"
             style={{ width: `${completionPercentage}%` }}
@@ -172,12 +174,12 @@ export default function PostCard({ post }) {
         </div>
 
         <div className="mt-4 flex gap-2 button-container" onClick={(e) => e.stopPropagation()}>
-        <Button className="bg-green-800 text-white border-none hover:bg-green-900" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
-          Complete Task
-        </Button>
-        <Button className="bg-red-800 text-white border-none hover:bg-red-900" onClick={deleteTask}>
-          Delete Task
-        </Button>
+          <Button className="bg-green-800 text-white border-none hover:bg-green-900 card-btn" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
+            <span className='text-sm'>Complete Task</span>
+          </Button>
+          <Button className="bg-red-800 text-white border-none hover:bg-red-900 card-btn" onClick={deleteTask}>
+            <span className='text-sm'>Delete Task</span>
+          </Button>
         {/* <Link to={`/post/${post.slug}`}>
         <Button className="bg-teal-500 text-white">
           View Full Task

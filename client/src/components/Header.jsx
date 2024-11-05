@@ -112,16 +112,16 @@ export default function Header() {
           </Link>
         )}
         
-        {currentUser ? (
+        {currentUser && (
           <Dropdown label={<Avatar alt={currentUser?.name} img={currentUser?.avatar} rounded />} inline>
             <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
           </Dropdown>
-        ) : (
-          <Link to="/sign-up">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-              Get Started
-            </button>
-          </Link>
+        //  : (
+        //   <Link to="/sign-up">
+        //     <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+        //       Get Started
+        //     </button>
+        //   </Link>
         )}
       </div>
     </Navbar>

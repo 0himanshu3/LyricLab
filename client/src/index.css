@@ -128,7 +128,6 @@ body {
   z-index: 2;
 }
 
-
 .card > .button-container {
   position: relative;
   z-index: 3;
@@ -163,6 +162,8 @@ glow::before,
   margin: 0 4px;
   border-top-right-radius: 20px;
   border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
   animation: loader 1.15s linear infinite;
 }
 
@@ -182,11 +183,10 @@ glow::before,
   }
   50% {
     transform: scaleY(1);
-    background: rgb(132, 44, 184);
+    background: rgb(82, 18, 119);
   }
   100% {
     transform: scaleY(0.1);
     background: transparent;
   }
 }
-
