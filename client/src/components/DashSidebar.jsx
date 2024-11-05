@@ -6,17 +6,17 @@ import {
   HiOutlineUserGroup,
   HiAnnotation,
   HiChartPie,
-  HiBell, 
+  HiBell,
 } from 'react-icons/hi';
 import { FaTasks } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signoutSuccess } from '../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function DashSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [tab, setTab] = useState('');
@@ -40,7 +40,7 @@ export default function DashSidebar() {
       } else {
         dispatch(signoutSuccess());
       }
-      navigate('/')
+      navigate('/');
     } catch (error) {
       console.log(error.message);
     }
@@ -50,22 +50,13 @@ export default function DashSidebar() {
     <Sidebar className='w-full md:w-56'>
       <Sidebar.Items>
         <Sidebar.ItemGroup className='flex flex-col gap-1'>
-          {currentUser && currentUser.isAdmin && (
-            <Link to='/dashboard?tab=dash'>
-              <Sidebar.Item
-                active={tab === 'dash' || !tab}
-                icon={HiChartPie}
-                as='div'
-              >
-                Dashboard
-              </Sidebar.Item>
-            </Link>
-          )}
+          
           <Link to='/dashboard?tab=profile'>
             <Sidebar.Item
               active={tab === 'profile'}
-              icon={HiUser}
-              label={currentUser.isAdmin ? 'Admin' : 'User'}
+              icon={({ className }) => (
+                <HiUser className={`${tab === 'profile' ? 'text-white' : ''} ${className}`} />
+              )}
               labelColor='dark'
               as='div'
             >
@@ -75,8 +66,10 @@ export default function DashSidebar() {
           {currentUser.isAdmin && (
             <Link to='/search?tab=all'>
               <Sidebar.Item
-                active={tab === 'posts'}
-                icon={HiDocumentText}
+                active={tab === 'all'}
+                icon={({ className }) => (
+                  <HiDocumentText className={`${tab === 'all' ? 'text-white' : ''} ${className}`} />
+                )}
                 as='div'
               >
                 All Tasks
@@ -87,17 +80,21 @@ export default function DashSidebar() {
             <>
               <Link to='/dashboard?tab=personal'>
                 <Sidebar.Item
-                  active={tab === 'users'}
-                  icon={FaTasks}
+                  active={tab === 'personal'}
+                  icon={({ className }) => (
+                    <FaTasks className={`${tab === 'personal' ? 'text-white' : ''} ${className}`} />
+                  )}
                   as='div'
                 >
-                 Personal Tasks
+                  Personal Tasks
                 </Sidebar.Item>
               </Link>
               <Link to='/dashboard?tab=team'>
                 <Sidebar.Item
-                  active={tab === 'comments'}
-                  icon={HiOutlineUserGroup}
+                  active={tab === 'team'}
+                  icon={({ className }) => (
+                    <HiOutlineUserGroup className={`${tab === 'team' ? 'text-white' : ''} ${className}`} />
+                  )}
                   as='div'
                 >
                   Team Tasks
@@ -105,7 +102,6 @@ export default function DashSidebar() {
               </Link>
             </>
           )}
-          
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>

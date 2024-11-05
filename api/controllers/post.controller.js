@@ -1,6 +1,8 @@
 import Post from '../models/post.model.js';
 import { errorHandler } from '../utils/error.js';
 import {UserNotice,Notice} from '../models/notification.js';
+import moment from  'moment';
+
 export const create = async (req, res, next) => {
   if (!req.user.isAdmin) {
     return next(errorHandler(403, 'You are not allowed to create a post'));
@@ -454,5 +456,23 @@ export const updatePostOrder = async (req, res) => {
   } catch (error) {
     console.error('Error updating post order:', error);
     res.status(500).json({ message: 'Failed to update order' });
+  }
+};
+
+export const getOverduePosts = async (req, res) => {
+  try {
+    // Get current date
+    const currentDate = moment().startOf('day'); 
+
+    // Query to find posts where the deadline is before today
+    const overduePosts = await Post.find({
+      deadline: { $lt: currentDate.toDate() },
+    });
+
+    // Return the overdue posts
+    res.status(200).json({ posts: overduePosts });
+  } catch (error) {
+    console.error('Error fetching overdue posts:', error);
+    res.status(500).json({ message: 'Failed to fetch overdue posts' });
   }
 };

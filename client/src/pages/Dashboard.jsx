@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import DashSidebar from '../components/DashSidebar';
 import DashProfile from '../components/DashProfile';
-import DashboardComp from '../components/DashboardComp';
 import Personal from '../components/Personal';
 import TeamProjects from '../components/TeamProjects';
 import Search from './Search';
