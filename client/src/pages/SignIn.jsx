@@ -70,6 +70,7 @@ export default function SignInPage() {
         });
         const data = await res.json();
         if (data.success === false) {
+          alert("Wrong credentials");
           dispatch(signInFailure(data.message));
         }
         if (res.ok) {
