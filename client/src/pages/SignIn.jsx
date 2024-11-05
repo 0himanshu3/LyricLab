@@ -52,7 +52,8 @@ export default function SignInPage() {
         if (data.success === false) {
           return dispatch(signInFailure(data.message));
         }
-        navigate('/sign-in');
+        alert("Successful");
+        setIsModalOpen(false);
       } catch (error) {
         dispatch(signInFailure(error.message));
       }
@@ -69,6 +70,7 @@ export default function SignInPage() {
         });
         const data = await res.json();
         if (data.success === false) {
+          alert("Wrong credentials");
           dispatch(signInFailure(data.message));
         }
         if (res.ok) {
