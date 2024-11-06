@@ -2,6 +2,7 @@ import { Card, Checkbox, Button, Spinner } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import moment from 'moment';
+import LoadingScreen from './LoadingScreen';
 
 export default function PostCard({ post }) {
   const [loading, setLoading] = useState(true);
@@ -91,9 +92,10 @@ export default function PostCard({ post }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="xl" />
-      </div>
+      // <div className="flex justify-center items-center min-h-screen">
+      //   <Spinner size="xl" />
+      // </div>
+      <LoadingScreen/>
     );
   }
 
@@ -124,7 +126,7 @@ export default function PostCard({ post }) {
       <Card className="card max-w-sm h-[440px] w-[295px] p-1 shadow-lg transition duration-200 relative">
         <div onClick={(e) => e.stopPropagation()} className="card-content">
           <Link to={`/post/${post.slug}`}>
-            <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+            <h2 className="text-xl font-bold mb-2 overflow-hidden text-ellipsis whitespace-nowrap">{post.title}</h2>
           </Link>
 
           {/* Display team name if isCollaborative is true */}
@@ -153,7 +155,7 @@ export default function PostCard({ post }) {
           {subtasks.slice(0, 3).map((subtask) => (
             <div key={subtask._id} className="flex items-center gap-2 py-0.5">
               <Checkbox
-                className="checkbox cursor-pointer outline-none border-none shadow-none"
+                className="checkbox cursor-pointer outline-none border-none shadow-none overflow-hidden text-ellipsis whitespace-nowrap"
                 checked={subtask.completed}
                 onChange={() => toggleSubtaskCompletion(subtask._id)}
               />
@@ -173,7 +175,7 @@ export default function PostCard({ post }) {
           <div className="text-xs mt-2">{completedCount}/{totalCount} Subtasks Completed</div>
         </div>
 
-        <div className="mt-4 flex gap-2 button-container" onClick={(e) => e.stopPropagation()}>
+        <div className="mt-4 flex flex-col gap-2 button-container" onClick={(e) => e.stopPropagation()}>
           <Button className="bg-green-800 text-white border-none hover:bg-green-900 card-btn" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
             <span className='text-sm'>Complete Task</span>
           </Button>

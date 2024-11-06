@@ -157,13 +157,11 @@ export default function Search() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4 p-4">
-       
-
+      <div className="flex justify-between items-center px-4 py-2">
         {/* View toggle buttons */}
         <button
           onClick={toggleView}
-          className={`px-4 py-2 flex items-center ${viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'
+          className={`p-2 flex items-center ${viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'
             } rounded`}
         >
           {viewType === 'board' ? (
@@ -178,7 +176,6 @@ export default function Search() {
             </>
           )}
         </button>
-
       </div>
 
       {/* Conditionally render Board or List view */}
