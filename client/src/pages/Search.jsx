@@ -4,8 +4,11 @@ import { useSelector } from 'react-redux';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Board from '../components/Board';
 import List from '../components/List';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import { FaList } from "react-icons/fa";
 import { MdGridView } from "react-icons/md";
+
 export default function Search() {
   const userId = useSelector((state) => state.user.currentUser._id);
 
@@ -21,7 +24,8 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [viewType, setViewType] = useState('board');
+  const [viewType, setViewType] = useState('board'); // 'board' or 'list'
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,6 +46,10 @@ export default function Search() {
       priority: priorityFromUrl || prevState.priority,
       deadline: deadlineFromUrl || prevState.deadline,
     }));
+
+    // Detect if dark mode is enabled
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkMode(mediaQuery.matches);
 
     const fetchPosts = async () => {
       setLoading(true);
@@ -79,6 +87,18 @@ export default function Search() {
     }));
   };
 
+  const deadlineDates = posts
+    .filter((post) => post.deadline)
+    .map((post) => ({
+      date: new Date(post.deadline),
+      slug: post.slug,
+    }))
+    .filter((entry) => !isNaN(entry.date));
+
+  const toggleView = () => {
+    setViewType((prevViewType) => (prevViewType === 'board' ? 'list' : 'board'));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams(location.search);
@@ -114,7 +134,6 @@ export default function Search() {
     });
     setIsModalOpen(false);
     navigate('/search');
-    
   };
 
   const handleDelete = async (id) => {
@@ -150,11 +169,6 @@ export default function Search() {
     }
   };
 
-  // Toggle between Board and List view
-  const toggleView = () => {
-    setViewType((prevViewType) => (prevViewType === 'board' ? 'list' : 'board'));
-  };
-
   return (
     <div>
       <div className="flex justify-between items-center px-4 py-2">
@@ -178,40 +192,90 @@ export default function Search() {
         </button>
       </div>
 
-      {/* Conditionally render Board or List view */}
-      {viewType === 'board' ? (
-        <Board
-          posts={posts}
-          setPosts={setPosts}
-          loading={loading}
-          showMore={showMore}
-          handleShowMore={handleShowMore}
-          handleDelete={handleDelete}
-          handleDragEnd={handleDragEnd}
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          sidebarData={sidebarData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          handleReset={handleReset}
-        />
-      ) : (
-        <List
-          posts={posts}
-          setPosts={setPosts}
-          loading={loading}
-          showMore={showMore}
-          handleShowMore={handleShowMore}
-          handleDelete={handleDelete}
-          handleDragEnd={handleDragEnd}
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          sidebarData={sidebarData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          handleReset={handleReset}
-        />
-      )}
+      {/* Main Content */}
+      <div className="flex-grow flex">
+        {viewType === 'board' ? (
+          <div className="flex w-full">
+            {/* Board View */}
+            <div className="w-2/3 p-4 overflow-y-auto">
+              <Board
+                posts={posts}
+                setPosts={setPosts}
+                loading={loading}
+                showMore={showMore}
+                handleShowMore={handleShowMore}
+                handleDelete={handleDelete}
+                handleDragEnd={handleDragEnd}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                sidebarData={sidebarData}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                handleReset={handleReset}
+              />
+            </div>
+            {/* Calendar */}
+            <div className="w-1/3 p-4">
+              <Calendar
+                tileContent={({ date }) => {
+                  const post = deadlineDates.find((d) => d.date.toDateString() === date.toDateString());
+                  return post ? (
+                    <button
+                      onClick={() => navigate(`/post/${post.slug}`)}
+                      className="w-full h-full bg-yellow-200 text-black font-semibold rounded-full p-1 hover:bg-yellow-300"
+                    >
+                      🔗
+                    </button>
+                  ) : null;
+                }}
+                className={`border border-gray-200 rounded-lg shadow-lg ${
+                  isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                }`}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex w-full">
+            {/* List View */}
+            <div className="w-2/3 p-4 overflow-y-auto">
+              <List
+                posts={posts}
+                setPosts={setPosts}
+                loading={loading}
+                showMore={showMore}
+                handleShowMore={handleShowMore}
+                handleDelete={handleDelete}
+                handleDragEnd={handleDragEnd}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                sidebarData={sidebarData}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                handleReset={handleReset}
+              />
+            </div>
+            {/* Calendar */}
+            <div className="w-1/3 p-4">
+              <Calendar
+                tileContent={({ date }) => {
+                  const post = deadlineDates.find((d) => d.date.toDateString() === date.toDateString());
+                  return post ? (
+                    <button
+                      onClick={() => navigate(`/post/${post.slug}`)}
+                      className="w-full h-full bg-yellow-200 text-black font-semibold rounded-full p-1 hover:bg-yellow-300"
+                    >
+                      🔗
+                    </button>
+                  ) : null;
+                }}
+                className={`border border-gray-200 rounded-lg shadow-lg ${
+                  isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                }`}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
