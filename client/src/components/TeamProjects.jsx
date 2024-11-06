@@ -70,7 +70,7 @@ export default function Search() {
       }
     };
 
-    fetchPosts();
+    fetchPosts(sidebarData);
   }, [location.search, userId]);
 
   const handleChange = (e) => {
@@ -178,7 +178,7 @@ export default function Search() {
     <div className="flex h-screen overflow-y-auto">
       <div className="flex-grow flex flex-col">
         <div className="flex justify-between items-center border-b border-gray-500 p-4">
-          <h1 className="text-3xl font-semibold">All Tasks:</h1>
+          <h1 className="text-3xl font-semibold">Team Projects:</h1>
           <div className="flex">
             <Button onClick={() => setIsModalOpen(true)} className="mx-2">Filter By</Button>
             <Link to="/create-post">
@@ -188,7 +188,7 @@ export default function Search() {
         </div>
 
         {/* Modal for Filtering */}
-      <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-md mx-auto">
+        <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-md mx-auto">
   <Modal.Header>Filter Posts</Modal.Header>
   <Modal.Body>
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -242,7 +242,6 @@ export default function Search() {
     </form>
   </Modal.Body>
 </Modal>
-
 
 
         {/* Scrollable Posts Grid */}
