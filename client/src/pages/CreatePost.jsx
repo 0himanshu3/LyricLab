@@ -31,12 +31,14 @@ export default function CreatePost() {
   const [teamName, setTeamName] = useState('');
   const navigate = useNavigate();
   const userid = useSelector((state) => state.user.currentUser._id);
-  const [isRecording, setIsRecording] = useState(false); 
+  const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef(null); // Ref to handle recognition
-  const toggleButtonRef = useRef(null); // Ref for button
-  const quillRef = useRef(null); 
+  const recognitionRef = useRef(null);
+  const toggleButtonRef = useRef(null);
+  const quillRef = useRef(null);
   const finalTranscriptRef = useRef('');
+  const [language, setLanguage] = useState('en-UK');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -74,6 +76,10 @@ export default function CreatePost() {
       setPublishError("Team name is required for collaborative posts.");
       return;
     }
+
+    if(isRecording)
+      stopRecording();
+    
     console.log(selectedCollaborators);
     try {
       const res = await fetch('/api/post/create', {
@@ -97,10 +103,13 @@ export default function CreatePost() {
           .toLowerCase()
           .replace(/[^a-zA-Z0-9-]/g, '');
         navigate(`/post/${slug}`);
-      } else {
+      } 
+      else {
+        console.log('Error:', res.status, res.statusText);
         setPublishError('Failed to publish post');
       }
-    } catch (error) {
+    } 
+    catch (error) {
       setPublishError('Something went wrong');
     }
   };
@@ -167,13 +176,13 @@ export default function CreatePost() {
     setSelectedCollaborators(selectedCollaborators.filter(collaborator => collaborator.value !== collaboratorId));
   };
 
-  const handleToggleRecording = () => {
-      if (isRecording) {
-          stopRecording();
-      } else {
-          startRecording();
-      }
-  };
+  const toggleDropdown = () => setShowDropdown(!showDropdown);
+
+  const handleLanguageSelect = (lang) => {
+    setLanguage(lang);
+    startRecording(lang);
+    setShowDropdown(false);
+};
 
     useEffect(() => {
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -181,7 +190,7 @@ export default function CreatePost() {
           recognitionRef.current = new SpeechRecognition();
           recognitionRef.current.continuous = true;
           recognitionRef.current.interimResults = true;
-          recognitionRef.current.lang = 'en-US';
+          recognitionRef.current.lang = language;
 
           // Event to process speech results
           recognitionRef.current.onresult = (event) => {
@@ -207,19 +216,32 @@ export default function CreatePost() {
       }
   }, []);
 
-  const startRecording = () => {
-      if (recognitionRef.current) {
-          recognitionRef.current.start();
-          setIsRecording(true);
-      }
+  const startRecording = (lang) => {
+    if (recognitionRef.current) {
+      finalTranscriptRef.current = quillRef.current.getEditor().getText();
+      recognitionRef.current.lang = lang;
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
   };
 
+// Stop Recording
   const stopRecording = () => {
-      if (recognitionRef.current) {
-          recognitionRef.current.stop();
-          setIsRecording(false);
-      }
+    if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        setIsRecording(false);
+    }
   };
+
+  const handleToggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    }
+    else {
+      toggleDropdown();
+    }
+  };
+
 
   // Update ReactQuill editor whenever the transcript changes
   useEffect(() => {
@@ -300,28 +322,74 @@ export default function CreatePost() {
           )}
 
           <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
-            <ReactQuill
-                theme="snow"
-                placeholder="Express Yourself..."
-                className="h-72 mb-12 text-gray-200"
-                ref={quillRef} 
-            />
+          <ReactQuill
+              theme="snow"
+              placeholder="Express Yourself..."
+              className="h-72 mb-12 text-gray-200"
+              ref={quillRef}
+          />
+
+        {/* Record button with dropdown */}
+        <div style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
             <button
                 onClick={handleToggleRecording}
                 style={{
-                    position: 'absolute',
-                    bottom: '10px',
-                    right: '10px',
                     backgroundColor: isRecording ? '#ff4c4c' : '#4c6ef5',
                     color: 'white',
                     padding: '5px 10px',
                     borderRadius: '5px',
                     border: 'none',
                     cursor: 'pointer',
+                    width: '100%',
+                    position: 'relative',
                 }}
             >
                 {isRecording ? "Stop" : "Record"}
             </button>
+
+            {/* Language selection dropdown */}
+            {showDropdown && !isRecording && (
+                <div style={{
+                    position: 'absolute',
+                    top: '-90px',
+                    right: '0',
+                    backgroundColor: '#ffffff',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                    borderRadius: '5px',
+                    overflow: 'hidden',
+                    zIndex: 1,
+                }}>
+                    <button
+                      onClick={() => handleLanguageSelect('en-US')}
+                      style={{
+                          display: 'block',
+                          padding: '10px',
+                          width: '100%',
+                          backgroundColor: '#4c6ef5',
+                          color: 'white',
+                          border: 'none',
+                          cursor: 'pointer',
+                      }}
+                  >
+                      English
+                  </button>
+                  <button
+                      onClick={() => handleLanguageSelect('hi-IN')}
+                      style={{
+                          display: 'block',
+                          padding: '10px',
+                          width: '100%',
+                          backgroundColor: '#4c6ef5',
+                          color: 'white',
+                          border: 'none',
+                          cursor: 'pointer',
+                      }}
+                  >
+                      Hindi
+                  </button>
+                </div>
+                )}
+            </div>
         </div>
 
           <h2 className='text-xl font-semibold'>Subtasks</h2>
@@ -413,5 +481,4 @@ export default function CreatePost() {
         </form>
       </div>
     );
-  }
-// }
+}
