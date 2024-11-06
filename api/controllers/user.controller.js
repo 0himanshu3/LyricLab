@@ -7,20 +7,30 @@ export const test = (req, res) => {
 };
 
 export const updateUser = async (req, res, next) => {
+  // Authorization check
   if (req.user.id !== req.params.userId) {
     return next(errorHandler(403, 'You are not allowed to update this user'));
   }
+
+  // Password validation
   if (req.body.password) {
-    if (req.body.password.length < 6) {
-      return next(errorHandler(400, 'Password must be at least 6 characters'));
+    if (req.body.password.length < 8) {
+      return next(errorHandler(400, 'Password must be at least 8 characters'));
     }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+    if (!passwordRegex.test(req.body.password)) {
+      return next(
+        errorHandler(400, 'Password must include 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character')
+      );
+    }
+    // Hash the password if it passes validation
     req.body.password = bcryptjs.hashSync(req.body.password, 10);
   }
+
+  // Username validation
   if (req.body.username) {
-    if (req.body.username.length < 7 || req.body.username.length > 20) {
-      return next(
-        errorHandler(400, 'Username must be between 7 and 20 characters')
-      );
+    if (req.body.username.length < 3 || req.body.username.length > 20) {
+      return next(errorHandler(400, 'Username must be between 3 and 20 characters'));
     }
     if (req.body.username.includes(' ')) {
       return next(errorHandler(400, 'Username cannot contain spaces'));
@@ -28,13 +38,13 @@ export const updateUser = async (req, res, next) => {
     if (req.body.username !== req.body.username.toLowerCase()) {
       return next(errorHandler(400, 'Username must be lowercase'));
     }
-    if (!req.body.username.match(/^[a-zA-Z0-9]+$/)) {
-      return next(
-        errorHandler(400, 'Username can only contain letters and numbers')
-      );
+    if (!/^[a-zA-Z0-9]+$/.test(req.body.username)) {
+      return next(errorHandler(400, 'Username can only contain letters and numbers'));
     }
   }
+
   try {
+    // Update user details
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       {
@@ -47,12 +57,14 @@ export const updateUser = async (req, res, next) => {
       },
       { new: true }
     );
+
     const { password, ...rest } = updatedUser._doc;
     res.status(200).json(rest);
   } catch (error) {
     next(error);
   }
 };
+
 
 export const deleteUser = async (req, res, next) => {
   if (!req.user.isAdmin && req.user.id !== req.params.userId) {

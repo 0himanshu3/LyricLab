@@ -13,6 +13,7 @@ export default function SignInPage() {
   const { loading = false, error: errorMessage = null, user = null } = useSelector((state) => state.user.currentUser || {});
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [errorM,setErrorM] = useState("");
 
   const modalRef = useRef(null);
 
@@ -49,6 +50,8 @@ export default function SignInPage() {
           body: JSON.stringify(formData),
         });
         const data = await res.json();
+        console.log(data);
+        setErrorM(data.message);
         if (data.success === false) {
           return dispatch(signInFailure(data.message));
         }
@@ -70,7 +73,7 @@ export default function SignInPage() {
         });
         const data = await res.json();
         if (data.success === false) {
-          alert("Wrong credentials");
+          setErrorM(data.message);
           dispatch(signInFailure(data.message));
         }
         if (res.ok) {
@@ -158,6 +161,9 @@ export default function SignInPage() {
                 )}
               </Button>
               <OAuth />
+              {errorM && (
+               <div style={{ color: 'red' }}>{errorM}</div>
+            )}
             </form>
             <div className="flex gap-2 text-sm mt-5 justify-center">
               <span className="text-gray-500">
@@ -171,11 +177,7 @@ export default function SignInPage() {
                 {showSignUp ? 'Sign In' : 'Sign Up'}
               </button>
             </div>
-            {errorMessage && (
-              <Alert className="mt-5" color="failure">
-                {errorMessage}
-              </Alert>
-            )}
+           
             <Button
               type="button"
               onClick={() => setIsModalOpen(false)}
