@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { MdArchive } from 'react-icons/md';
 
 export default function DashSidebar() {
   const location = useLocation();
@@ -107,7 +108,7 @@ export default function DashSidebar() {
               <Sidebar.Item
                 active={tab === 'archived'}
                 icon={({ className }) => (
-                  <HiDocumentText className={`${tab === 'archived' ? 'text-white' : ''} ${className}`} />
+                  <MdArchive className={`${tab === 'archived' ? 'text-white' : ''} ${className}`} />
                 )}
                 as='div'
               >
