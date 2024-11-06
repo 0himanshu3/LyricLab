@@ -39,7 +39,7 @@ export default function CreatePost() {
   const finalTranscriptRef = useRef('');
   const [language, setLanguage] = useState('en-UK');
   const [showDropdown, setShowDropdown] = useState(false);
-
+  
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -69,7 +69,7 @@ export default function CreatePost() {
       setNewCollaborator('');
     }
   };
-
+   
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isCollaborative && !teamName) {
@@ -79,8 +79,7 @@ export default function CreatePost() {
 
     if(isRecording)
       stopRecording();
-    
-    console.log(selectedCollaborators);
+    console.log(formData);
     try {
       const res = await fetch('/api/post/create', {
         method: 'POST',
@@ -329,6 +328,7 @@ export default function CreatePost() {
 
           <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
           <ReactQuill
+          onChange={(value) => setFormData({ ...formData, content: value })}
               theme="snow"
               placeholder="Express Yourself..."
               className="h-72 mb-12 text-gray-200"

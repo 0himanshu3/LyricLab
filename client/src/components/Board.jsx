@@ -117,7 +117,7 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
               <button
                 onClick={handleShowMore}
                 className="text-teal-500 text-lg hover:underline p-7 w-full"
-              >
+              >;;
                 Show More
               </button>
             )}

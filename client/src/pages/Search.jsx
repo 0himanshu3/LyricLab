@@ -3,8 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Board from '../components/Board';
-import List from '../components/List'; // Import List component
-
+import List from '../components/List';
+import { FaList } from "react-icons/fa";
+import { MdGridView } from "react-icons/md";
 export default function Search() {
   const userId = useSelector((state) => state.user.currentUser._id);
 
@@ -20,7 +21,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [viewType, setViewType] = useState('board'); // State to track view type ('board' or 'list')
+  const [viewType, setViewType] = useState('board');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -111,7 +112,9 @@ export default function Search() {
       priority: 'all',
       deadline: 'all',
     });
+    setIsModalOpen(false);
     navigate('/search');
+    
   };
 
   const handleDelete = async (id) => {
@@ -143,20 +146,29 @@ export default function Search() {
 
   return (
     <div>
-      {/* View toggle buttons */}
-      <div className="flex justify-start space-x-4">
+      <div className="flex justify-between items-center mb-4 p-4">
+       
+
+        {/* View toggle buttons */}
         <button
-          onClick={toggleView}
-          className={`px-4 py-2 ${viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'}`}
-        >
-          Board View
-        </button>
-        <button
-          onClick={toggleView}
-          className={`px-4 py-2 ${viewType === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600' }`}
-        >
-          List View
-        </button>
+  onClick={toggleView}
+  className={`px-4 py-2 flex items-center ${
+    viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'
+  } rounded`}
+>
+  {viewType === 'board' ? (
+    <>
+      <FaList className="mr-2" />
+      List View
+    </>
+  ) : (
+    <>
+      <MdGridView className="mr-2" />
+      Board View
+    </>
+  )}
+</button>
+
       </div>
 
       {/* Conditionally render Board or List view */}
@@ -178,16 +190,19 @@ export default function Search() {
         />
       ) : (
         <List
-          posts={posts}
-          setPosts={setPosts}
-          loading={loading}
-          showMore={showMore}
-          handleShowMore={handleShowMore}
-          handleDelete={handleDelete}
-          sidebarData={sidebarData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          handleReset={handleReset}
+        posts={posts}
+        setPosts={setPosts}
+        loading={loading}
+        showMore={showMore}
+        handleShowMore={handleShowMore}
+        handleDelete={handleDelete}
+        handleDragEnd={handleDragEnd}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        sidebarData={sidebarData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleReset={handleReset}
         />
       )}
     </div>
