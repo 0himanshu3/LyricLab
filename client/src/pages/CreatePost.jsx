@@ -8,7 +8,7 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +31,13 @@ export default function CreatePost() {
   const [teamName, setTeamName] = useState('');
   const navigate = useNavigate();
   const userid = useSelector((state) => state.user.currentUser._id);
+  const [isRecording, setIsRecording] = useState(false); 
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef(null); // Ref to handle recognition
+  const toggleButtonRef = useRef(null); // Ref for button
+  const quillRef = useRef(null); 
+  const finalTranscriptRef = useRef('');
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -38,11 +45,11 @@ export default function CreatePost() {
         const data = await res.json();
         if (res.ok && data) {
           const formattedUsers = data
-          .filter(user => user._id !== userid) 
-          .map(user => ({
-            label: user.username,
-            value: user._id,
-          }));
+            .filter(user => user._id !== userid)
+            .map(user => ({
+              label: user.username,
+              value: user._id,
+            }));
           setUsers(formattedUsers);
         }
       } catch (error) {
@@ -85,10 +92,10 @@ export default function CreatePost() {
       })
       if (res.ok) {
         const slug = formData.title
-    .split(' ')
-    .join('-')
-    .toLowerCase()
-    .replace(/[^a-zA-Z0-9-]/g, '');
+          .split(' ')
+          .join('-')
+          .toLowerCase()
+          .replace(/[^a-zA-Z0-9-]/g, '');
         navigate(`/post/${slug}`);
       } else {
         setPublishError('Failed to publish post');
@@ -160,171 +167,251 @@ export default function CreatePost() {
     setSelectedCollaborators(selectedCollaborators.filter(collaborator => collaborator.value !== collaboratorId));
   };
 
-  return (
-    <div className='p-3 max-w-3xl mx-auto min-h-screen'>
-      <h1 className='text-center text-3xl my-7 font-semibold'>Create a Project</h1>
-      <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
-        <div className='flex flex-col gap-4 sm:flex-row justify-between'>
-          <TextInput
-            type='text'
-            placeholder='Title'
-            required
-            id='title'
-            className='flex-1'
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          />
+  const handleToggleRecording = () => {
+      if (isRecording) {
+          stopRecording();
+      } else {
+          startRecording();
+      }
+  };
+
+    useEffect(() => {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          recognitionRef.current = new SpeechRecognition();
+          recognitionRef.current.continuous = true;
+          recognitionRef.current.interimResults = true;
+          recognitionRef.current.lang = 'en-US';
+
+          // Event to process speech results
+          recognitionRef.current.onresult = (event) => {
+              let interimTranscript = '';
+              for (let i = event.resultIndex; i < event.results.length; i++) {
+                  const currentResult = event.results[i][0].transcript;
+                  if (event.results[i].isFinal) {
+                      // Add final results to the complete transcript
+                      finalTranscriptRef.current += currentResult + ' ';
+                      setTranscript(finalTranscriptRef.current);
+                  } else {
+                      interimTranscript += currentResult;
+                  }
+              }
+              setTranscript(finalTranscriptRef.current + interimTranscript);
+          };
+
+          recognitionRef.current.onerror = (event) => {
+              console.error("Error occurred in speech recognition:", event.error);
+          };
+      } else {
+          alert("Web Speech API is not supported in this browser.");
+      }
+  }, []);
+
+  const startRecording = () => {
+      if (recognitionRef.current) {
+          recognitionRef.current.start();
+          setIsRecording(true);
+      }
+  };
+
+  const stopRecording = () => {
+      if (recognitionRef.current) {
+          recognitionRef.current.stop();
+          setIsRecording(false);
+      }
+  };
+
+  // Update ReactQuill editor whenever the transcript changes
+  useEffect(() => {
+      if (quillRef.current) {
+          const editor = quillRef.current.getEditor();
+          editor.setText(transcript); // Set text directly in the editor
+      }
+  }, [transcript]);
+
+    return (
+      <div className='p-3 max-w-3xl mx-auto min-h-screen'>
+        <h1 className='text-center text-3xl my-7 font-semibold'>Create a Project</h1>
+        <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+          <div className='flex flex-col gap-4 sm:flex-row justify-between'>
+            <TextInput
+              type='text'
+              placeholder='Title'
+              required
+              id='title'
+              className='flex-1'
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            />
+            <Select
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
+              <option value='uncategorized'>Select a category</option>
+              <option value='javascript'>JavaScript</option>
+              <option value='reactjs'>React.js</option>
+              <option value='nextjs'>Next.js</option>
+            </Select>
+          </div>
+
           <Select
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
-            <option value='uncategorized'>Select a category</option>
-            <option value='javascript'>JavaScript</option>
-            <option value='reactjs'>React.js</option>
-            <option value='nextjs'>Next.js</option>
+            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
+            <option value=''>Select Priority</option>
+            <option value='high'>High</option>
+            <option value='medium'>Medium</option>
+            <option value='low'>Low</option>
           </Select>
-        </div>
 
-        <Select
-          onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
-          <option value=''>Select Priority</option>
-          <option value='high'>High</option>
-          <option value='medium'>Medium</option>
-          <option value='low'>Low</option>
-        </Select>
-
-        <DatePicker
-          selected={deadline}
-          onChange={(date) => setDeadline(date)}
-          minDate={new Date()}
-          placeholderText="Select a deadline"
-          className="w-full p-2 border rounded-md"
-          required
-        />
-
-        <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
-          <FileInput
-            type='file'
-            accept='image/*'
-            onChange={(e) => setFile(e.target.files[0])}
+          <DatePicker
+            selected={deadline}
+            onChange={(date) => setDeadline(date)}
+            minDate={new Date()}
+            placeholderText="Select a deadline"
+            className="w-full p-2 border rounded-md"
+            required
           />
-          <Button
-            type='button'
-            gradientDuoTone='purpleToBlue'
-            size='sm'
-            outline
-            onClick={handleUploadImage}
-            disabled={imageUploadProgress}>
-            {imageUploadProgress ? (
-              <div className='w-16 h-16'>
-                <CircularProgressbar
-                  value={imageUploadProgress}
-                  text={`${imageUploadProgress || 0}%`}
-                />
-              </div>
-            ) : (
-              'Upload Image'
-            )}
-          </Button>
-        </div>
 
-        {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
-        {formData.image && (
-          <img src={formData.image} alt='upload' className='w-full h-72 object-cover' />
-        )}
-
-        <ReactQuill
-          theme='snow'
-          placeholder='Write something...'
-          className='h-72 mb-12 text-gray-200'
-          required
-          onChange={(value) => setFormData({ ...formData, content: value })}
-        />
-
-        <h2 className='text-xl font-semibold'>Subtasks</h2>
-        {subtasks.map((subtask, index) => (
-          <div key={index} className='flex flex-col gap-2 border p-3 rounded-lg'>
-            <TextInput
-              type='text'
-              placeholder='Subtask Title'
-              value={subtask.title}
-              onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
-              required
+          <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+            <FileInput
+              type='file'
+              accept='image/*'
+              onChange={(e) => setFile(e.target.files[0])}
             />
-            <TextInput
-              type='text'
-              placeholder='Subtask Description'
-              value={subtask.description}
-              onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
-              required
-            />
-            <Button type='button' onClick={() => removeSubtask(index)} color="failure">
-              Remove Subtask
+            <Button
+              type='button'
+              gradientDuoTone='purpleToBlue'
+              size='sm'
+              outline
+              onClick={handleUploadImage}
+              disabled={imageUploadProgress}>
+              {imageUploadProgress ? (
+                <div className='w-16 h-16'>
+                  <CircularProgressbar
+                    value={imageUploadProgress}
+                    text={`${imageUploadProgress || 0}%`}
+                  />
+                </div>
+              ) : (
+                'Upload Image'
+              )}
             </Button>
           </div>
-        ))}
-        <Button type='button' onClick={addSubtask} className='bg-green-800 border-none'>
-          Add Subtask
-        </Button>
 
-        <label className='flex items-center gap-2'>
-          <input
-            type='checkbox'
-            onChange={handleCollaborateChange}
-            value={isCollaborative ? 'no' : 'yes'}
-          />
-          Collaborate on this project
-        </label>
+          {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
+          {formData.image && (
+            <img src={formData.image} alt='upload' className='w-full h-72 object-cover' />
+          )}
 
-        {isCollaborative && (
-  <>
-    {/* Team Name Field */}
-    <TextInput
-      type='text'
-      placeholder='Team Name'
-      value={teamName}
-      onChange={(e) => setTeamName(e.target.value)}
-      required
-      className="my-2"
-    />
-
-    {/* Collaborators Selection */}
-    <Select
-      onChange={handleCollaboratorChange}
-      value={newCollaborator}
-    >
-      <option value=''>Select Collaborator</option>
-      {users.map(user => (
-        <option key={user.value} value={user.value}>{user.label}</option>
-      ))}
-    </Select>
-    
-    <Button type='button' onClick={addCollaborator} className='bg-green-800 border-none'>
-      Add Collaborator
-    </Button>
-
-    <div className='flex gap-3 flex-wrap'>
-      {selectedCollaborators.map(collaborator => (
-        <div key={collaborator.value} className='flex items-center gap-2 border px-2 py-1 rounded-lg'>
-          <span>{collaborator.label}</span>
-          <Button
-            type='button'
-            size='xs'
-            color='failure'
-            onClick={() => removeCollaborator(collaborator.value)}
-            className='border-none'
-          >
-            Remove
-          </Button>
+          <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+            <ReactQuill
+                theme="snow"
+                placeholder="Express Yourself..."
+                className="h-72 mb-12 text-gray-200"
+                ref={quillRef} 
+            />
+            <button
+                onClick={handleToggleRecording}
+                style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    right: '10px',
+                    backgroundColor: isRecording ? '#ff4c4c' : '#4c6ef5',
+                    color: 'white',
+                    padding: '5px 10px',
+                    borderRadius: '5px',
+                    border: 'none',
+                    cursor: 'pointer',
+                }}
+            >
+                {isRecording ? "Stop" : "Record"}
+            </button>
         </div>
-      ))}
-    </div>
-  </>
-)}
 
-        <Button type='submit' gradientDuoTone='greenToBlue' className='bg-teal-700'>
-          Publish Post
-        </Button>
+          <h2 className='text-xl font-semibold'>Subtasks</h2>
+          {subtasks.map((subtask, index) => (
+            <div key={index} className='flex flex-col gap-2 border p-3 rounded-lg'>
+              <TextInput
+                type='text'
+                placeholder='Subtask Title'
+                value={subtask.title}
+                onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+                required
+              />
+              <TextInput
+                type='text'
+                placeholder='Subtask Description'
+                value={subtask.description}
+                onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+                required
+              />
+              <Button type='button' onClick={() => removeSubtask(index)} color="failure">
+                Remove Subtask
+              </Button>
+            </div>
+          ))}
+          <Button type='button' onClick={addSubtask} className='bg-green-800 border-none'>
+            Add Subtask
+          </Button>
 
-        {publishError && <Alert color='failure'>{publishError}</Alert>}
-      </form>
-    </div>
-  );
-}
+          <label className='flex items-center gap-2'>
+            <input
+              type='checkbox'
+              onChange={handleCollaborateChange}
+              value={isCollaborative ? 'no' : 'yes'}
+            />
+            Collaborate on this project
+          </label>
+
+          {isCollaborative && (
+            <>
+              {/* Team Name Field */}
+              <TextInput
+                type='text'
+                placeholder='Team Name'
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                required
+                className="my-2"
+              />
+
+              {/* Collaborators Selection */}
+              <Select
+                onChange={handleCollaboratorChange}
+                value={newCollaborator}
+              >
+                <option value=''>Select Collaborator</option>
+                {users.map(user => (
+                  <option key={user.value} value={user.value}>{user.label}</option>
+                ))}
+              </Select>
+    
+              <Button type='button' onClick={addCollaborator} className='bg-green-800 border-none'>
+                Add Collaborator
+              </Button>
+
+              <div className='flex gap-3 flex-wrap'>
+                {selectedCollaborators.map(collaborator => (
+                  <div key={collaborator.value} className='flex items-center gap-2 border px-2 py-1 rounded-lg'>
+                    <span>{collaborator.label}</span>
+                    <Button
+                      type='button'
+                      size='xs'
+                      color='failure'
+                      onClick={() => removeCollaborator(collaborator.value)}
+                      className='border-none'
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <Button type='submit' gradientDuoTone='greenToBlue' className='bg-teal-700'>
+            Publish Post
+          </Button>
+
+          {publishError && <Alert color='failure'>{publishError}</Alert>}
+        </form>
+      </div>
+    );
+  }
+// }
