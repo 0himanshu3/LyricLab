@@ -126,16 +126,27 @@ export default function Search() {
     }
   };
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
     if (active.id !== over.id) {
-      setPosts((prevPosts) =>
-        arrayMove(
-          prevPosts,
-          prevPosts.findIndex((p) => p._id === active.id),
-          prevPosts.findIndex((p) => p._id === over.id)
-        )
-      );
+      const oldIndex = posts.findIndex((post) => post._id === active.id);
+      const newIndex = posts.findIndex((post) => post._id === over.id);
+      const reorderedPosts = arrayMove(posts, oldIndex, newIndex);
+      setPosts(reorderedPosts);
+    
+      try {
+        await fetch('/api/post/update-order', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            postOrder: reorderedPosts.map((post) => post._id),
+          }),
+        });
+      } catch (error) {
+        console.error('Failed to save new order:', error);
+      }
     }
   };
 
@@ -151,23 +162,22 @@ export default function Search() {
 
         {/* View toggle buttons */}
         <button
-  onClick={toggleView}
-  className={`px-4 py-2 flex items-center ${
-    viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'
-  } rounded`}
->
-  {viewType === 'board' ? (
-    <>
-      <FaList className="mr-2" />
-      List View
-    </>
-  ) : (
-    <>
-      <MdGridView className="mr-2" />
-      Board View
-    </>
-  )}
-</button>
+          onClick={toggleView}
+          className={`px-4 py-2 flex items-center ${viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'
+            } rounded`}
+        >
+          {viewType === 'board' ? (
+            <>
+              <FaList className="mr-2" />
+              List View
+            </>
+          ) : (
+            <>
+              <MdGridView className="mr-2" />
+              Board View
+            </>
+          )}
+        </button>
 
       </div>
 
@@ -190,19 +200,19 @@ export default function Search() {
         />
       ) : (
         <List
-        posts={posts}
-        setPosts={setPosts}
-        loading={loading}
-        showMore={showMore}
-        handleShowMore={handleShowMore}
-        handleDelete={handleDelete}
-        handleDragEnd={handleDragEnd}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        sidebarData={sidebarData}
-        handleChange={handleChange}
-        handleSubmit={handleSubmit}
-        handleReset={handleReset}
+          posts={posts}
+          setPosts={setPosts}
+          loading={loading}
+          showMore={showMore}
+          handleShowMore={handleShowMore}
+          handleDelete={handleDelete}
+          handleDragEnd={handleDragEnd}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          sidebarData={sidebarData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          handleReset={handleReset}
         />
       )}
     </div>

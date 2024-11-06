@@ -8,6 +8,7 @@ import PostCard from '../components/PostCard';
 import LoadingScreen from '../components/LoadingScreen';
 import { Link } from 'react-router-dom';
 const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd, isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset }) => {
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -113,14 +114,14 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
               posts.map((post) => (
                 <SortablePostCard key={post._id} post={post} onDelete={handleDelete} />
               ))}
-            {showMore && (
+            {/* {showMore && (
               <button
                 onClick={handleShowMore}
                 className="text-teal-500 text-lg hover:underline p-7 w-full"
-              >;;
+              >
                 Show More
               </button>
-            )}
+            )} */}
           </div>
         </SortableContext>
       </DndContext>
