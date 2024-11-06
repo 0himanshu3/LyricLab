@@ -7,9 +7,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { useSortable } from '@dnd-kit/sortable';
 import { Link } from 'react-router-dom';
 import { TextInput } from 'flowbite-react';
-import { DragOverlay } from '@dnd-kit/core';
 import SortableRow from './SortableRow';
-import PostCard from './PostCard';
 
 const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd, isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset }) => {
   const priorityColor = (priority) => {
@@ -51,7 +49,7 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
 
   return (
     <div className="flex-grow flex flex-col p-4 w-full list-table">
-      <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-500 mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-500 mb-4 py-4">
         <h1 className="text-2xl sm:text-3xl font-semibold mb-2 sm:mb-0">All Tasks:</h1>
         <div className="flex space-x-2">
           <Button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">Filter By</Button>
@@ -116,9 +114,9 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
   
       <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
         <SortableContext items={posts.map(post => post._id)} strategy={verticalListSortingStrategy}>
-          <div className="overflow-auto w-full max-h-[calc(100vh-200px)]"> {/* Ensure the list is scrollable */}
-            <div className="min-w-full bg-slate-800 border border-gray-200">
-              <div className="bg-slate-500 border-b grid grid-cols-6 gap-2 p-4 font-semibold">
+          <div className="overflow-x-auto w-full px-5">
+            <div className="bg-slate-800 border border-gray-200 w-full">
+              <div className="bg-slate-500 border-b grid grid-cols-6 gap-10 p-4 font-semibold w-full">
                 <div>Task Title</div>
                 <div>Priority</div>
                 <div>Deadline</div>
@@ -127,7 +125,9 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
                 <div>Actions</div>
               </div>
               {loading ? (
-                <div className="p-4 text-center"><LoadingScreen /></div>
+                <div className="p-4 text-center">
+                  <LoadingScreen />
+                </div>
               ) : (
                 posts.map((post) => (
                   <Sortable key={post._id} post={post} onDelete={handleDelete} />

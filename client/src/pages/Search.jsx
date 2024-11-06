@@ -170,14 +170,13 @@ export default function Search() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col">
-      {/* Header with Toggle Button */}
-      <div className="flex justify-between items-center p-4">
+    <div>
+      <div className="flex justify-between items-center px-4 py-2">
+        {/* View toggle buttons */}
         <button
           onClick={toggleView}
-          className={`px-4 py-2 flex items-center ${
-            viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'
-          } rounded transition-colors duration-200`}
+          className={`p-2 flex items-center ${viewType === 'board' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-slate-600'
+            } rounded`}
         >
           {viewType === 'board' ? (
             <>

@@ -18,14 +18,17 @@ function SortableRow({ post, onDelete }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="border-b hover:bg-slate-700 cursor-pointer grid grid-cols-6 gap-2 p-4 w-full"
+      className="border-b hover:bg-slate-700 cursor-pointer grid grid-cols-6 gap-10 p-4 w-full items-center"
     >
       <div className="flex items-center">
-        <div className="w-3 h-3 bg-purple-800 rounded-full mr-2"></div>
-        <Link to={`/post/${post.slug}`} className="text-teal-500 hover:underline">
-          {post.title}
-        </Link>
-      </div>
+      <div className="w-3 h-3 bg-purple-800 rounded-full mr-2"></div>
+      <Link
+        to={`/post/${post.slug}`}
+        className="text-teal-500 hover:underline overflow-hidden text-ellipsis whitespace-nowrap"
+      >
+        {post.title}
+      </Link>
+    </div>
       <div className="font-semibold text-teal-500">{post.priority}</div>
       <div>{post.deadline ? new Date(post.deadline).toLocaleDateString('en-GB') : "No deadline"}</div>
       <div>{post.subtasks ? post.subtasks.length : 0} Subtasks</div>
@@ -33,7 +36,7 @@ function SortableRow({ post, onDelete }) {
       <div>
         <Button
           size="small"
-          className="bg-red-700 p-1 rounded-3xl"
+          className="bg-red-700 px-3 py-1 rounded-lg outline-none border-none"
           onClick={(e) => { e.stopPropagation(); onDelete(post._id); }}
         >
           Delete

@@ -2,7 +2,7 @@ import { Button, Select, TextInput, Modal } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
+import { useSortable, defaultAnimateLayoutChanges  } from '@dnd-kit/sortable';
 import { useSensor, PointerSensor, useSensors } from '@dnd-kit/core';
 import PostCard from '../components/PostCard';
 import LoadingScreen from '../components/LoadingScreen';
@@ -13,7 +13,9 @@ const Board = ({
 }) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: {
+        distance: 4,
+      },
     })
   );
 
