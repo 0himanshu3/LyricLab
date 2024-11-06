@@ -5,6 +5,7 @@ import DashProfile from '../components/DashProfile';
 import Personal from '../components/Personal';
 import TeamProjects from '../components/TeamProjects';
 import Search from './Search';
+import Archived from '../components/Archived';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -32,6 +33,8 @@ export default function Dashboard() {
       {tab === 'team' && <TeamProjects/>}
       {/* dashboard comp */}
       {tab === 'dash' && <DashboardComp />}
+
+      {tab === 'archived' && <Archived />}
     </div>
   );
 }

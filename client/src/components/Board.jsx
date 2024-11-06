@@ -7,7 +7,6 @@ import { useSensor, PointerSensor, useSensors } from '@dnd-kit/core';
 import PostCard from '../components/PostCard';
 import LoadingScreen from '../components/LoadingScreen';
 import { Link } from 'react-router-dom';
-
 const Board = ({
   posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd,
   isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset
@@ -27,6 +26,9 @@ const Board = ({
       </div>
     );
   };
+
+  // Filter posts to only include those that are not archived
+  const activePosts = posts.filter(post => post.status !== 'archived');
 
   return (
     <div className="flex-grow flex flex-col">
@@ -89,13 +91,13 @@ const Board = ({
 
       {/* Scrollable Posts Grid */}
       <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-        <SortableContext items={posts.map(post => post._id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={activePosts.map(post => post._id)} strategy={verticalListSortingStrategy}>
           <div className="overflow-y-auto overflow-x-hidden py-5 px-3 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-5 max-h-[70vh]">
-            {!loading && posts.length === 0 && (
+            {!loading && activePosts.length === 0 && (
               <h1 className="text-xl text-gray-500">No posts found.</h1>
             )}
             {loading && <LoadingScreen />}
-            {!loading && posts.map((post) => (
+            {!loading && activePosts.map((post) => (
               <SortablePostCard key={post._id} post={post} onDelete={handleDelete} />
             ))}
             {showMore && (
@@ -105,7 +107,7 @@ const Board = ({
               >
                 Show More
               </button>
-            )} */
+            )}
           </div>
         </SortableContext>
       </DndContext>

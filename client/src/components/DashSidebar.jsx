@@ -102,6 +102,19 @@ export default function DashSidebar() {
               </Link>
             </>
           )}
+          {currentUser.isAdmin && (
+            <Link to='/search?tab=archived'>
+              <Sidebar.Item
+                active={tab === 'archived'}
+                icon={({ className }) => (
+                  <HiDocumentText className={`${tab === 'archived' ? 'text-white' : ''} ${className}`} />
+                )}
+                as='div'
+              >
+                Archived Tasks
+              </Sidebar.Item>
+            </Link>
+          )}
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>

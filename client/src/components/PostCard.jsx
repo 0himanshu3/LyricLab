@@ -57,10 +57,9 @@ export default function PostCard({ post }) {
     }
   };
 
-  const deleteTask = async () => {
-    console.log("trigger delete");
+  const archiveTask = async () => {
     try {
-      const res = await fetch(`/api/post/${post._id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/post/${post._id}/archive`, { method: 'PUT' });
       if (res.ok) {
         window.location.reload();
         console.log('Task deleted');
@@ -177,8 +176,8 @@ export default function PostCard({ post }) {
           <Button className="bg-green-800 text-white border-none hover:bg-green-900 card-btn" onClick={completeAllSubtasks} disabled={completedCount === totalCount}>
             <span className='text-sm'>Complete Task</span>
           </Button>
-          <Button className="bg-red-800 text-white border-none hover:bg-red-900 card-btn" onClick={deleteTask}>
-            <span className='text-sm'>Delete Task</span>
+          <Button className="bg-red-800 text-white border-none hover:bg-red-900 card-btn" onClick={archiveTask}>
+            <span className='text-sm'>Archive Task</span>
           </Button>
         {/* <Link to={`/post/${post.slug}`}>
         <Button className="bg-teal-500 text-white">
