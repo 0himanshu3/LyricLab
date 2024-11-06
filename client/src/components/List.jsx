@@ -5,11 +5,11 @@ import { useSensor, PointerSensor, useSensors } from '@dnd-kit/core';
 import LoadingScreen from '../components/LoadingScreen';
 import { Link } from 'react-router-dom';
 import { TextInput } from 'flowbite-react';
+
 const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd, isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset }) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
-
 
   const priorityColor = (priority) => {
     switch (priority) {
@@ -90,7 +90,7 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
       </Modal>
 
       <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-        <div className="overflow-x-auto">
+        <div className="overflow-y-auto max-h-[70vh]"> {/* Add scrollable container with max height */}
           <table className="min-w-full bg-slate-800 border border-gray-200">
             <thead>
               <tr className="bg-slate-500 border-b">
@@ -103,45 +103,43 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
               </tr>
             </thead>
             <tbody>
-  {loading ? (
-    <tr>
-      <td colSpan="6" className="p-4 text-center"><LoadingScreen /></td>
-    </tr>
-  ) : (
-    posts.map((post) => (
-      <tr key={post._id} className="border-b hover:bg-slate-700 cursor-pointer" onClick={(e) => e.stopPropagation()}>
-        <td className="p-4 flex items-center">
-          <div className="w-3 h-3 bg-purple-800 rounded-full mr-2"></div>
-          <Link to={`/post/${post.slug}`} className="text-teal-500 hover:underline">
-            {post.title}
-          </Link>
-        </td>
-        <td className="p-4">
-          <span className={`font-semibold ${priorityColor(post.priority)}`}>
-            {post.priority}
-          </span>
-        </td>
-        <td className="p-4">
-          {post.deadline ? new Date(post.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "No deadline"}
-        </td>
-        <td className="p-4">{post.subtasks ? post.subtasks.length : 0} Subtasks</td>
-        <td className="p-4">{post.teamName || "No team assigned"}</td>
-        <td className="p-4">
-          <Button size="small" className="bg-red-700 p-1 rounded-3xl" onClick={(e) => { e.stopPropagation(); handleDelete(post._id); }}>
-            Delete
-          </Button>
-        </td>
-      </tr>
-    ))
-  )}
-  {posts.length === 0 && !loading && (
-    <tr>
-      <td colSpan="6" className="p-4 text-center text-gray-500">No tasks found.</td>
-    </tr>
-  )}
-</tbody>
-
-
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="p-4 text-center"><LoadingScreen /></td>
+                </tr>
+              ) : (
+                posts.map((post) => (
+                  <tr key={post._id} className="border-b hover:bg-slate-700 cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                    <td className="p-4 flex items-center">
+                      <div className="w-3 h-3 bg-purple-800 rounded-full mr-2"></div>
+                      <Link to={`/post/${post.slug}`} className="text-teal-500 hover:underline">
+                        {post.title}
+                      </Link>
+                    </td>
+                    <td className="p-4">
+                      <span className={`font-semibold ${priorityColor(post.priority)}`}>
+                        {post.priority}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      {post.deadline ? new Date(post.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "No deadline"}
+                    </td>
+                    <td className="p-4">{post.subtasks ? post.subtasks.length : 0} Subtasks</td>
+                    <td className="p-4">{post.teamName || "No team assigned"}</td>
+                    <td className="p-4">
+                      <Button size="small" className="bg-red-700 p-1 rounded-3xl" onClick={(e) => { e.stopPropagation(); handleDelete(post._id); }}>
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+              {posts.length === 0 && !loading && (
+                <tr>
+                  <td colSpan="6" className="p-4 text-center text-gray-500">No tasks found.</td>
+                </tr>
+              )}
+            </tbody>
           </table>
           {showMore && (
             <button onClick={handleShowMore} className="text-teal-500 text-lg hover:underline p-7 w-full">

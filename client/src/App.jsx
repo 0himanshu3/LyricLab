@@ -39,6 +39,7 @@ export default function App() {
         </Route>
 
         <Route path='/post/:postSlug' element={<PostPage />} />
+        
       </Routes>
       <Footer />
     </BrowserRouter>

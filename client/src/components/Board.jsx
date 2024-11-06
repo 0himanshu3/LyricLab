@@ -7,12 +7,14 @@ import { useSensor, PointerSensor, useSensors } from '@dnd-kit/core';
 import PostCard from '../components/PostCard';
 import LoadingScreen from '../components/LoadingScreen';
 import { Link } from 'react-router-dom';
-const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd, isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset }) => {
+
+const Board = ({
+  posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd,
+  isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset
+}) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
+      activationConstraint: { distance: 8 },
     })
   );
 
@@ -20,13 +22,7 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
     const { attributes, listeners, setNodeRef } = useSortable({ id: post._id });
 
     return (
-      <div
-        ref={setNodeRef}
-        {...attributes}
-        {...listeners}
-        data-no-dnd="true"  
-        className="post-card"
-      >
+      <div ref={setNodeRef} {...attributes} {...listeners} className="post-card">
         <PostCard post={post} onDelete={onDelete} />
       </div>
     );
@@ -57,13 +53,11 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
               value={sidebarData.searchTerm}
               onChange={handleChange}
             />
-
             <label htmlFor="sort" className="font-semibold">Sort:</label>
             <Select id="sort" onChange={handleChange} value={sidebarData.sort}>
               <option value="desc">Latest</option>
               <option value="asc">Oldest</option>
             </Select>
-
             <label htmlFor="category" className="font-semibold">Category:</label>
             <Select id="category" onChange={handleChange} value={sidebarData.category}>
               <option value="uncategorized">All</option>
@@ -71,7 +65,6 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
               <option value="nextjs">Next.js</option>
               <option value="javascript">JavaScript</option>
             </Select>
-
             <label htmlFor="priority" className="font-semibold">Priority:</label>
             <Select id="priority" onChange={handleChange} value={sidebarData.priority}>
               <option value="all">All</option>
@@ -79,7 +72,6 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
               <option value="medium">Medium</option>
               <option value="low">Low</option>
             </Select>
-
             <label htmlFor="deadline" className="font-semibold">Deadline:</label>
             <Select id="deadline" onChange={handleChange} value={sidebarData.deadline}>
               <option value="all">All</option>
@@ -87,14 +79,9 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
               <option value="next_week">Next Week</option>
               <option value="this_month">This Month</option>
             </Select>
-
             <div className="flex gap-4">
-              <Button type="submit" outline>
-                Apply Filters
-              </Button>
-              <Button color="gray" onClick={handleReset} outline>
-                Reset Filters
-              </Button>
+              <Button type="submit" outline>Apply Filters</Button>
+              <Button color="gray" onClick={handleReset} outline>Reset Filters</Button>
             </div>
           </form>
         </Modal.Body>
@@ -103,21 +90,19 @@ const Board = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelet
       {/* Scrollable Posts Grid */}
       <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
         <SortableContext items={posts.map(post => post._id)} strategy={verticalListSortingStrategy}>
-          <div className="overflow-y-auto overflow-x-hidden py-5 px-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="overflow-y-auto overflow-x-hidden py-5 px-3 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-5 max-h-[70vh]">
             {!loading && posts.length === 0 && (
               <h1 className="text-xl text-gray-500">No posts found.</h1>
             )}
             {loading && <LoadingScreen />}
-            {!loading &&
-              posts &&
-              posts.map((post) => (
-                <SortablePostCard key={post._id} post={post} onDelete={handleDelete} />
-              ))}
+            {!loading && posts.map((post) => (
+              <SortablePostCard key={post._id} post={post} onDelete={handleDelete} />
+            ))}
             {showMore && (
               <button
                 onClick={handleShowMore}
                 className="text-teal-500 text-lg hover:underline p-7 w-full"
-              >;;
+              >
                 Show More
               </button>
             )}
