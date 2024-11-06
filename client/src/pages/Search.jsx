@@ -145,16 +145,27 @@ export default function Search() {
     }
   };
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
     if (active.id !== over.id) {
-      setPosts((prevPosts) =>
-        arrayMove(
-          prevPosts,
-          prevPosts.findIndex((p) => p._id === active.id),
-          prevPosts.findIndex((p) => p._id === over.id)
-        )
-      );
+      const oldIndex = posts.findIndex((post) => post._id === active.id);
+      const newIndex = posts.findIndex((post) => post._id === over.id);
+      const reorderedPosts = arrayMove(posts, oldIndex, newIndex);
+      setPosts(reorderedPosts);
+    
+      try {
+        await fetch('/api/post/update-order', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            postOrder: reorderedPosts.map((post) => post._id),
+          }),
+        });
+      } catch (error) {
+        console.error('Failed to save new order:', error);
+      }
     }
   };
 

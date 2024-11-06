@@ -105,7 +105,7 @@ const Board = ({
               >
                 Show More
               </button>
-            )}
+            )} */
           </div>
         </SortableContext>
       </DndContext>

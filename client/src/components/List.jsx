@@ -3,14 +3,15 @@ import { useState } from 'react';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { useSensor, PointerSensor, useSensors } from '@dnd-kit/core';
 import LoadingScreen from '../components/LoadingScreen';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { Link } from 'react-router-dom';
 import { TextInput } from 'flowbite-react';
+import { DragOverlay } from '@dnd-kit/core';
+import SortableRow from './SortableRow';
+import PostCard from './PostCard';
 
 const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd, isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset }) => {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-  );
-
   const priorityColor = (priority) => {
     switch (priority) {
       case 'low':
@@ -24,8 +25,32 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
     }
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 2,
+      },
+    })
+  );
+
+  const Sortable = ({ post, onDelete }) => {
+    const { attributes, listeners, setNodeRef } = useSortable({ id: post._id });
+
+    return (
+      <div
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
+        data-no-dnd="true"
+        className="post-card"
+      >
+        <SortableRow post={post} onDelete={onDelete} />
+      </div>
+    );
+  };
+
   return (
-    <div className="flex-grow flex flex-col p-4">
+    <div className="flex-grow flex flex-col p-4 w-full list-table">
       <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-500 mb-4">
         <h1 className="text-2xl sm:text-3xl font-semibold mb-2 sm:mb-0">All Tasks:</h1>
         <div className="flex space-x-2">
@@ -33,7 +58,7 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
           <Link to="/create-post"><Button className="w-full sm:w-auto">Add Task</Button></Link>
         </div>
       </div>
-
+  
       <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-md mx-auto">
         <Modal.Header>Filter Posts</Modal.Header>
         <Modal.Body>
@@ -46,13 +71,13 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
               value={sidebarData.searchTerm}
               onChange={handleChange}
             />
-
+  
             <label htmlFor="sort" className="font-semibold">Sort:</label>
             <Select id="sort" onChange={handleChange} value={sidebarData.sort}>
               <option value="desc">Latest</option>
               <option value="asc">Oldest</option>
             </Select>
-
+  
             <label htmlFor="category" className="font-semibold">Category:</label>
             <Select id="category" onChange={handleChange} value={sidebarData.category}>
               <option value="uncategorized">All</option>
@@ -60,7 +85,7 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
               <option value="nextjs">Next.js</option>
               <option value="javascript">JavaScript</option>
             </Select>
-
+  
             <label htmlFor="priority" className="font-semibold">Priority:</label>
             <Select id="priority" onChange={handleChange} value={sidebarData.priority}>
               <option value="all">All</option>
@@ -68,7 +93,7 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
               <option value="medium">Medium</option>
               <option value="low">Low</option>
             </Select>
-
+  
             <label htmlFor="deadline" className="font-semibold">Deadline:</label>
             <Select id="deadline" onChange={handleChange} value={sidebarData.deadline}>
               <option value="all">All</option>
@@ -76,7 +101,7 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
               <option value="next_week">Next Week</option>
               <option value="this_month">This Month</option>
             </Select>
-
+  
             <div className="flex gap-4">
               <Button type="submit" outline>
                 Apply Filters
@@ -88,65 +113,32 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
           </form>
         </Modal.Body>
       </Modal>
-
+  
       <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-        <div className="overflow-y-auto max-h-[70vh]"> {/* Add scrollable container with max height */}
-          <table className="min-w-full bg-slate-800 border border-gray-200">
-            <thead>
-              <tr className="bg-slate-500 border-b">
-                <th className="p-4 text-left font-semibold">Task Title</th>
-                <th className="p-4 text-left font-semibold">Priority</th>
-                <th className="p-4 text-left font-semibold">Deadline</th>
-                <th className="p-4 text-left font-semibold">Subtasks</th>
-                <th className="p-4 text-left font-semibold">Team</th>
-                <th className="p-4 text-left font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <SortableContext items={posts.map(post => post._id)} strategy={verticalListSortingStrategy}>
+          <div className="overflow-auto w-full max-h-[calc(100vh-200px)]"> {/* Ensure the list is scrollable */}
+            <div className="min-w-full bg-slate-800 border border-gray-200">
+              <div className="bg-slate-500 border-b grid grid-cols-6 gap-2 p-4 font-semibold">
+                <div>Task Title</div>
+                <div>Priority</div>
+                <div>Deadline</div>
+                <div>Subtasks</div>
+                <div>Team</div>
+                <div>Actions</div>
+              </div>
               {loading ? (
-                <tr>
-                  <td colSpan="6" className="p-4 text-center"><LoadingScreen /></td>
-                </tr>
+                <div className="p-4 text-center"><LoadingScreen /></div>
               ) : (
                 posts.map((post) => (
-                  <tr key={post._id} className="border-b hover:bg-slate-700 cursor-pointer" onClick={(e) => e.stopPropagation()}>
-                    <td className="p-4 flex items-center">
-                      <div className="w-3 h-3 bg-purple-800 rounded-full mr-2"></div>
-                      <Link to={`/post/${post.slug}`} className="text-teal-500 hover:underline">
-                        {post.title}
-                      </Link>
-                    </td>
-                    <td className="p-4">
-                      <span className={`font-semibold ${priorityColor(post.priority)}`}>
-                        {post.priority}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      {post.deadline ? new Date(post.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "No deadline"}
-                    </td>
-                    <td className="p-4">{post.subtasks ? post.subtasks.length : 0} Subtasks</td>
-                    <td className="p-4">{post.teamName || "No team assigned"}</td>
-                    <td className="p-4">
-                      <Button size="small" className="bg-red-700 p-1 rounded-3xl" onClick={(e) => { e.stopPropagation(); handleDelete(post._id); }}>
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
+                  <Sortable key={post._id} post={post} onDelete={handleDelete} />
                 ))
               )}
               {posts.length === 0 && !loading && (
-                <tr>
-                  <td colSpan="6" className="p-4 text-center text-gray-500">No tasks found.</td>
-                </tr>
+                <div className="p-4 text-center text-gray-500">No tasks found.</div>
               )}
-            </tbody>
-          </table>
-          {showMore && (
-            <button onClick={handleShowMore} className="text-teal-500 text-lg hover:underline p-7 w-full">
-              Show More
-            </button>
-          )}
-        </div>
+            </div>
+          </div>
+        </SortableContext>
       </DndContext>
     </div>
   );
