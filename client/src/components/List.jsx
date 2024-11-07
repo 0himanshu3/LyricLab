@@ -49,13 +49,6 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
 
   return (
     <div className="flex-grow flex flex-col p-4 w-full list-table">
-      <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-500 mb-4 py-4">
-        <h1 className="text-2xl sm:text-3xl font-semibold mb-2 sm:mb-0">All Tasks:</h1>
-        <div className="flex space-x-2">
-          <Button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">Filter By</Button>
-          <Link to="/create-post"><Button className="w-full sm:w-auto">Add Task</Button></Link>
-        </div>
-      </div>
   
       <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-md mx-auto">
         <Modal.Header>Filter Posts</Modal.Header>
