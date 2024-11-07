@@ -7,8 +7,6 @@ const noticeSchema = new Schema(
     notiType: { type: String, default: "alert", enum: ["alert", "message"] },
     isRead: { type: Boolean, default: false },
     deadline: { type: Date, required: true },
-    oneWeekReminderSent: { type: Boolean, default: false },
-    oneDayReminderSent: { type: Boolean, default: false },
     oneWeekReminderRead: { type: Boolean, default: false },
     oneDayReminderRead: { type: Boolean, default: false },
   },
