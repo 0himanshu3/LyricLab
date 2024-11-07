@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import OAuth from '../components/OAuth';
 import LoadingScreen from '../components/LoadingScreen';
-
+import GoogleLogin from '../components/GoogleLogin';
 export default function SignInPage() {
   const [formData, setFormData] = useState({});
   const [showSignUp, setShowSignUp] = useState(false);
@@ -72,6 +72,7 @@ export default function SignInPage() {
           body: JSON.stringify(formData),
         });
         const data = await res.json();
+        console.log(data);
         if (data.success === false) {
           setErrorM(data.message);
           dispatch(signInFailure(data.message));
@@ -160,7 +161,7 @@ export default function SignInPage() {
                   showSignUp ? 'Sign Up' : 'Sign In'
                 )}
               </Button>
-              <OAuth />
+              <GoogleLogin/>
               {errorM && (
                <div style={{ color: 'red' }}>{errorM}</div>
             )}
