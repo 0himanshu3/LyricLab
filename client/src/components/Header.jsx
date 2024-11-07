@@ -66,7 +66,7 @@ export default function Header() {
   };
 
   return (
-    <Navbar className='border-b-2 bg-gray-200 text-gray-700 dark:bg-gray-900'>
+    <Navbar className='border-b-2 bg-gray-200 text-gray-700 dark:bg-gray-950'>
       <Link to={currentUser ? '/search?tab=profile' : '/'} className='flex-shrink-0 ml-4'>
         <img 
           src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 

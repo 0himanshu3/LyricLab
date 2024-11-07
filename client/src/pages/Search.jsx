@@ -169,21 +169,21 @@ export default function Search() {
   };
 
   return (
-    <div>
+    <div className='bg-slate-950'>
       <div className="flex justify-between items-center border-b border-gray-500 p-4">
       {/* Left Section: Dropdown View Selector */}
-      <div className="flex items-center">
-        <select
-          value={viewType}
-          onChange={(e) => toggleView(e.target.value)}
-          className="p-2 bg-blue-500 text-white rounded appearance-none cursor-pointer"
-          style={{ width: '130px' }}
-        >
-          <option value="board">Board View</option>
-          <option value="list">List View</option>
-          <option value="calendar">Calendar View</option>
-        </select>
-      </div>
+      <div className="flex items-center bg-transparent">
+          <select
+            value={viewType}
+            onChange={(e) => toggleView(e.target.value)}
+            className="p-2 dark:bg-transparent text-white rounded appearance-none cursor-pointer"
+            style={{ width: '130px' }}
+          >
+            <option value="board">Board View</option>
+            <option value="list">List View</option>
+            <option value="calendar">Calendar View</option>
+          </select>
+        </div>
 
       {/* Right Section: Filter and Add Task Buttons */}
       <div className="flex items-center space-x-4">

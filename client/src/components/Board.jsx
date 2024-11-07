@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 const Board = ({
   posts, setPosts, loading, showMore, handleShowMore, handleDelete, handleDragEnd,
   isModalOpen, setIsModalOpen, sidebarData, handleChange, handleSubmit, handleReset
-}) => {
+  }) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -34,9 +34,6 @@ const Board = ({
 
   return (
     <div className="flex-grow flex flex-col">
-      
-
-
       {/* Modal for Filtering */}
       <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-md mx-auto">
         <Modal.Header>Filter Posts</Modal.Header>
@@ -87,7 +84,7 @@ const Board = ({
       {/* Scrollable Posts Grid */}
       <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
         <SortableContext items={activePosts.map(post => post._id)} strategy={verticalListSortingStrategy}>
-          <div className="overflow-y-auto overflow-x-auto py-5 px-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 max-h-[70vh]">
+          <div className="overflow-y-auto overflow-x-auto py-5 px-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[87vh] max-w-screen">
             {!loading && activePosts.length === 0 && (
               <h1 className="text-xl text-gray-500">No posts found.</h1>
             )}

@@ -171,14 +171,14 @@ export default function Search() {
   };
 
   return (
-    <div className='w-full'>
+    <div className='w-full bg-slate-950'>
       <div className="flex justify-between items-center border-b border-gray-500 p-4">
         {/* Left Section: Dropdown View Selector */}
-        <div className="flex items-center">
+        <div className="flex items-center bg-transparent">
           <select
             value={viewType}
             onChange={(e) => toggleView(e.target.value)}
-            className="p-2 bg-blue-500 text-white rounded appearance-none cursor-pointer"
+            className="p-2 dark:bg-transparent text-white rounded appearance-none cursor-pointer"
             style={{ width: '130px' }}
           >
             <option value="board">Board View</option>
