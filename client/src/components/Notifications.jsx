@@ -112,12 +112,12 @@ const Notifications = () => {
         </li>
       ))
     ) : (
-      <li className="p-4 text-gray-500">No notifications available.</li>
+      <li className="p-4 text-gray-500 text-4xl text-center">No notifications available.</li>
     )
   );
 
   return (
-    <div className="p-4">
+    <div className="p-4 min-h-screen">
       <h1 className="text-2xl font-semibold mb-4">Notifications</h1>
       <p className="text-purple-400 mb-2">Total Unread Notifications: {unreadCount}</p>
 

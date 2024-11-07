@@ -122,7 +122,7 @@ export default function PostCard({ post }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <Card className="card max-w-sm h-[400px] w-[285px] p-1 shadow-lg transition duration-200 relative">
+      <Card className="card max-w-sm h-[400px] w-[280px] p-1 shadow-lg transition duration-200 relative">
         <div onClick={(e) => e.stopPropagation()} className="card-content">
           <Link to={`/post/${post.slug}`}>
             <h2 className="text-xl font-bold mb-2 overflow-hidden text-ellipsis whitespace-nowrap">{post.title}</h2>
@@ -144,14 +144,14 @@ export default function PostCard({ post }) {
           </Link>
           <Link to={`/post/${post.slug}`}>
             <p className="text-sm mb-0">
-              Status: {completedCount === totalCount ? 'Completed' : `In Progress (${remainingTime})`}
+              {completedCount === totalCount ? 'Completed' : `In Progress (${remainingTime})`}
             </p>
           </Link>
         </div>
 
         <div className="overflow-hidden mb-0 mt-0" onClick={(e) => e.stopPropagation()}>
           <h3 className="font-semibold text-sm mb-1">Subtasks</h3>
-          {subtasks.slice(0, 3).map((subtask) => (
+          {subtasks.slice(0, 2).map((subtask) => (
             <div key={subtask._id} className="flex items-center gap-2 py-0.5">
               <Checkbox
                 className="checkbox cursor-pointer outline-none border-none shadow-none overflow-hidden text-ellipsis whitespace-nowrap"
@@ -163,7 +163,7 @@ export default function PostCard({ post }) {
               </span>
             </div>
           ))}
-          {totalCount > 3 && <span className="text-xs text-gray-500">+{totalCount - 3} subtasks remaining</span>}
+          {totalCount > 2 && <span className="text-xs text-gray-500">+{totalCount - 2} subtasks remaining</span>}
         </div>
 
         <div className="relative w-60 h-1.5 bg-gray-200 rounded" onClick={(e) => e.stopPropagation()}>

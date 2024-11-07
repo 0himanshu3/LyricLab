@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-
 import SignIn from './pages/SignIn';
 import Dashboard from './pages/Dashboard';
 import SignUp from './pages/SignUp';
