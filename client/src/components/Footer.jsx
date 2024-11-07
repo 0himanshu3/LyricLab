@@ -41,26 +41,13 @@ export default function FooterCom() {
               className='self-center whitespace-nowrap text-xl sm:text-xxl font-semibold dark:text-white'
             >
               <img 
-                src={theme === 'light' ? './images/logo2.jpg' : './images/logo2dark.png'} 
+                src={theme === 'light' ? './images/logo2.jpg' : './images/mini-logo.png'} 
                 alt='Lyric Lab Logo'
                 className='h-7 md:h-7 lg:h-10'  
               />
             </Link>
           </div>
           <div className='grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 sm:gap-0 '>
-            <div>
-              <Footer.LinkGroup col>
-                <Footer.Link
-                  href='/'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  data-value='LYRICLAB'
-                  onMouseOver={animateLetters} // Apply animation on hover
-                >
-                  LYRICLAB
-                </Footer.Link>
-              </Footer.LinkGroup>
-            </div>
             <div>
               <Footer.LinkGroup col>
                 <Footer.Link
@@ -83,7 +70,7 @@ export default function FooterCom() {
             </div>
             <div>
               <Footer.LinkGroup col>
-                <Footer.Link href='#'>PRIVACY POLICY</Footer.Link>
+                <Footer.Link href='#' data-value='PRIVACY POLCY' onMouseOver={animateLetters}>PRIVACY POLICY</Footer.Link>
                 <Footer.Link href='#'>TERMS &amp; CONDITIONS</Footer.Link>
               </Footer.LinkGroup>
             </div>

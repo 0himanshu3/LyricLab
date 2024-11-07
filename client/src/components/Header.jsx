@@ -90,15 +90,15 @@ export default function Header() {
         </Button>
       </form> */}
 
-      <div className='flex items-center gap-2 md:order-2'>
-        <Button
+      <div className='flex items-center gap-4 md:order-2'>
+        {/* <Button
           className='w-12 h-10 sm:inline text-white'
           color='gray'
           pill
           onClick={() => dispatch(toggleTheme())}
         >
           {theme === 'light' ? <FaSun /> : <FaMoon />}
-        </Button>
+        </Button> */}
         
         {currentUser && (
           <Link to='/notifications' className="relative inline-flex items-center">

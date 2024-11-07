@@ -238,7 +238,7 @@ export default function Search() {
             />
           </div>
         )}
-  
+
         {viewType === 'calendar' && (
           <div 
             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
@@ -255,7 +255,8 @@ export default function Search() {
                 aria-label="Close Calendar"
               >
                 ✕
-              </button>
+            </button>
+            {/* Calendar component */}
               <Calendar
                 tileContent={({ date }) => {
                   const post = deadlineDates.find((d) => d.date.toDateString() === date.toDateString());
