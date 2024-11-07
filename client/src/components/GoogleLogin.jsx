@@ -4,6 +4,8 @@ import { googleAuth } from "./api";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';  
 import { signInSuccess } from '../redux/user/userSlice';
+import { Button } from 'flowbite-react';
+import { AiFillGoogleCircle } from 'react-icons/ai';
 
 const GoogleLogin = (props) => {
   const [user, setUser] = useState(null);
@@ -33,9 +35,10 @@ const GoogleLogin = (props) => {
 
   return (
     <div className="App">
-      <button onClick={googleLogin}>
-        Sign in with Google
-      </button>  
+    <Button type='button' gradientDuoTone='pinkToOrange' outline onClick={googleLogin}>
+        <AiFillGoogleCircle className='w-6 h-6 mr-2'/>
+        Continue with Google
+    </Button>
     </div>
   );
 };
