@@ -71,6 +71,8 @@ export default function CreatePost() {
   };
    
   const handleSubmit = async (e) => {
+    const token = localStorage.getItem('token');
+    console.log(token);
     e.preventDefault();
     if (isCollaborative && !teamName) {
       setPublishError("Team name is required for collaborative posts.");
@@ -79,13 +81,13 @@ export default function CreatePost() {
 
     if(isRecording)
       stopRecording();
-    console.log(formData);
     try {
       const res = await fetch('/api/post/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        
         body: JSON.stringify({
           ...formData,
           deadline,
@@ -95,6 +97,7 @@ export default function CreatePost() {
           teamName,
         }),
       })
+      
       if (res.ok) {
         const slug = formData.title
           .split(' ')

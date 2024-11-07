@@ -15,7 +15,8 @@ import Search from './pages/Search';
 import Notifications from './components/Notifications';
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleLogin from './components/GoogleLogin';
-
+import NotFound from './components/NotFound'
+import AfterGithub from './components/AfterGithub';
 export default function App() {
   const user = useSelector((state) => state.user);
   const googleclientid=import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -30,7 +31,7 @@ export default function App() {
           <Route path='/login' element={<GoogleLogin />} /> 
           <Route path='/sign-up' element={<SignUp />} />
           <Route path='/search' element={<Dashboard />} />
-
+          <Route path='/after-github-login' element={<AfterGithub />} />
           <Route element={<PrivateRoute />}>
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path="/notifications" element={<Notifications />} />
@@ -42,6 +43,7 @@ export default function App() {
           </Route>
 
           <Route path='/post/:postSlug' element={<PostPage />} />
+          <Route path="*" element={<NotFound/>} />
         </Routes>
         <Footer />
       </BrowserRouter>

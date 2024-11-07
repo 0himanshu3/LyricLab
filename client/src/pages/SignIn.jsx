@@ -6,6 +6,7 @@ import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSli
 import OAuth from '../components/OAuth';
 import LoadingScreen from '../components/LoadingScreen';
 import GoogleLogin from '../components/GoogleLogin';
+import GithubLogin from '../components/GithubLogin';
 export default function SignInPage() {
   const [formData, setFormData] = useState({});
   const [showSignUp, setShowSignUp] = useState(false);
@@ -162,6 +163,7 @@ export default function SignInPage() {
                 )}
               </Button>
               <GoogleLogin/>
+              <GithubLogin/>
               {errorM && (
                <div style={{ color: 'red' }}>{errorM}</div>
             )}

@@ -4,66 +4,72 @@ import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 import { oauth2Client } from '../utils/googleClient.js';
 import axios from 'axios';
+
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
-  if (
-    !username ||
-    !email ||
-    !password ||
-    username === '' ||
-    email === '' ||
-    password === ''
-  ) {
-     next(errorHandler(400, 'All fields are required'));
+  // Check if all fields are provided
+  if (!username || !email || !password || username === '' || email === '' || password === '') {
+    return next(errorHandler(400, 'All fields are required.'));
   }
 
-  // Password validation
-  if (req.body.password) {
-    if (req.body.password.length < 8) {
-      return next(errorHandler(400, 'Password must be at least 8 characters'));
+  // Validate password
+  if (password) {
+    if (password.length < 8) {
+      return next(errorHandler(400, 'Password must be at least 8 characters.'));
     }
+
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
-    if (!passwordRegex.test(req.body.password)) {
+    if (!passwordRegex.test(password)) {
       return next(
-        errorHandler(400, 'Password must include 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character')
+        errorHandler(400, 'Password must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.')
       );
     }
-    // Hash the password if it passes validation
-    req.body.password = bcryptjs.hashSync(req.body.password, 10);
+
+    // Hash password after validation
+    req.body.password = bcryptjs.hashSync(password, 10);
   }
 
-  // Username validation
-  if (req.body.username) {
-    if (req.body.username.length < 3 || req.body.username.length > 20) {
-      return next(errorHandler(400, 'Username must be between 3 and 20 characters'));
+  // Validate username
+  if (username) {
+    if (username.length < 3 || username.length > 20) {
+      return next(errorHandler(400, 'Username must be between 3 and 20 characters.'));
     }
-    if (req.body.username.includes(' ')) {
-      return next(errorHandler(400, 'Username cannot contain spaces'));
+
+    if (username.includes(' ')) {
+      return next(errorHandler(400, 'Username cannot contain spaces.'));
     }
-    if (req.body.username !== req.body.username.toLowerCase()) {
-      return next(errorHandler(400, 'Username must be lowercase'));
+
+    if (username !== username.toLowerCase()) {
+      return next(errorHandler(400, 'Username must be in lowercase.'));
     }
-    if (!/^[a-zA-Z0-9]+$/.test(req.body.username)) {
-      return next(errorHandler(400, 'Username can only contain letters and numbers'));
+
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      return next(errorHandler(400, 'Username can only contain letters and numbers.'));
     }
   }
 
-  const hashedPassword = bcryptjs.hashSync(password, 10);
+  // Check if the email already exists in the database
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return next(errorHandler(400, 'Email is already in use. Please use a different email.'));
+  }
 
+  // Create new user
   const newUser = new User({
     username,
     email,
-    password: hashedPassword,
+    password: req.body.password,
   });
 
   try {
     await newUser.save();
-    res.json('Signup successful');
+    res.status(201).json({ success: true, message: 'Signup successful!', user: newUser });
   } catch (error) {
-    console.log(error);
-    next(error);
+    console.error(error);
+    return next(errorHandler(500, 'An error occurred during signup. Please try again later.'));
   }
 };
+
 
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
