@@ -69,6 +69,7 @@ export const create = async (req, res, next) => {
       task: savedPost._id, 
       notiType: "alert" ,
       isRead:false,
+      deadline:savedPost.deadline,
     });
     const usersToNotify = [req.user.id, ...newPost.collaborators.map(collaborator => collaborator.value)];
     for (const userId of usersToNotify) {
