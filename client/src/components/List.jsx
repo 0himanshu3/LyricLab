@@ -107,7 +107,7 @@ const List = ({ posts, setPosts, loading, showMore, handleShowMore, handleDelete
   
       <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
         <SortableContext items={posts.map(post => post._id)} strategy={verticalListSortingStrategy}>
-          <div className="overflow-x-auto w-full px-5">
+          <div className="overflow-x-auto w-full px-5 max-h-[82vh]">
             <div className="bg-slate-800 border border-gray-200 w-full">
               <div className="bg-slate-500 border-b grid grid-cols-6 gap-10 p-4 font-semibold w-full">
                 <div>Task Title</div>
