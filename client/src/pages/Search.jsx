@@ -169,50 +169,51 @@ export default function Search() {
   };
 
   return (
-    <div>
+    <div className="w-full bg-slate-950">
+      {/* Header Section */}
       <div className="flex justify-between items-center border-b border-gray-500 p-4">
-      {/* Left Section: Dropdown View Selector */}
-      <div className="flex items-center">
-        <select
-          value={viewType}
-          onChange={(e) => toggleView(e.target.value)}
-          className="p-2 bg-blue-500 text-white rounded appearance-none cursor-pointer"
-          style={{ width: '130px' }}
-        >
-          <option value="board">Board View</option>
-          <option value="list">List View</option>
-          <option value="calendar">Calendar View</option>
-        </select>
+        {/* Left Section: Dropdown View Selector */}
+        <div className="flex items-center bg-transparent">
+          <select
+            value={viewType}
+            onChange={(e) => toggleView(e.target.value)}
+            className="p-2 dark:bg-transparent text-white rounded appearance-none cursor-pointer"
+            style={{ width: '130px' }}
+          >
+            <option value="board">Board View</option>
+            <option value="list">List View</option>
+            <option value="calendar">Calendar View</option>
+          </select>
+        </div>
+
+        {/* Right Section: Filter and Add Task Buttons */}
+        <div className="flex items-center space-x-4">
+          <Button onClick={() => setIsModalOpen(true)} className="mx-2">Filter By</Button>
+          <Link to="/create-post">
+            <Button>Add Task</Button>
+          </Link>
+        </div>
       </div>
 
-      {/* Right Section: Filter and Add Task Buttons */}
-      <div className="flex items-center space-x-4">
-        <Button onClick={() => setIsModalOpen(true)} className="mx-2">Filter By</Button>
-        <Link to="/create-post">
-          <Button>Add Task</Button>
-        </Link>
-      </div>
-    </div>
-
-    {/* Main Content */}
+      {/* Main Content */}
       {viewType === 'board' && (
-          <div className="w-full p-4 overflow-y-auto">
-            {/* Board View */}
-            <Board
-              posts={posts}
-              setPosts={setPosts}
-              loading={loading}
-              showMore={showMore}
-              handleShowMore={handleShowMore}
-              handleDelete={handleDelete}
-              handleDragEnd={handleDragEnd}
-              isModalOpen={isModalOpen}
-              setIsModalOpen={setIsModalOpen}
-              sidebarData={sidebarData}
-              handleChange={handleChange}
-              handleSubmit={handleSubmit}
-              handleReset={handleReset}
-            />
+        <div className="w-full p-4 overflow-y-auto max-h-[87vh]">
+          {/* Board View */}
+          <Board
+            posts={posts}
+            setPosts={setPosts}
+            loading={loading}
+            showMore={showMore}
+            handleShowMore={handleShowMore}
+            handleDelete={handleDelete}
+            handleDragEnd={handleDragEnd}
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            sidebarData={sidebarData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            handleReset={handleReset}
+          />
         </div>
       )}
       

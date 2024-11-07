@@ -35,7 +35,7 @@ const GoogleLogin = (props) => {
 
   return (
     <div className="App">
-    <Button type='button' gradientDuoTone='pinkToOrange' outline onClick={googleLogin}>
+    <Button type='button' gradientDuoTone='pinkToOrange' className='w-full border border-t-1' onClick={googleLogin}>
         <AiFillGoogleCircle className='w-6 h-6 mr-2'/>
         Continue with Google
     </Button>
