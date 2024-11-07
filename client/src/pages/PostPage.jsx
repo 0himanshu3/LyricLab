@@ -133,10 +133,11 @@ export default function PostPage() {
     }
   };
 
-  const deleteTask = async () => {
+  const archiveTask = async () => {
     try {
-      const res = await fetch(`/api/post/${post._id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/post/${post._id}/archive`, { method: 'PUT' });
       if (res.ok) navigate('/dashboard?tab=profile');
+
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
@@ -251,8 +252,8 @@ export default function PostPage() {
             </Button>
           </div>
 
-          <Button color="failure" className="mt-4 w-full " onClick={deleteTask}>
-            Delete Task
+          <Button color="failure" className="mt-4 w-full " onClick={archiveTask}>
+            Archive Task
           </Button>
 
           <Button color="warning" className='bg-teal-400 mt-4 w-full '>

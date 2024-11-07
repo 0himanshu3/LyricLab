@@ -476,3 +476,51 @@ export const getOverduePosts = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch overdue posts' });
   }
 };
+
+// Archive Post
+export const archivePost = async (req, res) => {
+  try {
+    // Find the post by ID
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Set the status of the post to "archived"
+    post.status = 'archived';
+
+    // Traverse the subtasks array and set their "completed" field to false
+    post.subtasks.forEach(subtask => {
+      subtask.completed = false;
+    });
+
+    // Save the updated post
+    await post.save();
+
+    res.status(200).json({ message: 'Post archived and subtasks marked as incomplete' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while archiving the post' });
+  }
+};
+
+export const restoreTask = async (req, res) => {
+  try {
+    // Find the post by ID
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Set the status of the post to "archived"
+    post.status = 'pending';
+
+    
+
+    // Save the updated post
+    await post.save();
+
+    res.status(200).json({ message: 'Post archived and subtasks marked as incomplete' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while archiving the post' });
+  }
+};

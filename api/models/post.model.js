@@ -54,7 +54,7 @@ const postSchema = new mongoose.Schema(
     deadline: { type: Date },
     status: {
       type: String,
-      enum: ['completed', 'pending'],
+      enum: ['completed', 'pending','archived'],
       default: 'pending',
     },
     subtasks: [subtaskSchema],

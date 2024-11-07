@@ -13,6 +13,8 @@ import {
   getteamposts,
   getpersonalposts,
   updatePostOrder,
+  archivePost,
+  restoreTask,
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
@@ -25,7 +27,8 @@ router.get('/getpostbyslug/:slug',getPostBySlug);
 router.get('/getpostbyid/:postId',getPostById);
 router.delete('/deletepost/:postId/:userId', verifyToken, deletepost);
 router.put('/updatepost/:postId/:userId', verifyToken, updatepost);
-
+router.put('/:postId/archive', verifyToken, archivePost);
+router.put('/:postId/restore', verifyToken, restoreTask);
 router.patch('/:postId/complete-subtasks', completeTask);
 router.patch('/update-order', verifyToken, updatePostOrder);
 //to update the order of the post
