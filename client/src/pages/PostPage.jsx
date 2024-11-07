@@ -151,6 +151,7 @@ export default function PostPage() {
     );
 
   return (
+    <div className="dark:bg-slate-950">
     <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-200">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
@@ -169,7 +170,7 @@ export default function PostPage() {
 
           <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
             <div dangerouslySetInnerHTML={{ __html: post?.content }} />
-          </div>
+          </div> 
 
           {/* Collaborative Feature */}
           {post?.isCollaborative && (
@@ -197,7 +198,7 @@ export default function PostPage() {
           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-700 rounded-lg p-5 shadow-lg space-y-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg p-5 shadow-lg space-y-6">
           <div className="text-gray-800 dark:text-white text-sm mb-6">
             <h3 className="text-lg font-semibold">Deadline Timer</h3>
             <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
@@ -225,44 +226,44 @@ export default function PostPage() {
 
           <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
-<ul className="mt-2 space-y-2">
-  {subtasks.map((subtask) => (
-    <li key={subtask._id} className="flex flex-col items-start p-2 border-b border-gray-200 dark:border-gray-600">
-      <div className="flex items-center w-full">
-        <Checkbox
-          checked={subtask.completed}
-          onChange={() => toggleSubtaskCompletion(subtask._id)}
-        />
-        <span className={`ml-2 font-semibold ${subtask.completed ? 'line-through text-gray-400' : ''}`}>
-          {subtask.title}
-        </span>
-      </div>
-      {subtask.description && (
-        <p className={`ml-8 mt-1 text-sm ${subtask.completed ? 'text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
-          {subtask.description}
-        </p>
-      )}
-    </li>
-  ))}
-</ul>
-
-
-            <Button color="success" className=" bg-green-700  mt-4 w-full" onClick={completeAllSubtasks}>
+            <ul className="mt-2 space-y-2">
+              {subtasks.map((subtask) => (
+                <li key={subtask._id} className="flex flex-col items-start p-2 border-b border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center w-full">
+                    <Checkbox
+                      checked={subtask.completed}
+                      onChange={() => toggleSubtaskCompletion(subtask._id)}
+                    />
+                    <span className={`ml-2 font-semibold ${subtask.completed ? 'line-through text-gray-400' : ''}`}>
+                      {subtask.title}
+                    </span>
+                  </div>
+                  {subtask.description && (
+                    <p className={`ml-8 mt-1 text-sm ${subtask.completed ? 'text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                      {subtask.description}
+                    </p>
+                  )}
+                </li>
+              ))}
+              </ul>
+              
+            <Button color="success" className=" bg-green-700  mt-4 w-full border-none" onClick={completeAllSubtasks}>
               Complete All Subtasks
             </Button>
-          </div>
-
-          <Button color="failure" className="mt-4 w-full " onClick={archiveTask}>
+            </div>
+            
+          <Button color="failure" className="mt-2 w-full border-none" onClick={archiveTask}>
             Archive Task
           </Button>
 
-          <Button color="warning" className='bg-teal-400 mt-4 w-full '>
+          <Button color="warning" className='bg-teal-400 mt-2 w-full border-none'>
                 <Link to={`/update-post/${post._id}`}>
                   Edit Task
                 </Link>
               </Button>
         </div>
       </div>
-    </main>
+      </main>
+      </div>
   );
 }

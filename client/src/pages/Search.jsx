@@ -197,7 +197,7 @@ export default function Search() {
 
       {/* Main Content */}
       {viewType === 'board' && (
-        <div className="w-full p-4 overflow-y-auto">
+        <div className="w-full p-4 overflow-y-auto max-h-[87vh]">
           {/* Board View */}
           <Board
             posts={posts}

@@ -164,6 +164,7 @@ export default function DashProfile() {
       console.log(error.message);
     }
   };
+
   return (
     <div className='max-w-lg mx-auto p-3 w-full'>
       <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
@@ -261,31 +262,40 @@ export default function DashProfile() {
           {updateUserError}
         </Alert>
       )}
-     
-      <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        popup
-        size='md'
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <div className='text-center'>
-            <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+
+     {showModal && (
+        <div
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowModal(false)}
+        >
+          {/* Modal Container */}
+          <div
+            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center relative dark:bg-slate-950"
+            onClick={(e) => e.stopPropagation()} // Prevents modal click from closing
+          >
+            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
+            
+            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
               Are you sure you want to delete your account?
             </h3>
-            <div className='flex justify-center gap-4'>
-              <Button color='failure' onClick={handleDeleteUser}>
+            
+            <div className="flex justify-center gap-4">
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                onClick={handleDeleteUser}
+              >
                 Yes, I'm sure
-              </Button>
-              <Button color='gray' onClick={() => setShowModal(false)}>
+              </button>
+              <button
+                className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-400"
+                onClick={() => setShowModal(false)}
+              >
                 No, cancel
-              </Button>
+              </button>
             </div>
           </div>
-        </Modal.Body>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 }
