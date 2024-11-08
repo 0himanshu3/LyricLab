@@ -112,9 +112,9 @@ export default function SignInPage() {
 
       {/* Custom Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div ref={modalRef} className="bg-slate-900 rounded-lg shadow-lg p-6 max-w-sm w-full">
-            <h2 className="text-2xl mb-4 text-blue-800">{showSignUp ? 'Sign Up' : 'Sign In'}</h2>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
+          <div ref={modalRef} className="bg-slate-950 rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <h2 className="text-2xl mb-4 text-indigo-800">{showSignUp ? 'Sign Up' : 'Sign In'}</h2>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               {showSignUp && (
                 <div>
@@ -152,7 +152,7 @@ export default function SignInPage() {
                 gradientDuoTone="purpleToPink"
                 type="submit"
                 disabled={loading}
-                className="mt-4 w-full rounded-md py-2 bg-gradient-to-r from-violet-700 to-gray-400"
+                className="mt-1 w-full rounded-md py-1 bg-gradient-to-r from-violet-700 to-gray-400"
               >
                 {loading ? (
                   <>
@@ -162,8 +162,10 @@ export default function SignInPage() {
                   showSignUp ? 'Sign Up' : 'Sign In'
                 )}
               </Button>
-              <GoogleLogin/>
-              <GithubLogin/>
+              <div className='flex flex-col'>
+                <GoogleLogin/>
+                <GithubLogin/>
+              </div>
               {errorM && (
                <div style={{ color: 'red' }}>{errorM}</div>
             )}
@@ -180,14 +182,6 @@ export default function SignInPage() {
                 {showSignUp ? 'Sign In' : 'Sign Up'}
               </button>
             </div>
-           
-            <Button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="mt-4 text-red-500"
-            >
-              Close
-            </Button>
           </div>
         </div>
       )}

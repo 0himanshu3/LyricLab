@@ -246,21 +246,22 @@ export default function PostPage() {
                 </li>
               ))}
               </ul>
-              
-            <Button color="success" className=" bg-green-700  mt-4 w-full border-none" onClick={completeAllSubtasks}>
-              Complete All Subtasks
-            </Button>
-            </div>
-            
-          <Button color="failure" className="mt-2 w-full border-none" onClick={archiveTask}>
+              </div>
+          <div className='flex flex-col gap-2'> 
+          <Button color="success" className=" bg-green-700 w-full border-none" onClick={completeAllSubtasks} disabled={completionPercentage === 100}>
+            Complete All Subtasks
+          </Button>
+          
+          <Button color="failure" className=" w-full border-none" onClick={archiveTask}>
             Archive Task
           </Button>
 
-          <Button color="warning" className='bg-teal-400 mt-2 w-full border-none'>
-                <Link to={`/update-post/${post._id}`}>
-                  Edit Task
-                </Link>
-              </Button>
+          <Button color="warning" className='bg-teal-400 w-full border-none'>
+            <Link to={`/update-post/${post._id}`}>
+              Edit Task
+            </Link>
+          </Button>
+          </div>
         </div>
       </div>
       </main>

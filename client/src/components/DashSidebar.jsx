@@ -18,11 +18,13 @@ export default function DashSidebar() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [tab, setTab] = useState('');
+  const [loading, setLoading] = useState('true');
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get('tab');
+    setLoading(false);
     if (tabFromUrl) {
       setTab(tabFromUrl);
     }
@@ -59,7 +61,7 @@ export default function DashSidebar() {
     <Sidebar
       collapsed={collapsed}
       width="{collapsed ? '10px' : '17vw'}"
-      className="min-h-screen bg-gray-950 text-white transition-all duration-300"
+      className="${loading && 'hidden'} min-h-screen bg-gray-950 text-white transition-all duration-300"
     >
       <Menu iconShape="square" className='bg-gray-950 outline-none border-none'>
         <MenuItem

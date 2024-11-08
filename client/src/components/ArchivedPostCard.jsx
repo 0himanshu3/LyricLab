@@ -74,7 +74,7 @@ export default function ArchivedPostCard({ post }) {
         <div className="card-content">
           <h2 className="text-xl font-bold mb-2">{post.title}</h2>
         </div>
-
+ 
         <div className="overflow-hidden mb-0 mt-0">
           <h3 className="font-semibold text-sm mb-1">Subtasks</h3>
           <ul>

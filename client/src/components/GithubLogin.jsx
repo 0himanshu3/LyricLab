@@ -15,7 +15,7 @@ const GithubLogin = () => {
     <Button 
       type="button" 
       gradientDuoTone="pinkToOrange" 
-      className="mt-4 w-full rounded-md py-2"
+      className="mt-1 w-full rounded-md border "
       onClick={handleGithubLogin}
     >
       <AiFillGithub className="w-6 h-6 mr-2" />
