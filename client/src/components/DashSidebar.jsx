@@ -18,13 +18,11 @@ export default function DashSidebar() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [tab, setTab] = useState('');
-  const [loading, setLoading] = useState('true');
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get('tab');
-    setLoading(false);
     if (tabFromUrl) {
       setTab(tabFromUrl);
     }
@@ -61,14 +59,14 @@ export default function DashSidebar() {
     <Sidebar
       collapsed={collapsed}
       width="{collapsed ? '10px' : '17vw'}"
-      className="${loading && 'hidden'} min-h-screen bg-gray-950 text-white transition-all duration-300"
+      className="min-h-screen bg-gray-950 text-white transition-all duration-300"
     >
       <Menu iconShape="square" className='bg-gray-950 outline-none border-none'>
         <MenuItem
           active={tab === 'profile'}
           icon={<HiUser className={`${tab === 'profile' ? 'text-blue-500' : ''}`} />}
           className={`${
-            tab === 'profile' ? 'bg-blue-400 text-blue-400' : 'hover:text-blue-700'
+            tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
           } transition-colors duration-200`}
         >
           <Link to="/dashboard?tab=profile">Profile</Link>
@@ -79,7 +77,7 @@ export default function DashSidebar() {
             active={tab === 'all'}
             icon={<HiDocumentText className={`${tab === 'all' ? 'text-blue-500' : ''}`} />}
             className={`${
-              tab === 'profile' ? 'bg-blue-400 text-blue-400' : 'hover:text-blue-700'
+              tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
             } transition-colors duration-200`}
           >
             <Link to="/search?tab=all">All Tasks</Link>
@@ -92,7 +90,7 @@ export default function DashSidebar() {
               active={tab === 'personal'}
               icon={<FaTasks className={`${tab === 'personal' ? 'text-blue-500' : ''}`} />}
               className={`${
-                tab === 'profile' ? 'bg-blue-400 text-blue-400' : 'hover:text-blue-700'
+                tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
               } transition-colors duration-200`}
             >
               <Link to="/dashboard?tab=personal">Personal Tasks</Link>
@@ -101,7 +99,7 @@ export default function DashSidebar() {
               active={tab === 'team'}
               icon={<HiOutlineUserGroup className={`${tab === 'team' ? 'text-blue-500' : ''}`} />}
               className={`${
-                tab === 'profile' ? 'bg-blue-400 text-blue-400' : 'hover:text-blue-700'
+                tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
               } transition-colors duration-200`}
             >
               <Link to="/dashboard?tab=team">Team Tasks</Link>
@@ -114,7 +112,7 @@ export default function DashSidebar() {
             active={tab === 'archived'}
             icon={<MdArchive className={`${tab === 'archived' ? 'text-blue-500' : ''}`} />}
             className={`${
-              tab === 'profile' ? 'bg-blue-400 text-blue-400' : 'hover:text-blue-700'
+              tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
             } transition-colors duration-200`}
           >
             <Link to="/search?tab=archived">Archived Tasks</Link>
