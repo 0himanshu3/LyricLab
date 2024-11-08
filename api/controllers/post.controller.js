@@ -2,9 +2,10 @@ import Post from '../models/post.model.js';
 import { errorHandler } from '../utils/error.js';
 import {UserNotice,Notice} from '../models/notification.js';
 import moment from  'moment';
-
+import User from '../models/user.model.js';
 export const create = async (req, res, next) => {
-  console.log(req.user);
+  const user = await User.findById(req.user.id);
+  console.log(user);
   if (!req.user.isAdmin) {
     return next(errorHandler(403, 'You are not allowed to create a post'));
   }
@@ -18,76 +19,68 @@ export const create = async (req, res, next) => {
     .toLowerCase()
     .replace(/[^a-zA-Z0-9-]/g, '');
 
-  // Create a new post instance with the provided data
-  const newPost = new Post({
-    title: req.body.title,
-    content: req.body.content,
-    image: req.body.image || undefined, // Use provided image or default
-    category: req.body.category || 'uncategorized', // Default category if not provided
-    slug,
-    userId: req.user.id,
-    priority: req.body.priority || 'low', // Default priority if not provided
-    deadline: req.body.deadline || undefined, // Optional field
-    isCollaborative: req.body.isCollaborative || false, // Collaboration flag
-    teamName: req.body.teamName || '', // Team name
-    collaborators: req.body.selectedCollaborators || [], // Collaborators list
-    subtasks: req.body.subtasks || [] // Subtasks array
-  });
   try {
     const lastPost = await Post.findOne().sort({ order: -1 });
     const newOrder = lastPost ? lastPost.order + 1 : 1;
-  
+
+    // Define the new post along with the initial activity
     const newPost = new Post({
       title: req.body.title,
       content: req.body.content,
-      image: req.body.image || undefined, // Use provided image or default
-      category: req.body.category || 'uncategorized', // Default category if not provided
+      image: req.body.image || undefined,
+      category: req.body.category || 'uncategorized',
       slug,
       userId: req.user.id,
-      priority: req.body.priority || 'low', // Default priority if not provided
-      deadline: req.body.deadline || undefined, // Optional field
-      isCollaborative: req.body.isCollaborative || false, // Collaboration flag
-      teamName: req.body.teamName || '', // Team name
-      collaborators: req.body.selectedCollaborators || [], // Collaborators list
-      subtasks: req.body.subtasks || [], // Subtasks array
-      order: newOrder, //to maintian the order in dnd
+      priority: req.body.priority || 'low',
+      deadline: req.body.deadline || undefined,
+      isCollaborative: req.body.isCollaborative || false,
+      teamName: req.body.teamName || '',
+      collaborators: req.body.selectedCollaborators || [],
+      subtasks: req.body.subtasks || [],
+      order: newOrder,
+      activities: [
+        {
+          title: "Project Created",
+          description: "Project has been created",
+          username: user.username, // Set user as the userId
+        }
+      ]
     });
-  
+
     const savedPost = await newPost.save();
-    
+
+    // Create a notification text
     let text = "New task has been assigned to you";
     if (newPost.isCollaborative) {
-      text = text + ` and ${newPost.collaborators.length} others.`;
+      text = `${text} and ${newPost.collaborators.length} others.`;
     }
+    text += ` The task priority is set at ${newPost.priority} priority, so check and act accordingly. The task deadline is ${savedPost.deadline.toDateString()}. Thank you!!!`;
 
-    text =
-      text +
-      ` The task priority is set a ${
-        newPost.priority
-      } priority, so check and act accordingly. The task deadline is ${savedPost.deadline.toDateString()}. Thank you!!!`;
+    // Create a new notice
     const newNotice = new Notice({
       text,
-      task: savedPost._id, 
-      notiType: "alert" ,
-      isRead:false,
-      deadline:savedPost.deadline,
+      task: savedPost._id,
+      notiType: "alert",
+      isRead: false,
+      deadline: savedPost.deadline,
     });
+
     const usersToNotify = [req.user.id, ...newPost.collaborators.map(collaborator => collaborator.value)];
     for (const userId of usersToNotify) {
       const userNotice = await UserNotice.findOne({ userId });
-  
+
       if (!userNotice) {
         const newUserNotice = new UserNotice({
           userId,
-          notifications: [newNotice], 
+          notifications: [newNotice],
         });
         await newUserNotice.save();
-      } 
-      else {
+      } else {
         userNotice.notifications.push(newNotice);
         await userNotice.save();
       }
     }
+
     res.status(201).json(savedPost);
   } catch (error) {
     console.error('Error creating post:', error);
@@ -524,5 +517,49 @@ export const restoreTask = async (req, res) => {
     res.status(200).json({ message: 'Post archived and subtasks marked as incomplete' });
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while archiving the post' });
+  }
+};
+
+
+export const addActivityToPost = async (req, res) => {
+  try {
+    // Extract postId and userId from request parameters
+    const { postId, userId } = req.params;
+
+    // Extract title and description from the request body
+    const { title, description } = req.body;
+    
+    // Find the user by userId to get the username
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find the post by postId
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    console.log(user);
+    
+
+    // Create a new activity with the title, description, and username from the fetched user
+    const newActivity = {
+      title,
+      description,
+      username: user.username, // Assuming the user schema has a 'username' field
+    };
+
+    // Add the new activity to the post’s activities array
+    post.activities.push(newActivity);
+
+    // Save the updated post
+    await post.save();
+
+    res.status(200).json({ message: 'Activity added successfully', post });
+  } catch (error) {
+    console.error('Error adding activity:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

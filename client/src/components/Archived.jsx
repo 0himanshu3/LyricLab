@@ -105,7 +105,7 @@ export default function Archived() {
   );
 
   return (
-    <div className="flex h-screen overflow-y-auto bg-slate-950">
+    <div className="flex h-screen w-screen overflow-y-auto dark:bg-slate-950">
       <div className="flex-grow flex flex-col">
         <div className="flex justify-between items-center border-b border-gray-500 p-4">
           <h1 className="text-3xl font-semibold">Archived Tasks:</h1>
@@ -130,8 +130,7 @@ export default function Archived() {
                 </button>
               )}
             </div>
-     
       </div>
-    </div>
+      </div>
   );
 }

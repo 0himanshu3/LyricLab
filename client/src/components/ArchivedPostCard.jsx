@@ -69,9 +69,9 @@ export default function ArchivedPostCard({ post }) {
   }
 
   return (
-    <div className='cursor-pointer'>
-      <Card className="card max-w-sm h-[400px] w-[285px] p-1 shadow-lg transition duration-200 relative">
-        <div className="card-content">
+    <div className=''>
+      <Card className="card dark:bg-transparent max-w-sm h-[400px] w-[285px] p-1 transition duration-200 relative">
+        <div className="card-content text-center">
           <h2 className="text-xl font-bold mb-2">{post.title}</h2>
         </div>
  
@@ -86,10 +86,10 @@ export default function ArchivedPostCard({ post }) {
               </li>
             ))}
           </ul>
-          {totalCount > 3 && <span className="text-xs text-gray-500">+{totalCount - 3} subtasks remaining</span>}
+          {totalCount > 3 && <span className="text-xs text-gray-500">+{totalCount - 3} subtasks</span>}
         </div>
 
-        <div className="mt-4 flex gap-2 button-container">
+        <div className="mt-4 flex flex-col gap-2 button-container">
           <Button className="bg-blue-800 text-white border-none hover:bg-blue-900 card-btn" onClick={restoreTask}>
             <span className='text-sm'>Restore Task</span>
           </Button>

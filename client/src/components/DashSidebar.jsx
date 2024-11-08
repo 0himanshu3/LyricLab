@@ -3,6 +3,7 @@ import {
   HiUser,
   HiDocumentText,
   HiOutlineUserGroup,
+  HiMenuAlt1
 } from 'react-icons/hi';
 import { FaTasks } from 'react-icons/fa';
 import { MdArchive } from 'react-icons/md';
@@ -10,7 +11,6 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import LoadingScreen from './LoadingScreen';
 
 export default function DashSidebar() {
   const location = useLocation();
@@ -59,17 +59,17 @@ export default function DashSidebar() {
     <Sidebar
       collapsed={collapsed}
       width="{collapsed ? '10px' : '17vw'}"
-      className="min-h-screen bg-gray-950 text-white transition-all duration-300"
+      className={`${loading ? 'hidden' : ''} min-h-screen bg-gray-950 text-white transition-all duration-300`}
     >
       <Menu iconShape="square" className='bg-gray-950 outline-none border-none'>
         <MenuItem
           active={tab === 'profile'}
           icon={<HiUser className={`${tab === 'profile' ? 'text-blue-500' : ''}`} />}
           className={`${
-            tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
-          } transition-colors duration-200`}
-        >
-          <Link to="/dashboard?tab=profile">Profile</Link>
+            tab === 'profile' ? 'text-blue-400' : 'hover:text-blue-700'
+            } transition-colors duration-200`}
+            component={<Link to="/dashboard?tab=profile" />}
+        >Profile
         </MenuItem>
 
         {currentUser && (
@@ -77,10 +77,10 @@ export default function DashSidebar() {
             active={tab === 'all'}
             icon={<HiDocumentText className={`${tab === 'all' ? 'text-blue-500' : ''}`} />}
             className={`${
-              tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
-            } transition-colors duration-200`}
-          >
-            <Link to="/search?tab=all">All Tasks</Link>
+              tab === 'all' ? 'text-blue-400' : 'hover:text-blue-700'
+              } transition-colors duration-200`}
+              component={<Link to="/search?tab=all" />}
+          > All Tasks
           </MenuItem>
         )}
 
@@ -90,19 +90,19 @@ export default function DashSidebar() {
               active={tab === 'personal'}
               icon={<FaTasks className={`${tab === 'personal' ? 'text-blue-500' : ''}`} />}
               className={`${
-                tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
-              } transition-colors duration-200`}
-            >
-              <Link to="/dashboard?tab=personal">Personal Tasks</Link>
+                tab === 'personal' ? 'text-blue-400' : 'hover:text-blue-700'
+                } transition-colors duration-200`}
+                component={<Link to="/dashboard?tab=personal" />}
+            > Personal Tasks
             </MenuItem>
             <MenuItem
               active={tab === 'team'}
               icon={<HiOutlineUserGroup className={`${tab === 'team' ? 'text-blue-500' : ''}`} />}
               className={`${
-                tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
-              } transition-colors duration-200`}
-            >
-              <Link to="/dashboard?tab=team">Team Tasks</Link>
+                tab === 'team' ? 'text-blue-400' : 'hover:text-blue-700'
+                } transition-colors duration-200`}
+                component={<Link to="/dashboard?tab=team" />}
+            > Team Tasks
             </MenuItem>
           </>
         )}
@@ -112,10 +112,10 @@ export default function DashSidebar() {
             active={tab === 'archived'}
             icon={<MdArchive className={`${tab === 'archived' ? 'text-blue-500' : ''}`} />}
             className={`${
-              tab === 'profile' ? 'bg-gray-950 text-white' : 'hover:text-blue-700'
-            } transition-colors duration-200`}
-          >
-            <Link to="/search?tab=archived">Archived Tasks</Link>
+              tab === 'archived' ? 'text-blue-400' : 'hover:text-blue-700'
+              } transition-colors duration-200`}
+              component={<Link to="/dashboard?tab=archived" />}
+          > Archived Tasks
           </MenuItem>
         )}
       </Menu>

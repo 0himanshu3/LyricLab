@@ -190,7 +190,7 @@ export default function CreatePost() {
     setLanguage(lang);
     startRecording(lang);
     setShowDropdown(false);
-};
+  };
 
     useEffect(() => {
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -333,7 +333,7 @@ export default function CreatePost() {
             <img src={formData.image} alt='upload' className='w-full h-72 object-cover' />
           )}
 
-          <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+        <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
           <ReactQuill
           onChange={(value) => setFormData({ ...formData, content: value })}
               theme="snow"

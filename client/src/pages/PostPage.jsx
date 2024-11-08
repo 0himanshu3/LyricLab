@@ -1,11 +1,14 @@
-import { Button, Spinner, Checkbox } from 'flowbite-react';
+import { Button, Spinner, Checkbox, Modal, Label, TextInput } from 'flowbite-react';
 import { useEffect, useState, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
+
 
 export default function PostPage() {
+  const currentUser = useSelector((state) => state.user.currentUser);
   const { postSlug } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -16,6 +19,9 @@ export default function PostPage() {
   const [remainingTime, setRemainingTime] = useState('');
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [createdByUsername, setCreatedByUsername] = useState(null);
+  const [showAddActivityPopup, setShowAddActivityPopup] = useState(false);
+  const [activityTitle, setActivityTitle] = useState('');
+  const [activityDescription, setActivityDescription] = useState('');
 
   const fetchUsername = useCallback(async (userId) => {
     try {
@@ -143,6 +149,28 @@ export default function PostPage() {
     }
   };
 
+  const addActivity = async () => {
+    const newActivity = { title: activityTitle, description: activityDescription };
+    const updatedActivities = [...post.activities, newActivity];
+    setPost({ ...post, activities: updatedActivities });
+
+    try {
+      const res = await fetch(`/api/post/${post._id}/${currentUser._id}/add-activity`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newActivity),
+      });
+
+      if (!res.ok) throw new Error('Failed to add activity to the database');
+    } catch (error) {
+      console.error('Error adding activity:', error);
+    } finally {
+      setShowAddActivityPopup(false);
+      setActivityTitle('');
+      setActivityDescription('');
+    }
+  };
+
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -199,72 +227,83 @@ export default function PostPage() {
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-lg p-5 shadow-lg space-y-6">
-          <div className="text-gray-800 dark:text-white text-sm mb-6">
-            <h3 className="text-lg font-semibold">Deadline Timer</h3>
-            <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
-            <p>Time Remaining: {remainingTime}</p>
+          <div className="text-center">
+            <CircularProgressbar value={completionPercentage} text={`${Math.round(completionPercentage)}%`} />
+            <h3 className="text-lg font-semibold mt-4">Completion Status</h3>
           </div>
 
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Status</h3>
-            <p className="text-gray-800 dark:text-gray-200">{completionPercentage === 100 ? 'Completed' : 'In Progress'}</p>
+          <div className="text-center">
+            <h3 className="text-lg font-semibold mt-4">Deadline</h3>
+            <p className="text-gray-800 dark:text-gray-400">{remainingTime}</p>
           </div>
 
-          <div className="flex justify-center">
-            <div style={{ width: '80%', maxWidth: '200px' }}>
-              <CircularProgressbar
-                value={completionPercentage}
-                text={`${Math.round(completionPercentage)}%`}
-                styles={{
-                  path: { stroke: '#4caf50' },
-                  background: { fill: '#333' },
-                
-                }}
-              />
-            </div>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Subtasks</h3>
+            {subtasks.map((subtask) => (
+              <div key={subtask._id} className="flex items-center">
+                <Checkbox
+                  checked={subtask.completed}
+                  onChange={() => toggleSubtaskCompletion(subtask._id)}
+                  id={`subtask-${subtask._id}`}
+                />
+                <label htmlFor={`subtask-${subtask._id}`} className="ml-2">{subtask.title}</label>
+              </div>
+            ))}
+            <Button color="success" onClick={completeAllSubtasks}>Complete All</Button>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Actions</h3>
+            <Button color="primary" onClick={() => setShowAddActivityPopup(true)}>Add Activity</Button>
+            <Button color="failure" onClick={archiveTask}>Archive Task</Button>
           </div>
 
           <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Subtasks</h3>
-            <ul className="mt-2 space-y-2">
-              {subtasks.map((subtask) => (
-                <li key={subtask._id} className="flex flex-col items-start p-2 border-b border-gray-200 dark:border-gray-600">
-                  <div className="flex items-center w-full">
-                    <Checkbox
-                      checked={subtask.completed}
-                      onChange={() => toggleSubtaskCompletion(subtask._id)}
-                    />
-                    <span className={`ml-2 font-semibold ${subtask.completed ? 'line-through text-gray-400' : ''}`}>
-                      {subtask.title}
-                    </span>
-                  </div>
-                  {subtask.description && (
-                    <p className={`ml-8 mt-1 text-sm ${subtask.completed ? 'text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
-                      {subtask.description}
-                    </p>
-                  )}
+            <h3 className="text-lg font-semibold">Activities</h3>
+            <ul className="list-disc pl-5">
+              {post.activities.map((activity, index) => (
+                <li key={index} className="mt-2">
+                  <h4 className="font-semibold">{activity.title}</h4>
+                  <p>{activity.description}</p>
+                  <p>Done by: {activity.username}</p>
                 </li>
               ))}
-              </ul>
-              </div>
-          <div className='flex flex-col gap-2'> 
-          <Button color="success" className=" bg-green-700 w-full border-none" onClick={completeAllSubtasks} disabled={completionPercentage === 100}>
-            Complete All Subtasks
-          </Button>
-          
-          <Button color="failure" className=" w-full border-none" onClick={archiveTask}>
-            Archive Task
-          </Button>
-
-          <Button color="warning" className='bg-teal-400 w-full border-none'>
-            <Link to={`/update-post/${post._id}`}>
-              Edit Task
-            </Link>
-          </Button>
+            </ul>
           </div>
         </div>
       </div>
-      </main>
-      </div>
+
+      {/* Add Activity Popup */}
+      <Modal show={showAddActivityPopup} onClose={() => setShowAddActivityPopup(false)}>
+        <Modal.Header>Add Activity</Modal.Header>
+        <Modal.Body>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="activity-title" value="Title" />
+              <TextInput
+                id="activity-title"
+                placeholder="Enter activity title"
+                value={activityTitle}
+                onChange={(e) => setActivityTitle(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="activity-description" value="Description" />
+              <TextInput
+                id="activity-description"
+                placeholder="Enter activity description"
+                value={activityDescription}
+                onChange={(e) => setActivityDescription(e.target.value)}
+              />
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={addActivity}>Add</Button>
+          <Button color="failure" onClick={() => setShowAddActivityPopup(false)}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    </main>
+    </div>
   );
 }

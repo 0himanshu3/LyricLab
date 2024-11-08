@@ -15,6 +15,7 @@ import {
   updatePostOrder,
   archivePost,
   restoreTask,
+  addActivityToPost,
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
@@ -32,7 +33,8 @@ router.put('/:postId/restore', verifyToken, restoreTask);
 router.patch('/:postId/complete-subtasks', completeTask);
 router.patch('/update-order', verifyToken, updatePostOrder);
 //to update the order of the post
-
+router.patch('/:postId/:userId/add-activity', addActivityToPost
+);
 // Delete a task
 router.delete('/:postId', deleteTask);
 

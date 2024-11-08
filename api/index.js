@@ -11,6 +11,7 @@ import path from 'path';
 import passport from './utils/passport.js';
 import { toggleSubtaskCompletion } from './controllers/post.controller.js';
 import cors from 'cors'
+import recordingRoutes from './routes/recording.route.js';
 
 dotenv.config();
 
@@ -69,3 +70,5 @@ app.use((err, req, res, next) => {
   });
 });
 
+
+app.use('/api/recordings', recordingRoutes);

@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 const subtaskSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -16,6 +15,20 @@ const subtaskSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+const activitySchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true });
 
 const postSchema = new mongoose.Schema(
   {
@@ -34,8 +47,7 @@ const postSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default:
-        'https://www.hostinger.com/tutorials/wp-content/uploads/sites/2/2021/09/how-to-write-a-blog-post.png',
+      default: 'https://www.hostinger.com/tutorials/wp-content/uploads/sites/2/2021/09/how-to-write-a-blog-post.png',
     },
     category: {
       type: String,
@@ -54,39 +66,37 @@ const postSchema = new mongoose.Schema(
     deadline: { type: Date },
     status: {
       type: String,
-      enum: ['completed', 'pending','archived'],
+      enum: ['completed', 'pending', 'archived'],
       default: 'pending',
     },
     subtasks: [subtaskSchema],
-
-    isCollaborative: { // New field to indicate collaboration
+    isCollaborative: {
       type: Boolean,
       default: false,
     },
-    teamName: { // Field for team name
+    teamName: {
       type: String,
       default: '',
     },
     collaborators: [{
       label: {
         type: String,
-        required: true, // Ensure a name is provided
+        required: true,
       },
       value: {
         type: String,
-        ref: 'User', // Reference to User model for the user ID
-        required: true, // Ensure a user ID is provided
+        ref: 'User',
+        required: true,
       },
     }],
     order: {
       type: Number,
       default: 0,
-      // required: true,
-    }
+    },
+    activities: [activitySchema] // Add activities array with activitySchema
   },
   { timestamps: true }
 );
-
 
 const Post = mongoose.model('Post', postSchema);
 
