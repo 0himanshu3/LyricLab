@@ -163,7 +163,7 @@ export default function PostCard({ post }) {
               </span>
             </div>
           ))}
-          {totalCount > 2 && <span className="text-xs text-gray-500">+{totalCount - 2} subtasks remaining</span>}
+          {totalCount > 2 && <span className="text-xs text-gray-500">+{totalCount - 2} subtasks</span>}
         </div>
 
         <div className="relative w-60 h-1.5 bg-gray-200 rounded" onClick={(e) => e.stopPropagation()}>

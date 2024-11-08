@@ -17,6 +17,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleLogin from './components/GoogleLogin';
 import NotFound from './components/NotFound'
 import AfterGithub from './components/AfterGithub';
+import RecordAudioPage from './pages/RecordPage';
 export default function App() {
   const user = useSelector((state) => state.user);
   const googleclientid=import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -42,6 +43,7 @@ export default function App() {
             <Route path='/update-post/:postId' element={<UpdatePost />} />
           </Route>
 
+          <Route path='/record' element={<RecordAudioPage />} />
           <Route path='/post/:postSlug' element={<PostPage />} />
           <Route path="*" element={<NotFound/>} />
         </Routes>
