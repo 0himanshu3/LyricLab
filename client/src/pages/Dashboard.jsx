@@ -6,6 +6,7 @@ import Personal from '../components/Personal';
 import TeamProjects from '../components/TeamProjects';
 import Search from './Search';
 import Archived from '../components/Archived';
+import CanvasPost from '../components/CanvasPost';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -35,6 +36,7 @@ export default function Dashboard() {
       {tab === 'dash' && <DashboardComp />}
 
       {tab === 'archived' && <Archived />}
+      {tab === 'canvas' && <CanvasPost />}
     </div>
   );
 }
