@@ -120,6 +120,7 @@ export default function DashSidebar() {
           > Archived Tasks
           </MenuItem>
         )}
+        
       </Menu>
     </Sidebar>
   );
