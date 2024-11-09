@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import Joi from "joi";
 import passwordComplexity from "joi-password-complexity";
 
-const userSchema = new mongoose.Schema(
+const labuserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -27,11 +27,15 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    verified: { 
+      type: Boolean, 
+      default: false
+    },
 
   },
   { timestamps: true }
 );
 
-const User = mongoose.model('User', userSchema);
+const Labuser = mongoose.model('Labuser', labuserSchema);
 
-export default User;
+export default Labuser;

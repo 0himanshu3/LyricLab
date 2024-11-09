@@ -249,16 +249,20 @@ export default function CreatePost() {
   };
 
 // Stop Recording
-  const stopRecording = () => {
+  const stopRecording = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (recognitionRef.current) {
         recognitionRef.current.stop();
         setIsRecording(false);
     }
   };
 
-  const handleToggleRecording = () => {
+  const handleToggleRecording = (e) => {
     if (isRecording) {
-      stopRecording();
+      stopRecording(e);
     }
     else {
       toggleDropdown();
@@ -356,8 +360,8 @@ export default function CreatePost() {
 
         {/* Record button with dropdown */}
         <div style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
-            <button
-                onClick={handleToggleRecording}
+            <button type="button"
+                onClick={(e) => handleToggleRecording(e)} ref={toggleButtonRef}
                 style={{
                     backgroundColor: isRecording ? '#ff4c4c' : '#4c6ef5',
                     color: 'white',
