@@ -16,6 +16,21 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector } from 'react-redux';
 
+const modules = {
+  toolbar: [
+    [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+    [{ size: [] }],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' },
+    { 'indent': '-1' }, { 'indent': '+1' }],
+    ['link', 'image', 'video'],
+    ['clean']
+  ],
+  clipboard: {
+    // toggle to add extra line breaks when pasting HTML:
+    matchVisual: false,
+  }
+};
 
 export default function UpdatePost() {
   const { postId } = useParams();
@@ -228,6 +243,7 @@ export default function UpdatePost() {
           onChange={(value) => {
             setFormData({ ...formData, content: value });
           }}
+          modules={modules}
         />
         
         <h2 className='text-xl font-semibold'>Subtasks</h2>

@@ -59,7 +59,7 @@ export default function DashSidebar() {
     <Sidebar
       collapsed={collapsed}
       width="{collapsed ? '10px' : '17vw'}"
-      className={`${loading ? 'hidden' : ''} min-h-screen bg-gray-950 text-white transition-all duration-300`}
+      className=" min-h-screen bg-gray-950 text-white transition-all duration-300"
     >
       <Menu iconShape="square" className='bg-gray-950 outline-none border-none'>
         <MenuItem
