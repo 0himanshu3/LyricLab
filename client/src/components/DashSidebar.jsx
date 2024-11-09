@@ -19,10 +19,11 @@ export default function DashSidebar() {
   const { currentUser } = useSelector((state) => state.user);
   const [tab, setTab] = useState('');
   const [collapsed, setCollapsed] = useState(false);
-
+  const [loading,setLoading]=useState('true');
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get('tab');
+    setLoading(false);
     if (tabFromUrl) {
       setTab(tabFromUrl);
     }
