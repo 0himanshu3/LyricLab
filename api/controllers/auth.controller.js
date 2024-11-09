@@ -4,6 +4,10 @@ import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 import { oauth2Client } from '../utils/googleClient.js';
 import axios from 'axios';
+import emailjs from "@emailjs/browser";
+import dotenv from 'dotenv';
+import Labuser from '../models/labuser.model.js';
+dotenv.config();
 
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -70,23 +74,111 @@ export const signup = async (req, res, next) => {
   }
 };
 
+//New register
+export const register = async (req, res, next) => {
+  const { name, email, password, verificationCode } = req.body;
+  
+
+  try {
+    // Validate user input fields
+    if (!name || !email || !password || name === '' || email === '' || password === '') {
+      return next(errorHandler(400, 'All fields are required.'));
+    }
+
+    // Password validation
+    if (password) {
+      if (password.length < 8) {
+        return next(errorHandler(400, 'Password must be at least 8 characters.'));
+      }
+
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+      if (!passwordRegex.test(password)) {
+        return next(errorHandler(400, 'Password must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.'));
+      }
+
+      req.body.password = bcryptjs.hashSync(password, 10);
+    }
+
+    // Check if the email is already in use
+    const existingUser = await Labuser.findOne({ email });
+    if (existingUser) {
+      return next(errorHandler(400, 'Email is already in use. Please use a different email.'));
+    }
+
+    // Create a new user with the verification code passed from frontend
+    const newUser = new Labuser({
+      username:name,
+      email,
+      password: req.body.password,
+      verificationCode,
+    });
+
+    // Save the new user to the database
+    await newUser.save();
+
+    // Prepare the success response
+    res.status(201).json({
+      success: true,
+      message: 'Signup successful! Please check your email to verify your account.',
+    });
+  } catch (error) {
+    console.error("Error during signup:", error);  // More specific logging
+    return next(new Error('An error occurred during signup. Please try again later.'));
+  }
+};
+
+//verify
+export const verifyUser = async (req, res, next) => {
+  const { email, code } = req.body;
+  try {
+    const user = await Labuser.findOne({ email });
+
+    if (!user) {
+      return next(errorHandler(404, 'User not found.'));
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ message: 'User is already verified.' });
+    }
+
+    if (user.verificationCode === code) {
+      user.verified = true;
+      user.verificationCode = undefined; // Clear the verification code
+      await user.save();
+
+      res.status(200).json({ success: true, message: 'Your account has been verified!' });
+    } else {
+      res.status(400).json({ success: false, message: 'Verification code is incorrect.' });
+    }
+  } catch (error) {
+    console.error(error);
+    return next(errorHandler(500, 'Verification failed. Please try again.'));
+  }
+};
 
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password || email === '' || password === '') {
-    next(errorHandler(400, 'All fields are required'));
+    return next(errorHandler(400, 'All fields are required'));
   }
 
   try {
-    const validUser = await User.findOne({ email });
+    const validUser = await Labuser.findOne({ email });
     if (!validUser) {
       return next(errorHandler(404, 'User not found'));
     }
+
+    // Check if the user is verified
+    if (!validUser.verified) {
+      return res.status(400).json({ message: 'Please verify your email first.' });
+    }
+
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) {
       return next(errorHandler(400, 'Invalid password'));
     }
+
     const token = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET

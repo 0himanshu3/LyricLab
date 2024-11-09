@@ -7,14 +7,18 @@ import OAuth from '../components/OAuth';
 import LoadingScreen from '../components/LoadingScreen';
 import GoogleLogin from '../components/GoogleLogin';
 import GithubLogin from '../components/GithubLogin';
+import emailjs from "@emailjs/browser";
 export default function SignInPage() {
   const [formData, setFormData] = useState({});
   const [showSignUp, setShowSignUp] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showVerifyFields, setShowVerifyFields] = useState(false); // For toggling verification fields
+  const [verificationCode, setVerificationCode] = useState('');
+  const [email, setEmail] = useState('');
   const { loading = false, error: errorMessage = null, user = null } = useSelector((state) => state.user.currentUser || {});
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [errorM,setErrorM] = useState("");
+  const [errorM, setErrorM] = useState("");
 
   const modalRef = useRef(null);
 
@@ -38,29 +42,18 @@ export default function SignInPage() {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
+  const handleVerificationChange = (e) => {
+    setVerificationCode(e.target.value.trim());
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value.trim());
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (showSignUp) {
-      if (!formData.username || !formData.email || !formData.password) {
-        return dispatch(signInFailure('Please fill out all fields.'));
-      }
-      try {
-        const res = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-        const data = await res.json();
-        console.log(data);
-        setErrorM(data.message);
-        if (data.success === false) {
-          return dispatch(signInFailure(data.message));
-        }
-        alert("Successful");
-        setIsModalOpen(false);
-      } catch (error) {
-        dispatch(signInFailure(error.message));
-      }
+      navigate("/sendmail");
     } else {
       if (!formData.email || !formData.password) {
         return dispatch(signInFailure('Please fill out all fields.'));
@@ -73,7 +66,6 @@ export default function SignInPage() {
           body: JSON.stringify(formData),
         });
         const data = await res.json();
-        console.log(data);
         if (data.success === false) {
           setErrorM(data.message);
           dispatch(signInFailure(data.message));
@@ -85,6 +77,30 @@ export default function SignInPage() {
       } catch (error) {
         dispatch(signInFailure(error.message));
       }
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!email || !verificationCode) {
+      alert('Please fill out both fields.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: verificationCode }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Account verified successfully!');
+        setShowVerifyFields(false); // Hide verification fields
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert("Verification failed, please try again.");
     }
   };
 
@@ -167,19 +183,53 @@ export default function SignInPage() {
                 <GithubLogin/>
               </div>
               {errorM && (
-               <div style={{ color: 'red' }}>{errorM}</div>
-            )}
+                <div style={{ color: 'red' }}>{errorM}</div>
+              )}
             </form>
-            <div className="flex gap-2 text-sm mt-5 justify-center">
-              <span className="text-gray-500">
-                {showSignUp ? 'Already have an account?' : "Don't have an account?"}
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowSignUp(!showSignUp)}
-                className="text-blue-500 underline"
+            
+            {/* Verification Button and Fields */}
+            {!showVerifyFields ? (
+              <Button
+                gradientDuoTone="purpleToPink"
+                onClick={() => setShowVerifyFields(true)}
+                className="mt-4 w-full rounded-md py-1 bg-gradient-to-r from-violet-700 to-gray-400"
               >
-                {showSignUp ? 'Sign In' : 'Sign Up'}
+                Verify Your Account
+              </Button>
+            ) : (
+              <div className="mt-4">
+                <Label value="Enter your email" className="text-gray-600" />
+                <TextInput
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Email"
+                />
+                <Label value="Enter Verification Code" className="text-gray-600 mt-4" />
+                <TextInput
+                  type="text"
+                  value={verificationCode}
+                  onChange={handleVerificationChange}
+                  className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Verification Code"
+                />
+                <Button
+                  gradientDuoTone="purpleToPink"
+                  onClick={handleVerify}
+                  className="mt-4 w-full rounded-md py-1 bg-gradient-to-r from-violet-700 to-gray-400"
+                >
+                  Verify
+                </Button>
+              </div>
+            )}
+
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => setShowSignUp(!showSignUp)}
+                className="text-gray-500 text-sm"
+              >
+                {showSignUp ? 'Already have an account? Sign In' : 'Don’t have an account? Sign Up'}
               </button>
             </div>
           </div>

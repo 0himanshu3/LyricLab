@@ -1,5 +1,5 @@
 import express from 'express';
-import { googleAuth, signin, signup } from '../controllers/auth.controller.js';
+import { googleAuth, register, signin, signup, verifyUser } from '../controllers/auth.controller.js';
 import passport from 'passport';
 // import { getAccessToken, generateAuthUrl } from '../utils/googleClient.js';
 
@@ -42,7 +42,8 @@ router.get('/github/callback', passport.authenticate('github', { failureRedirect
     res.redirect(`http://localhost:5173/after-github-login?userId=${userId}`);
   }
 );
-
+router.post('/register',register);
+router.post('/verify',verifyUser);
 router.post('/signup', signup);
 router.post('/signin', signin);
 router.post('/google', googleAuth);

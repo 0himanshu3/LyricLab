@@ -19,6 +19,7 @@ import NotFound from './components/NotFound'
 import AfterGithub from './components/AfterGithub';
 import RecordAudioPage from './pages/RecordPage';
 import ShowRequest from './components/ShowRequest';
+import SendMail from './components/SendMail';
 export default function App() {
   const user = useSelector((state) => state.user);
   const googleclientid=import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -35,6 +36,7 @@ export default function App() {
           <Route path='/search' element={<Dashboard />} />
           <Route path='/after-github-login' element={<AfterGithub />} />
           <Route path='/request' element={<ShowRequest />} />
+          <Route path='/sendmail' element={<SendMail />} />
 
           <Route element={<PrivateRoute />}>
             <Route path='/dashboard' element={<Dashboard />} />
