@@ -259,6 +259,11 @@ export default function PostPage() {
             <h3 className="text-lg font-semibold">Actions</h3>
             <Button color="primary" onClick={() => setShowAddActivityPopup(true)}>Add Activity</Button>
             <Button color="failure" onClick={archiveTask}>Archive Task</Button>
+            <Button color="warning" className='bg-teal-400 w-full border-none'>
+            <Link to={`/update-post/${post._id}`}>
+              Edit Task
+            </Link>
+          </Button>
           </div>
 
           <div>
