@@ -178,7 +178,7 @@ export default function Search() {
           <select
             value={viewType}
             onChange={(e) => toggleView(e.target.value)}
-            className="p-2 dark:bg-transparent text-white rounded appearance-none cursor-pointer"
+            className="p-2 dark:bg-transparent text-white rounded cursor-pointer custom-dropdown"
             style={{ width: '130px' }}
           >
             <option value="board">Board View</option>
@@ -268,7 +268,7 @@ export default function Search() {
                         style={{ fontSize: '0.8rem' }}
                         aria-label="Deadline Link"
                       >
-                        🔗
+                        
                       </button>
                     </div>
                   ) : null;

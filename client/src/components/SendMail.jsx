@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 import styled from "styled-components";
-import axios from "axios"; // Add axios for making backend requests
+import axios from "axios";
 
 let str = "";
 
@@ -13,7 +13,6 @@ const SendMail = () => {
   const [name, setName] = useState(""); // State for name
 
   useEffect(() => {
-    // Generate a 6-digit random number and set it as the verification code
     const randomCode = Math.floor(100000 + Math.random() * 900000);
     setVerificationCode(randomCode);
     str = randomCode.toString(); // Convert the number to a string
@@ -24,7 +23,6 @@ const SendMail = () => {
 
     console.log(form.current);
 
-    // Send the email using EmailJS
     emailjs
       .sendForm(
         import.meta.env.VITE_SERVICE_ID,
@@ -37,17 +35,15 @@ const SendMail = () => {
           console.log(result.text);
           console.log("Message sent");
 
-        
           const userData = {
-            name: name, // Use name state
-            email: emailValue, // Use emailValue directly
-            password: password, // Password from state
-            verificationCode: str, // Verification code generated
+            name: name,
+            email: emailValue,
+            password: password,
+            verificationCode: str,
           };
 
-          // Send POST request to backend API
           axios
-            .post("/api/auth/register", userData) // Replace with your backend endpoint
+            .post("/api/auth/register", userData)
             .then((response) => {
               console.log("Data sent to backend:", response.data);
             })
@@ -62,35 +58,37 @@ const SendMail = () => {
   };
 
   return (
-    <StyledContactForm>
+    <StyledContactForm className="bg-slate-950">
       <form ref={form} onSubmit={sendEmail}>
-        <label>Username</label>
+        <h2 className="text-center text-2xl text-gray-200 font-semibold mb-2">Sign Up</h2>
+        <label className="text-gray-200">Username</label>
         <input
           type="text"
           name="user_name"
-          value={name} // Bind the name input to name state
-          onChange={(e) => setName(e.target.value)} // Update name when input changes
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter your name"
         />
-        <label>Email</label>
+        <label className="text-gray-200">Email</label>
         <input
           type="email"
           name="user_email"
-          value={emailValue} // Bind the email input to emailValue state
-          onChange={(e) => setEmailValue(e.target.value)} // Update emailValue when input changes
+          value={emailValue}
+          onChange={(e) => setEmailValue(e.target.value)}
+          placeholder="Enter your email"
         />
-        {/* Password input (this will not be sent with the email) */}
-        <label>Password</label>
+        <label className="text-gray-200">Password</label>
         <input
           type="password"
           name="user_password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
         />
-        {/* Hidden message input with default value as the verification code */}
         <textarea
           name="message"
           defaultValue={`${str}`}
-          style={{ display: "none" }} // Hide this textarea from the user
+          style={{ display: "none" }}
         />
         <input type="submit" value="Send" />
       </form>
@@ -102,56 +100,51 @@ export default SendMail;
 
 // Styles
 const StyledContactForm = styled.div`
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 10px;
+  background-color: #2e2e2e;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 
   form {
     display: flex;
-    align-items: flex-start;
     flex-direction: column;
-    width: 100%;
-    font-size: 16px;
+    gap: 1rem;
+  }
 
-    input {
-      width: 100%;
-      height: 35px;
-      padding: 7px;
-      outline: none;
-      border-radius: 5px;
-      border: 1px solid rgb(220, 220, 220);
-      color: black;
+  label {
+    font-size: 1rem;
+    color: #cbd5e1;
+  }
 
-      &:focus {
-        border: 2px solid rgba(0, 206, 158, 1);
-      }
+  input, textarea {
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 5px;
+    border: 1px solid #4a5568;
+    outline: none;
+    background-color: #1a202c;
+    color: #e2e8f0;
+
+    &:focus {
+      border: 1px solid #63b3ed;
     }
+  }
 
-    textarea {
-      color: black;
-      max-width: 100%;
-      min-width: 100%;
-      width: 100%;
-      max-height: 100px;
-      min-height: 100px;
-      padding: 7px;
-      outline: none;
-      border-radius: 5px;
-      border: 1px solid rgb(220, 220, 220);
+  input[type="submit"] {
+    background-color: #3182ce;
+    color: gray-200;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 
-      &:focus {
-        border: 2px solid rgba(0, 206, 158, 1);
-      }
-    }
-
-    label {
-      margin-top: 1rem;
-    }
-
-    input[type="submit"] {
-      margin-top: 2rem;
-      cursor: pointer;
-      background: rgb(249, 105, 14);
-      color: white;
-      border: none;
+    &:hover {
+      background-color: #2b6cb0;
     }
   }
 `;
