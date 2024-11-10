@@ -268,6 +268,11 @@ export default function PostPage() {
               </div>
             ))}
             <Button color="success" className=' bg-green-700 mt-4 w-full' onClick={completeAllSubtasks}>Complete All</Button>
+            <Button color="warning" className='bg-teal-400 w-full border-none'>
+            <Link to={`/update-post/${post._id}`}>
+              Edit Task
+            </Link>
+          </Button>
           </div>
 
           <div className="space-y-4">
