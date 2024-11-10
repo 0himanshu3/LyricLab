@@ -6,7 +6,6 @@ import { oauth2Client } from '../utils/googleClient.js';
 import axios from 'axios';
 import emailjs from "@emailjs/browser";
 import dotenv from 'dotenv';
-import Labuser from '../models/labuser.model.js';
 dotenv.config();
 
 export const signup = async (req, res, next) => {
@@ -100,13 +99,13 @@ export const register = async (req, res, next) => {
     }
 
     // Check if the email is already in use
-    const existingUser = await Labuser.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return next(errorHandler(400, 'Email is already in use. Please use a different email.'));
     }
 
     // Create a new user with the verification code passed from frontend
-    const newUser = new Labuser({
+    const newUser = new User({
       username:name,
       email,
       password: req.body.password,
@@ -131,7 +130,7 @@ export const register = async (req, res, next) => {
 export const verifyUser = async (req, res, next) => {
   const { email, code } = req.body;
   try {
-    const user = await Labuser.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return next(errorHandler(404, 'User not found.'));
@@ -164,7 +163,7 @@ export const signin = async (req, res, next) => {
   }
 
   try {
-    const validUser = await Labuser.findOne({ email });
+    const validUser = await User.findOne({ email });
     if (!validUser) {
       return next(errorHandler(404, 'User not found'));
     }
