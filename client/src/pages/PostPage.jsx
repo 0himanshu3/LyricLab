@@ -5,7 +5,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
-
+import LoadingScreen from '../components/LoadingScreen';
 
 export default function PostPage() {
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -20,6 +20,7 @@ export default function PostPage() {
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [createdByUsername, setCreatedByUsername] = useState(null);
   const [showAddActivityPopup, setShowAddActivityPopup] = useState(false);
+  const [showActivityPopup, setShowActivityPopup] = useState(false);
   const [activityTitle, setActivityTitle] = useState('');
   const [activityDescription, setActivityDescription] = useState('');
 
@@ -173,14 +174,12 @@ export default function PostPage() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
-        <Spinner size="xl" />
-      </div>
+      <LoadingScreen />
     );
 
   return (
     <div className="dark:bg-slate-950">
-    <main className="p-3 max-w-6xl mx-auto min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-200">
+    <main className="p-3 max-w-6xl mx-auto min-h-screen text-gray-900 dark:bg-slate-950 dark:text-gray-200">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
@@ -196,11 +195,11 @@ export default function PostPage() {
             <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
+          <div className="px-4 py-2 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
           <div
-        className='p-3 max-w-2xl mx-auto w-full post-content'
-        dangerouslySetInnerHTML={{ __html: post && post.content }}
-      ></div>
+        className='mb-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]'
+        dangerouslySetInnerHTML={{ __html: post && post.content }}>
+      </div>
           </div> 
 
           {/* Collaborative Feature */}
@@ -230,15 +229,31 @@ export default function PostPage() {
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-lg p-5 shadow-lg space-y-6">
-          <div className="text-center">
-            <CircularProgressbar value={completionPercentage} text={`${Math.round(completionPercentage)}%`} />
-            <h3 className="text-lg font-semibold mt-4">Completion Status</h3>
-          </div>
+        <div className="text-gray-800 dark:text-white text-sm mb-6">
+          <h3 className="text-lg font-semibold">Deadline Timer</h3>
+          <p>Deadline: {post && new Date(post.deadline).toLocaleDateString()}</p>
+          <p>Time Remaining: {remainingTime}</p>
+        </div>
 
-          <div className="text-center">
-            <h3 className="text-lg font-semibold mt-4">Deadline</h3>
-            <p className="text-gray-800 dark:text-gray-400">{remainingTime}</p>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Status</h3>
+          <p className="text-gray-800 dark:text-gray-200">
+            {completionPercentage === 100 ? 'Completed' : 'In Progress'}
+          </p>
+        </div>
+
+        <div className="flex justify-center">
+          <div style={{ width: '80%', maxWidth: '200px' }}>
+            <CircularProgressbar
+              value={completionPercentage}
+              text={`${Math.round(completionPercentage)}%`}
+              styles={{
+                path: { stroke: '#4caf50' },
+                background: { fill: '#333' },
+              }}
+            />
           </div>
+        </div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Subtasks</h3>
@@ -252,38 +267,67 @@ export default function PostPage() {
                 <label htmlFor={`subtask-${subtask._id}`} className="ml-2">{subtask.title}</label>
               </div>
             ))}
-            <Button color="success" onClick={completeAllSubtasks}>Complete All</Button>
+            <Button color="success" className=' bg-green-700 mt-4 w-full' onClick={completeAllSubtasks}>Complete All</Button>
           </div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Actions</h3>
-            <Button color="primary" onClick={() => setShowAddActivityPopup(true)}>Add Activity</Button>
-            <Button color="failure" onClick={archiveTask}>Archive Task</Button>
-            <Button color="warning" className='bg-teal-400 w-full border-none'>
-            <Link to={`/update-post/${post._id}`}>
-              Edit Task
-            </Link>
-          </Button>
+            <Button color="primary" className='bg-teal-700 mt-4 w-full' onClick={() => setShowAddActivityPopup(true)}>Add Activity</Button>
+            <Button color="failure" className='mt-4 w-full' onClick={archiveTask}>Archive Task</Button>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold">Activities</h3>
-            <ul className="list-disc pl-5">
-              {post.activities.map((activity, index) => (
-                <li key={index} className="mt-2">
-                  <h4 className="font-semibold">{activity.title}</h4>
-                  <p>{activity.description}</p>
-                  <p>Done by: {activity.username}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <div>
+              {/* Button to open the modal */}
+              <button
+                onClick={() => setShowActivityPopup(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-500 transition duration-200 w-full"
+              >
+                Past Activities
+              </button>
+
+              {/* Modal */}
+              {showActivityPopup && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+                  onClick={() => setShowActivityPopup(false)} 
+                >
+                  <div
+                    className="w-full max-w-lg p-6 bg-slate-950 text-white rounded-lg shadow-xl relative"
+                    onClick={(e) => e.stopPropagation()} 
+                  >
+                    {/* Close button */}
+                    <button
+                      onClick={() => setShowActivityPopup(false)}
+                      className="absolute top-2 right-3 text-gray-400 hover:text-white text-2xl"
+                      aria-label="Close Modal"
+                    >
+                      ✕
+                    </button>
+
+                    {/* Modal content */}
+                    <h3 className="text-lg font-semibold mb-4">Activities</h3>
+                    <ul className="list-disc pl-5 space-y-2">
+                      {post.activities.map((activity, index) => (
+                        <li key={index}>
+                          <h4 className="font-semibold">{activity.title}</h4>
+                          <p>{activity.description}</p>
+                          <p className="text-gray-300">Done by: {activity.username}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+
         </div>
       </div>
 
-      {/* Add Activity Popup */}
+        {/* Add Activity Popup */}
       <Modal show={showAddActivityPopup} onClose={() => setShowAddActivityPopup(false)}>
-        <Modal.Header>Add Activity</Modal.Header>
+      <div className='bg-teal-700 inset-0 rounded-xl backdrop-blur-sm'>
+        <Modal.Header className='dark:text-gray-200'>Add Activity</Modal.Header>
         <Modal.Body>
           <div className="space-y-4">
             <div>
@@ -307,10 +351,11 @@ export default function PostPage() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={addActivity}>Add</Button>
+          <Button className='bg-green-600' onClick={addActivity}>Add</Button>
           <Button color="failure" onClick={() => setShowAddActivityPopup(false)}>Cancel</Button>
         </Modal.Footer>
-      </Modal>
+          </div>
+          </Modal>
     </main>
     </div>
   );

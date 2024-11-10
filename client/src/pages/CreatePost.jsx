@@ -278,7 +278,8 @@ export default function CreatePost() {
       }
   }, [transcript]);
 
-    return (
+  return (
+      <div className='bg-slate-950'>
       <div className='p-3 max-w-3xl mx-auto min-h-screen bg-slate-950'>
         <h1 className='text-center text-3xl my-7 font-semibold'>Create a Project</h1>
         <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
@@ -294,9 +295,10 @@ export default function CreatePost() {
             <Select
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
               <option value='uncategorized'>Select a category</option>
-              <option value='javascript'>JavaScript</option>
-              <option value='reactjs'>React.js</option>
-              <option value='nextjs'>Next.js</option>
+              <option value='Songwriting'>Songwriting</option>
+              <option value='Recording'>Recording</option>
+              <option value='Production'>Production</option>
+              <option value='Other'>Other</option>
             </Select>
           </div>
 
@@ -508,6 +510,7 @@ export default function CreatePost() {
 
           {publishError && <Alert color='failure'>{publishError}</Alert>}
         </form>
+      </div>
       </div>
     );
 }

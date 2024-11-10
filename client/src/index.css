@@ -255,3 +255,42 @@ glow::before,
     background: transparent;
   }
 }
+
+.custom-dropdown select {
+  background-color: transparent;
+  color: white; 
+}
+.custom-dropdown option {
+  background-color: rgb(2, 6, 23); 
+  color: white; 
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 80px; /* Adjust the width as needed */
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 10px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 85%; /* Adjust position */
+  left: 20%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
