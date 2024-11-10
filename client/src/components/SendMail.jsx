@@ -50,6 +50,7 @@ const SendMail = () => {
             .post("/api/auth/register", userData) // Replace with your backend endpoint
             .then((response) => {
               console.log("Data sent to backend:", response.data);
+              alert("Account created successfully!");
             })
             .catch((error) => {
               console.log("Error sending data to backend:", error);

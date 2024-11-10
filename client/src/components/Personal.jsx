@@ -94,7 +94,7 @@ export default function Search() {
     .filter((entry) => !isNaN(entry.date));
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('searchTerm', sidebarData.searchTerm);
@@ -128,7 +128,7 @@ export default function Search() {
       deadline: 'all',
     });
     setIsModalOpen(false);
-    navigate('/search');
+    navigate('/dashboard?tab=personal');
     
   };
 
