@@ -134,36 +134,36 @@ export default function SignInPage() {
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               {showSignUp && (
                 <div>
-                  <Label value="Your username" className="text-gray-600" />
-                  <TextInput
-                    type="text"
-                    placeholder="Username"
-                    id="username"
-                    onChange={handleChange}
-                    className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
-                  />
+                 
                 </div>
               )}
-              <div>
-                <Label value="Your email" className="text-gray-600" />
-                <TextInput
-                  type="email"
-                  placeholder="name@company.com"
-                  id="email"
-                  onChange={handleChange}
-                  className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <Label value="Your password" className="text-gray-600" />
-                <TextInput
-                  type="password"
-                  placeholder="Password"
-                  id="password"
-                  onChange={handleChange}
-                  className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
+
+              
+{isModalOpen && !showSignUp && (
+  <div>
+    <div>
+      <Label value="Your email" className="text-gray-600" />
+      <TextInput
+        type="email"
+        placeholder="name@company.com"
+        id="email"
+        onChange={handleChange}
+        className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
+      />
+    </div>
+    <div>
+      <Label value="Your password" className="text-gray-600" />
+      <TextInput
+        type="password"
+        placeholder="Password"
+        id="password"
+        onChange={handleChange}
+        className="rounded-md border-orange-300 focus:border-blue-500 focus:ring-blue-500"
+      />
+    </div>
+  </div>
+)}
+
               <Button
                 gradientDuoTone="purpleToPink"
                 type="submit"

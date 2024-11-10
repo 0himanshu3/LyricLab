@@ -77,7 +77,7 @@ export const signup = async (req, res, next) => {
 export const register = async (req, res, next) => {
   const { name, email, password, verificationCode } = req.body;
   
-
+  console.log(req.body);
   try {
     // Validate user input fields
     if (!name || !email || !password || name === '' || email === '' || password === '') {
