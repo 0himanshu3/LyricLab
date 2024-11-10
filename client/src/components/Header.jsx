@@ -3,7 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
-import { HiBell } from 'react-icons/hi';
+import { HiBell} from 'react-icons/hi';
+import {RiTeamFill} from 'react-icons/ri'
+
 import axios from 'axios';
 
 export default function Header() {
@@ -67,6 +69,11 @@ export default function Header() {
 
       <div className='flex items-center gap-4 md:order-2'>
         
+      {currentUser && (
+          <Link to='/request' className="relative inline-flex items-center">
+            <RiTeamFill className="w-8 h-8" />
+          </Link>
+        )}
         {currentUser && (
           <Link to='/notifications' className="relative inline-flex items-center">
             <HiBell className="w-8 h-8" />
@@ -77,6 +84,7 @@ export default function Header() {
             )}
           </Link>
         )}
+        
         
         {currentUser && (
           <Dropdown label={<Avatar alt={currentUser?.name} img={currentUser?.profilePicture} rounded />} inline>
