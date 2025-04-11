@@ -1,151 +1,81 @@
-import React, { useRef, useState, useEffect } from "react";
-import emailjs from "@emailjs/browser";
-import styled from "styled-components";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-let str = "";
-
 const SendMail = () => {
-  const form = useRef();
   const [verificationCode, setVerificationCode] = useState("");
   const [password, setPassword] = useState("");
-  const [emailValue, setEmailValue] = useState(""); // State for email
-  const [name, setName] = useState(""); // State for name
+  const [emailValue, setEmailValue] = useState(""); // Email state
+  const [name, setName] = useState(""); // Name state
 
   useEffect(() => {
+    // Generate a 6-digit verification code
     const randomCode = Math.floor(100000 + Math.random() * 900000);
     setVerificationCode(randomCode);
-    str = randomCode.toString(); // Convert the number to a string
   }, []);
 
-  const sendEmail = (e) => {
+  const registerUser = async (e) => {
     e.preventDefault();
+    const userData = {
+      name,
+      email: emailValue,
+      password,
+      verificationCode,
+    };
 
-    console.log(form.current);
-
-    emailjs
-      .sendForm(
-        import.meta.env.VITE_SERVICE_ID,
-        import.meta.env.VITE_TEMPLATE_ID,
-        form.current,
-        import.meta.env.VITE_USER_ID
-      )
-      .then(
-        (result) => {
-          console.log(result.text);
-          console.log("Message sent");
-
-          const userData = {
-            name: name,
-            email: emailValue,
-            password: password,
-            verificationCode: str,
-          };
-
-          axios
-            .post("/api/auth/register", userData)
-            .then((response) => {
-              console.log("Data sent to backend:", response.data);
-              alert("Account created successfully!");
-            })
-            .catch((error) => {
-              console.log("Error sending data to backend:", error);
-            });
-        },
-        (error) => {
-          console.log(error.text);
-        }
-      );
+    try {
+      const response = await axios.post("/api/auth/register", userData);
+      console.log("Data sent to backend:", response.data);
+      alert("Account created successfully! Please check your email for verification.");
+    } catch (error) {
+      console.error("Error sending data to backend:", error);
+      alert("There was an error creating your account. Please try again.");
+    }
   };
 
   return (
-    <StyledContactForm className="bg-slate-950">
-      <form ref={form} onSubmit={sendEmail}>
-        <h2 className="text-center text-2xl text-gray-200 font-semibold mb-2">Sign Up</h2>
-        <label className="text-gray-200">Username</label>
+    <div className="w-full max-w-md mx-auto p-8 bg-gray-800 rounded-lg shadow-lg">
+      <form onSubmit={registerUser} className="flex flex-col gap-4">
+        <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">Sign Up</h2>
+
+        <label className="text-gray-300" htmlFor="name">Username</label>
         <input
+          id="name"
           type="text"
-          name="user_name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter your name"
+          className="p-3 rounded border border-gray-500 bg-gray-700 text-gray-200 focus:border-blue-500 outline-none"
         />
-        <label className="text-gray-200">Email</label>
+
+        <label className="text-gray-300" htmlFor="email">Email</label>
         <input
+          id="email"
           type="email"
-          name="user_email"
           value={emailValue}
           onChange={(e) => setEmailValue(e.target.value)}
           placeholder="Enter your email"
+          className="p-3 rounded border border-gray-500 bg-gray-700 text-gray-200 focus:border-blue-500 outline-none"
         />
-        <label className="text-gray-200">Password</label>
+
+        <label className="text-gray-300" htmlFor="password">Password</label>
         <input
+          id="password"
           type="password"
-          name="user_password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
+          className="p-3 rounded border border-gray-500 bg-gray-700 text-gray-200 focus:border-blue-500 outline-none"
         />
-        <textarea
-          name="message"
-          defaultValue={`${str}`}
-          style={{ display: "none" }}
-        />
-        <input type="submit" value="Send" />
+
+        <button
+          type="submit"
+          className="bg-blue-600 text-gray-100 font-bold p-3 rounded transition-colors hover:bg-blue-700"
+        >
+          Sign Up
+        </button>
       </form>
-    </StyledContactForm>
+    </div>
   );
 };
 
 export default SendMail;
-
-// Styles
-const StyledContactForm = styled.div`
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 2rem;
-  border-radius: 10px;
-  background-color: #2e2e2e;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  label {
-    font-size: 1rem;
-    color: #cbd5e1;
-  }
-
-  input, textarea {
-    font-size: 1rem;
-    padding: 0.75rem;
-    border-radius: 5px;
-    border: 1px solid #4a5568;
-    outline: none;
-    background-color: #1a202c;
-    color: #e2e8f0;
-
-    &:focus {
-      border: 1px solid #63b3ed;
-    }
-  }
-
-  input[type="submit"] {
-    background-color: #3182ce;
-    color: gray-200;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    padding: 0.75rem;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #2b6cb0;
-    }
-  }
-`;

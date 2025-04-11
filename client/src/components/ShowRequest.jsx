@@ -67,23 +67,23 @@ const ShowRequest = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 min-h-screen bg-slate-950 text-gray-200">
       <h2 className="text-2xl font-semibold mb-4">Requests</h2>
       {requests.length > 0 ? (
         <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-900 text-gray-200">
             <tr>
-              <th className="py-3 px-6 text-left text-gray-700">Team Name</th>
-              <th className="py-3 px-6 text-left text-gray-700">Created By</th>
-              <th className="py-3 px-6 text-left text-gray-700">Actions</th>
+              <th className="py-3 px-6 text-left bg-gray-900 text-gray-200">Team Name</th>
+              <th className="py-3 px-6 text-left text-gray-200">Created By</th>
+              <th className="py-3 px-6 text-left text-gray-200">Actions</th>
             </tr>
           </thead>
           <tbody>
             {requests.map(request => (
-              <tr key={request.postId} className="border-b hover:bg-gray-50">
-                <td className="py-3 px-6 text-gray-800">{request.teamName}</td>
-                <td className="py-3 px-6 text-gray-800">{request.createdBy}</td>
-                <td className="py-3 px-6 text-gray-800">
+              <tr key={request.postId} className="border-b text-gray-200 bg-gray-700 hover:bg-gray-50">
+                <td className="py-3 px-6 text-gray-200">{request.teamName}</td>
+                <td className="py-3 px-6 text-gray-200">{request.createdBy}</td>
+                <td className="py-3 px-6 text-gray-200">
                   <div className="flex space-x-2">
                     <button 
                       onClick={() => handleAccept(request.postId)} 

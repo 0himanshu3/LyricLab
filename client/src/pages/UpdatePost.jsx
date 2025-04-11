@@ -171,10 +171,11 @@ export default function UpdatePost() {
               setFormData({ ...formData, category: e.target.value })
             }
           >
-            <option value='uncategorized'>Select a category</option>
-            <option value='javascript'>JavaScript</option>
-            <option value='reactjs'>React.js</option>
-            <option value='nextjs'>Next.js</option>
+            <option value="uncategorized">Select a Category</option>
+            <option value="Songwriting">Songwriting</option>
+            <option value="Recording">Recording</option>
+            <option value="Production">Production</option>
+            <option value="Other">Other</option>
           </Select>
         </div>
         

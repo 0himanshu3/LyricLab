@@ -197,7 +197,7 @@ export default function PostPage() {
 
           <div className="px-4 py-2 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]">
           <div
-        className='mb-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px]'
+        className='mb-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg overflow-y-auto max-h-[350px] post-content'
         dangerouslySetInnerHTML={{ __html: post && post.content }}>
       </div>
           </div> 

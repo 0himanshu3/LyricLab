@@ -65,9 +65,10 @@ const Board = ({
               <label htmlFor="category" className="font-semibold">Category:</label>
               <Select id="category" onChange={handleChange} value={sidebarData.category}>
                 <option value="uncategorized">All</option>
-                <option value="reactjs">React.js</option>
-                <option value="nextjs">Next.js</option>
-                <option value="javascript">JavaScript</option>
+                <option value="Songwriting">Songwriting</option>
+                <option value="Recording">Recording</option>
+                <option value="Production">Production</option>
+                <option value="Other">Other</option>
               </Select>
               <label htmlFor="priority" className="font-semibold">Priority:</label>
               <Select id="priority" onChange={handleChange} value={sidebarData.priority}>

@@ -4,7 +4,7 @@ import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 import { oauth2Client } from '../utils/googleClient.js';
 import axios from 'axios';
-import emailjs from "@emailjs/browser";
+import { sendVerificationEmail, sendWelcomeEmail } from "../middleware/Email.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -76,56 +76,52 @@ export const signup = async (req, res, next) => {
 //New register
 export const register = async (req, res, next) => {
   const { name, email, password, verificationCode } = req.body;
-  
-  console.log(req.body);
+
   try {
-    // Validate user input fields
-    if (!name || !email || !password || name === '' || email === '' || password === '') {
-      return next(errorHandler(400, 'All fields are required.'));
+    // Validate input fields
+    if (!name || !email || !password || name === "" || email === "" || password === "") {
+      return next(errorHandler(400, "All fields are required."));
     }
 
-    // Password validation
-    if (password) {
-      if (password.length < 8) {
-        return next(errorHandler(400, 'Password must be at least 8 characters.'));
-      }
-
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
-      if (!passwordRegex.test(password)) {
-        return next(errorHandler(400, 'Password must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.'));
-      }
-
-      req.body.password = bcryptjs.hashSync(password, 10);
+    // Validate password length and structure
+    if (password.length < 8) {
+      return next(errorHandler(400, "Password must be at least 8 characters."));
     }
 
-    // Check if the email is already in use
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+    if (!passwordRegex.test(password)) {
+      return next(errorHandler(400, "Password must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character."));
+    }
+
+    // Hash the password and check for existing user
+    req.body.password = bcryptjs.hashSync(password, 10);
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return next(errorHandler(400, 'Email is already in use. Please use a different email.'));
+      return next(errorHandler(400, "Email is already in use. Please use a different email."));
     }
 
-    // Create a new user with the verification code passed from frontend
+    // Create and save the new user
     const newUser = new User({
-      username:name,
+      username: name,
       email,
       password: req.body.password,
       verificationCode,
     });
-
-    // Save the new user to the database
     await newUser.save();
 
-    // Prepare the success response
+    // Send emails using nodemailer functions
+    sendVerificationEmail(newUser.email, verificationCode);
+    sendWelcomeEmail(newUser.email);
+
     res.status(201).json({
       success: true,
-      message: 'Signup successful! Please check your email to verify your account.',
+      message: "Signup successful! Please check your email to verify your account.",
     });
   } catch (error) {
-    console.error("Error during signup:", error);  // More specific logging
-    return next(new Error('An error occurred during signup. Please try again later.'));
+    console.error("Error during signup:", error);
+    return next(new Error("An error occurred during signup. Please try again later."));
   }
 };
-
 //verify
 export const verifyUser = async (req, res, next) => {
   const { email, code } = req.body;
